@@ -1,0 +1,99 @@
+<UserControl x:Class="SmartMES.UI.Modules.VisionModule.VisionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgDarkBrush}">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="8"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="8"/>
+            <RowDefinition Height="140"/>
+        </Grid.RowDefinitions>
+
+        <!-- 工具栏 -->
+        <Border Grid.Row="0" Style="{StaticResource CardPanel}">
+            <WrapPanel Orientation="Horizontal">
+                <Button Content="📷 启动摄像头" Style="{StaticResource SuccessButton}" Command="{Binding StartCameraCommand}" Margin="0,0,6,0"/>
+                <Button Content="⏹ 停止"       Style="{StaticResource DangerButton}"  Command="{Binding StopCameraCommand}"  Margin="0,0,6,0"/>
+                <Button Content="📸 抓帧"       Style="{StaticResource PrimaryButton}" Command="{Binding CaptureCommand}"     Margin="0,0,6,0"/>
+                <Button Content="🔍 检测"       Style="{StaticResource OrangeButton}"  Command="{Binding InspectCommand}"     Margin="0,0,6,0"/>
+                <Button Content="⚠ 生成缺陷图"  Style="{StaticResource DangerButton}"  Command="{Binding GenerateNGCommand}"  Margin="0,0,16,0"/>
+
+                <TextBlock Text="预设:" VerticalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,6,0"/>
+                <Button Content="快检" Style="{StaticResource PrimaryButton}" Command="{Binding PresetFastCommand}" Margin="0,0,6,0" Padding="10,6"/>
+                <Button Content="均衡" Style="{StaticResource SuccessButton}" Command="{Binding PresetBalanceCommand}" Margin="0,0,6,0" Padding="10,6"/>
+                <Button Content="精检" Style="{StaticResource OrangeButton}" Command="{Binding PresetStrictCommand}" Margin="0,0,16,0" Padding="10,6"/>
+
+                <CheckBox Content="Sobel边缘模式" IsChecked="{Binding ShowEdge}"
+                          Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                <TextBlock Text="阈值:" VerticalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,4,0"/>
+                <Slider Value="{Binding Threshold}" Minimum="30" Maximum="180" Width="100" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                <TextBlock Text="{Binding Threshold}" VerticalAlignment="Center" Foreground="{StaticResource AccentBrush}" Width="30"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- 主图像区 -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="220"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 实时画面 -->
+            <Border Grid.Column="0" Style="{StaticResource CardPanel}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="📹 实时画面" Style="{StaticResource HeadingText}" Margin="12,8"/>
+                    <Image Grid.Row="1" Source="{Binding LiveImage}" Stretch="Uniform" Margin="4"/>
+                </Grid>
+            </Border>
+
+            <!-- 检测结果图 -->
+            <Border Grid.Column="2" Style="{StaticResource CardPanel}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="🔍 检测结果图" Style="{StaticResource HeadingText}" Margin="12,8"/>
+                    <Image Grid.Row="1" Source="{Binding ProcessedImage}" Stretch="Uniform" Margin="4"/>
+                </Grid>
+            </Border>
+
+            <!-- 判定面板: ResultBrush直接绑定Foreground，无字符串转Color -->
+            <Border Grid.Column="4" Style="{StaticResource CardPanel}">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Border CornerRadius="12" Padding="24,16" Background="#1A1E2A"
+                            HorizontalAlignment="Center">
+                        <!-- Fix: 用固定色TextBlock + DataTrigger替代字符串绑定到Color -->
+                        <TextBlock Text="{Binding ResultText}" FontSize="18" FontWeight="Bold"
+                                   TextWrapping="Wrap" TextAlignment="Center"
+                                   Foreground="{Binding ResultBrush}"/>
+                    </Border>
+                    <TextBlock Text="{Binding StatsText}" Foreground="{StaticResource TextSecondaryBrush}"
+                               FontFamily="Consolas" FontSize="13" Margin="0,16,0,0" TextAlignment="Center"/>
+                    <TextBlock Text="阈值" Style="{StaticResource SecondaryText}" Margin="0,20,0,4" TextAlignment="Center"/>
+                    <Slider Value="{Binding Threshold}" Minimum="30" Maximum="180" Width="160"/>
+                    <TextBlock Text="缺陷率限制" Style="{StaticResource SecondaryText}" Margin="0,12,0,4" TextAlignment="Center"/>
+                    <Slider Value="{Binding DefectRatio}" Minimum="0.001" Maximum="0.05" Width="160"
+                            SmallChange="0.001" LargeChange="0.005"/>
+                    <TextBlock Text="{Binding DefectRatioText}" Style="{StaticResource SecondaryText}" TextAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- 日志 -->
+        <Border Grid.Row="4" Style="{StaticResource CardPanel}" Padding="8">
+            <ListBox ItemsSource="{Binding Logs}" Background="Transparent" BorderThickness="0"
+                     FontFamily="Consolas" FontSize="11"
+                     Foreground="{StaticResource AccentGreenBrush}"/>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,75 @@
+<UserControl x:Class="SmartMES.UI.Views.DeviceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgDarkBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 操作按钮栏 -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Button Content="全部连接" Style="{StaticResource SuccessButton}" Margin="0,0,8,0" Command="{Binding ConnectAllCommand}"/>
+            <Button Content="全部断开" Style="{StaticResource DangerButton}"  Margin="0,0,8,0" Command="{Binding DisconnectAllCommand}"/>
+            <Separator Width="1" Background="{StaticResource BorderBrush}" Margin="0,0,8,0"/>
+            <Button Content="连接选中" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0"
+                    Command="{Binding ConnectCommand}" CommandParameter="{Binding SelectedDevice}"/>
+            <Button Content="断开选中" Style="{StaticResource OrangeButton}"
+                    Command="{Binding DisconnectCommand}" CommandParameter="{Binding SelectedDevice}"/>
+        </StackPanel>
+
+        <!-- 设备列表 -->
+        <Border Grid.Row="2" Style="{StaticResource CardPanel}" Padding="0">
+            <DataGrid ItemsSource="{Binding Devices}"
+                      SelectedItem="{Binding SelectedDevice}"
+                      IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="设备名称" Binding="{Binding Name}" Width="180"/>
+                    <DataGridTextColumn Header="类型"     Binding="{Binding DeviceType}" Width="140"/>
+                    <DataGridTemplateColumn Header="状态" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Status}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                                    <Setter Property="Foreground" Value="{StaticResource AccentGreenBrush}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsConnected}" Value="False">
+                                                    <Setter Property="Foreground" Value="{StaticResource AccentRedBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="最新数值" Binding="{Binding LastValue, StringFormat=F2}" Width="100"/>
+                    <DataGridTextColumn Header="最后更新" Binding="{Binding LastUpdated, StringFormat=HH:mm:ss}" Width="100"/>
+                    <DataGridTemplateColumn Header="连接中" Width="80">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ProgressBar IsIndeterminate="{Binding IsConnecting}" Height="6" Width="60">
+                                    <ProgressBar.Style>
+                                        <Style TargetType="ProgressBar">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsConnecting}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ProgressBar.Style>
+                                </ProgressBar>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>

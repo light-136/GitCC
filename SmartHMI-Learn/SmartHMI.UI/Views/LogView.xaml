@@ -1,0 +1,61 @@
+<UserControl x:Class="SmartHMI.UI.Views.LogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgDark}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar + Filters -->
+        <Grid Grid.Row="0" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="模块:" VerticalAlignment="Center"/>
+            <ComboBox Grid.Column="1" ItemsSource="{Binding ModuleOptions}"
+                      SelectedItem="{Binding FilterModule}"/>
+            <Label Grid.Column="3" Content="级别:" VerticalAlignment="Center"/>
+            <ComboBox Grid.Column="4" ItemsSource="{Binding LevelOptions}"
+                      SelectedItem="{Binding FilterLevel}"/>
+            <Button Grid.Column="6" Content="刷新" Style="{StaticResource BaseButton}"
+                    Command="{Binding RefreshCommand}"/>
+            <Button Grid.Column="8" Content="清空" Style="{StaticResource BaseButton}"
+                    Command="{Binding ClearCommand}"/>
+        </Grid>
+
+        <!-- Log List -->
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Entries}" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="时间" Binding="{Binding Timestamp, StringFormat={}{0:HH:mm:ss.fff}}" Width="100"/>
+                <DataGridTextColumn Header="级别" Binding="{Binding Level}" Width="70"/>
+                <DataGridTextColumn Header="模块" Binding="{Binding Module}" Width="110"/>
+                <DataGridTextColumn Header="消息" Binding="{Binding Message}" Width="*"/>
+            </DataGrid.Columns>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Level}" Value="Error">
+                            <Setter Property="Foreground" Value="#FF6666"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Level}" Value="Warning">
+                            <Setter Property="Foreground" Value="#FFB800"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Level}" Value="Debug">
+                            <Setter Property="Foreground" Value="#666688"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,57 @@
+﻿<UserControl x:Class="SmartMES.UI.Views.AlarmView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgDarkBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 操作栏 -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Button Content="✅ 确认选中" Style="{StaticResource PrimaryButton}" Command="{Binding AcknowledgeCommand}"/>
+            <Button Content="✅ 全部确认" Style="{StaticResource SuccessButton}" Command="{Binding AcknowledgeAllCommand}"/>
+            <Button Content="🗑 清除已确认" Style="{StaticResource OrangeButton}" Command="{Binding ClearAcknowledgedCommand}"/>
+            <Button Content="⚠ 触发测试报警" Style="{StaticResource DangerButton}" Command="{Binding TriggerTestAlarmCommand}"/>
+            <Border Background="{StaticResource AccentRedBrush}" CornerRadius="12" Padding="10,3" VerticalAlignment="Center">
+                <TextBlock Text="{Binding ActiveCount, StringFormat='活跃: {0}'}" Foreground="White" FontWeight="Bold" FontSize="12"/>
+            </Border>
+        </StackPanel>
+
+        <!-- 报警列表 -->
+        <Border Grid.Row="2" Style="{StaticResource CardPanel}" Padding="0">
+            <DataGrid ItemsSource="{Binding Alarms}" SelectedItem="{Binding SelectedAlarm}" IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="报警代码" Binding="{Binding Code}" Width="100"/>
+                    <DataGridTemplateColumn Header="级别" Width="70">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding LevelText}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding LevelText}" Value="严重">
+                                                    <Setter Property="Foreground" Value="{StaticResource AccentRedBrush}"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding LevelText}" Value="警告">
+                                                    <Setter Property="Foreground" Value="{StaticResource AccentOrangeBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="报警消息" Binding="{Binding Message}" Width="*"/>
+                    <DataGridTextColumn Header="状态"   Binding="{Binding StatusText}" Width="80"/>
+                    <DataGridTextColumn Header="触发时间" Binding="{Binding TriggeredAt, StringFormat=HH:mm:ss}" Width="90"/>
+                    <DataGridTextColumn Header="确认时间" Binding="{Binding AcknowledgedAt, StringFormat=HH:mm:ss}" Width="90"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>

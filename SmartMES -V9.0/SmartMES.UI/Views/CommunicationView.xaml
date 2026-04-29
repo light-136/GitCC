@@ -1,0 +1,90 @@
+﻿<UserControl x:Class="SmartMES.UI.Views.CommunicationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgDarkBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- TCP控制面板 -->
+        <Border Grid.Row="0" Style="{StaticResource CardPanel}">
+            <WrapPanel Orientation="Horizontal">
+                <TextBlock Text="📡 TCP" Style="{StaticResource HeadingText}" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                <Button Content="连接" Style="{StaticResource SuccessButton}" Margin="0,0,8,0" Command="{Binding TcpConnectCommand}"/>
+                <Button Content="断开" Style="{StaticResource DangerButton}"  Margin="0,0,16,0" Command="{Binding TcpDisconnectCommand}"/>
+                <TextBlock VerticalAlignment="Center" Margin="0,0,16,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding TcpConnected}" Value="True">
+                                    <Setter Property="Text" Value="● 已连接"/>
+                                    <Setter Property="Foreground" Value="{StaticResource AccentGreenBrush}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding TcpConnected}" Value="False">
+                                    <Setter Property="Text" Value="○ 未连接"/>
+                                    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <Button Content="接收" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0" Command="{Binding ReceiveTcpCommand}"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- 串口控制 + 发送区 -->
+        <Border Grid.Row="2" Style="{StaticResource CardPanel}">
+            <StackPanel>
+                <WrapPanel Orientation="Horizontal">
+                    <TextBlock Text="🔌 串口" Style="{StaticResource HeadingText}" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                    <Button Content="打开" Style="{StaticResource SuccessButton}" Margin="0,0,8,0" Command="{Binding SerialConnectCommand}"/>
+                    <Button Content="关闭" Style="{StaticResource DangerButton}"  Margin="0,0,16,0" Command="{Binding SerialDisconnectCommand}"/>
+                    <TextBlock VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SerialConnected}" Value="True">
+                                        <Setter Property="Text" Value="● 已打开"/>
+                                        <Setter Property="Foreground" Value="{StaticResource AccentGreenBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SerialConnected}" Value="False">
+                                        <Setter Property="Text" Value="○ 未打开"/>
+                                        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </WrapPanel>
+                <!-- 发送区 -->
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="发送(HEX):" VerticalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBox Text="{Binding SendText, UpdateSourceTrigger=PropertyChanged}" Width="220" FontFamily="Consolas"/>
+                    <Button Content="TCP发送" Style="{StaticResource PrimaryButton}" Command="{Binding SendTcpCommand}"/>
+                    <Button Content="串口发送" Style="{StaticResource OrangeButton}" Command="{Binding SendSerialCommand}"/>
+                    <Button Content="清空日志" Style="{StaticResource DangerButton}" Command="{Binding ClearLogCommand}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- 通信日志 -->
+        <Border Grid.Row="4" Style="{StaticResource CardPanel}" Padding="8">
+            <ListBox ItemsSource="{Binding CommLogs}" Background="Transparent"
+                     BorderThickness="0" FontFamily="Consolas" FontSize="12"
+                     Foreground="{StaticResource AccentGreenBrush}">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="2,1"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="{StaticResource AccentGreenBrush}"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+        </Border>
+    </Grid>
+</UserControl>

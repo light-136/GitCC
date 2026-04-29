@@ -1,0 +1,15 @@
+D:\软件\Cursor\文档存放\代码区\SmartHMI-Learn\SmartHMI.Services\bin\Debug\net9.0-windows\SmartHMI.Services.deps.json
+D:\软件\Cursor\文档存放\代码区\SmartHMI-Learn\SmartHMI.Services\bin\Debug\net9.0-windows\SmartHMI.Services.dll
+D:\软件\Cursor\文档存放\代码区\SmartHMI-Learn\SmartHMI.Services\bin\Debug\net9.0-windows\SmartHMI.Services.pdb
+D:\软件\Cursor\文档存放\代码区\SmartHMI-Learn\SmartHMI.Services\bin\Debug\net9.0-windows\SmartHMI.Core.dll
+D:\软件\Cursor\文档存放\代码区\SmartHMI-Learn\SmartHMI.Services\bin\Debug\net9.0-windows\SmartHMI.Core.pdb
+D:\软件\Cursor\文档存放\代码区\SmartHMI-Learn\SmartHMI.Services\obj\Debug\net9.0-windows\SmartHMI.Services.csproj.AssemblyReference.cache
+D:\软件\Cursor\文档存放\代码区\SmartHMI-Learn\SmartHMI.Services\obj\Debug\net9.0-windows\SmartHMI.Services.GeneratedMSBuildEditorConfig.editorconfig
+D:\软件\Cursor\文档存放\代码区\SmartHMI-Learn\SmartHMI.Services\obj\Debug\net9.0-windows\SmartHMI.Services.AssemblyInfoInputs.cache
+D:\软件\Cursor\文档存放\代码区\SmartHMI-Learn\SmartHMI.Services\obj\Debug\net9.0-windows\SmartHMI.Services.AssemblyInfo.cs
+D:\软件\Cursor\文档存放\代码区\SmartHMI-Learn\SmartHMI.Services\obj\Debug\net9.0-windows\SmartHMI.Services.csproj.CoreCompileInputs.cache
+D:\软件\Cursor\文档存放\代码区\SmartHMI-Learn\SmartHMI.Services\obj\Debug\net9.0-windows\SmartHMI.587865AC.Up2Date
+D:\软件\Cursor\文档存放\代码区\SmartHMI-Learn\SmartHMI.Services\obj\Debug\net9.0-windows\SmartHMI.Services.dll
+D:\软件\Cursor\文档存放\代码区\SmartHMI-Learn\SmartHMI.Services\obj\Debug\net9.0-windows\refint\SmartHMI.Services.dll
+D:\软件\Cursor\文档存放\代码区\SmartHMI-Learn\SmartHMI.Services\obj\Debug\net9.0-windows\SmartHMI.Services.pdb
+D:\软件\Cursor\文档存放\代码区\SmartHMI-Learn\SmartHMI.Services\obj\Debug\net9.0-windows\ref\SmartHMI.Services.dll

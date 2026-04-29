@@ -1,0 +1,82 @@
+<UserControl x:Class="SmartHMI.UI.Views.MesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgDark}">
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 左侧：连接与工单 -->
+        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="MES 连接" Style="{StaticResource SectionHeader}"/>
+                    <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,0,0,8">
+                        <Run Text="状态: "/>
+                        <Run Text="{Binding StatusMessage}" Foreground="{StaticResource AccentCyan}"/>
+                    </TextBlock>
+                    <Button Content="连接 MES" Style="{StaticResource AccentButton}"
+                            Command="{Binding ConnectCommand}" Margin="0,0,0,8"/>
+                    <Button Content="断开连接" Style="{StaticResource BaseButton}"
+                            Command="{Binding DisconnectCommand}" Margin="0,0,0,8"/>
+                    <Button Content="刷新工单" Style="{StaticResource BaseButton}"
+                            Command="{Binding RefreshWorkorderCommand}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="当前工单" Style="{StaticResource SectionHeader}"/>
+                    <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="12">
+                        <Run Text="工单号: "/>
+                        <Run Text="{Binding CurrentWorkorder.Id}" Foreground="{StaticResource TextPrimary}"/>
+                    </TextBlock>
+                    <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,4,0,0">
+                        <Run Text="产品: "/>
+                        <Run Text="{Binding CurrentWorkorder.ProductType}" Foreground="{StaticResource TextPrimary}"/>
+                    </TextBlock>
+                    <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,4,0,0">
+                        <Run Text="计划/完成: "/>
+                        <Run Text="{Binding CurrentWorkorder.PlannedQty}" Foreground="{StaticResource AccentCyan}"/>
+                        <Run Text=" / " Foreground="{StaticResource TextSecondary}"/>
+                        <Run Text="{Binding CurrentWorkorder.CompletedQty}" Foreground="{StaticResource AccentGreen}"/>
+                    </TextBlock>
+                    <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,4,0,0">
+                        <Run Text="良率: "/>
+                        <Run Text="{Binding CurrentWorkorder.Yield, StringFormat={}{0:F1}%}" Foreground="{StaticResource AccentAmber}"/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="生产上报" Style="{StaticResource SectionHeader}"/>
+                    <TextBlock Text="OK 数量" Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding ReportQty, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8"/>
+                    <TextBlock Text="NG 数量" Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding ReportNgQty, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8"/>
+                    <Button Content="上报生产数据" Style="{StaticResource AccentButton}"
+                            Command="{Binding ReportProductionCommand}"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- 右侧：活动日志 -->
+        <Border Grid.Column="1" Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="活动日志" Style="{StaticResource SectionHeader}"/>
+                <ListBox ItemsSource="{Binding ActivityLog}" Background="Transparent" BorderThickness="0"
+                         Height="500" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" Foreground="{StaticResource AccentGreen}"
+                                       FontFamily="Consolas" FontSize="12"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

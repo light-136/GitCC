@@ -1,0 +1,84 @@
+<!--
+    LoginView.xaml — 登录页面视图
+    MVVM 说明：
+      - DataContext = LoginViewModel（由 App.xaml DataTemplate 自动绑定）
+      - 密码框使用 PasswordBoxHelper 附加属性实现双向绑定，
+        无需 code-behind 手动处理，符合 MVVM 原则
+      - 登录按钮绑定 LoginCommand，由 ViewModel 处理登录逻辑
+-->
+<UserControl x:Class="SmartHMI.UI.Views.LoginView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:helpers="clr-namespace:SmartHMI.UI.Helpers"
+             Background="{StaticResource BgDark}">
+    <Grid>
+        <!-- 登录卡片：居中显示 -->
+        <Border MaxWidth="380" MaxHeight="460"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Style="{StaticResource Card}">
+            <StackPanel>
+
+                <!-- Logo 区域 -->
+                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,32">
+                    <Border Width="56" Height="56"
+                            Background="#0A4A6E"
+                            CornerRadius="14"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,12">
+                        <TextBlock Text="S"
+                                   Foreground="{StaticResource AccentCyan}"
+                                   FontSize="32" FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="SmartHMI"
+                               Foreground="{StaticResource AccentCyan}"
+                               FontSize="22" FontWeight="Bold"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="工业上位机系统"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontSize="13"
+                               HorizontalAlignment="Center"
+                               Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <!-- 用户名输入框 -->
+                <Label Content="用户名"/>
+                <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,0,12"
+                         FontSize="14"/>
+
+                <!-- 密码输入框（使用 PasswordBoxHelper 实现 MVVM 绑定） -->
+                <Label Content="密码"/>
+                <PasswordBox Margin="0,0,0,8"
+                             FontSize="14"
+                             helpers:PasswordBoxHelper.BindPassword="True"
+                             helpers:PasswordBoxHelper.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!-- 错误提示 -->
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="{StaticResource AccentRed}"
+                           FontSize="12"
+                           Margin="0,0,0,12"
+                           TextWrapping="Wrap"/>
+
+                <!-- 登录按钮 -->
+                <Button Content="登  录"
+                        Style="{StaticResource AccentButton}"
+                        Command="{Binding LoginCommand}"
+                        Height="42"
+                        FontSize="15"
+                        FontWeight="SemiBold"
+                        Margin="0,4,0,0"/>
+
+                <!-- 默认账号提示 -->
+                <TextBlock Text="默认账号：admin / admin123"
+                           Foreground="{StaticResource TextSecondary}"
+                           FontSize="11"
+                           HorizontalAlignment="Center"
+                           Margin="0,16,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

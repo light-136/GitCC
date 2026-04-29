@@ -1,0 +1,66 @@
+<UserControl x:Class="SmartHMI.UI.Views.SecsGemView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgDark}">
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 左侧：控制面板 -->
+        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="SECS/GEM 状态" Style="{StaticResource SectionHeader}"/>
+                    <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="12">
+                        <Run Text="状态: "/>
+                        <Run Text="{Binding StateText}" Foreground="{StaticResource AccentCyan}"/>
+                    </TextBlock>
+                    <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,4,0,0">
+                        <Run Text="设备ID: "/>
+                        <Run Text="{Binding Status.EquipmentId}" Foreground="{StaticResource TextPrimary}"/>
+                    </TextBlock>
+                    <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,4,0,0">
+                        <Run Text="发送: "/>
+                        <Run Text="{Binding Status.MessagesSent}" Foreground="{StaticResource AccentGreen}"/>
+                        <Run Text="  接收: " Foreground="{StaticResource TextSecondary}"/>
+                        <Run Text="{Binding Status.MessagesReceived}" Foreground="{StaticResource AccentCyan}"/>
+                    </TextBlock>
+                    <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,4,0,0">
+                        <Run Text="最后心跳: "/>
+                        <Run Text="{Binding Status.LastHeartbeat, StringFormat={}{0:HH:mm:ss}}" Foreground="{StaticResource TextPrimary}"/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="操作" Style="{StaticResource SectionHeader}"/>
+                    <Button Content="启用 SECS/GEM" Style="{StaticResource AccentButton}" Command="{Binding EnableCommand}" Margin="0,0,0,6"/>
+                    <Button Content="禁用" Style="{StaticResource BaseButton}" Command="{Binding DisableCommand}" Margin="0,0,0,6"/>
+                    <Button Content="上线 (Online)" Style="{StaticResource SuccessButton}" Command="{Binding GoOnlineCommand}" Margin="0,0,0,6"/>
+                    <Button Content="下线 (Offline)" Style="{StaticResource BaseButton}" Command="{Binding GoOfflineCommand}" Margin="0,0,0,6"/>
+                    <Button Content="发送心跳 S1F1" Style="{StaticResource BaseButton}" Command="{Binding HeartbeatCommand}" Margin="0,0,0,6"/>
+                    <Button Content="上报事件 S6F11" Style="{StaticResource AccentButton}" Command="{Binding SendEventCommand}"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- 右侧：消息日志 -->
+        <Border Grid.Column="1" Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="消息日志" Style="{StaticResource SectionHeader}"/>
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,0,0,8"/>
+                <DataGrid ItemsSource="{Binding MessageLog}" IsReadOnly="True" AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="消息" Binding="{Binding Description}" Width="80"/>
+                        <DataGridTextColumn Header="方向" Binding="{Binding Direction}" Width="160"/>
+                        <DataGridTextColumn Header="时间" Binding="{Binding Timestamp, StringFormat={}{0:HH:mm:ss.fff}}" Width="120"/>
+                        <DataGridTextColumn Header="SystemBytes" Binding="{Binding SystemBytes}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

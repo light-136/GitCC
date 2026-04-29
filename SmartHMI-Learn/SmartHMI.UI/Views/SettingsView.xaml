@@ -1,0 +1,119 @@
+<UserControl x:Class="SmartHMI.UI.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgDark}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="保存配置" Style="{StaticResource AccentButton}"
+                    Command="{Binding SaveCommand}" Margin="0,0,8,0"/>
+            <Button Content="重新加载" Style="{StaticResource BaseButton}"
+                    Command="{Binding ReloadCommand}"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- System -->
+                <GroupBox Header="系统设置" Margin="0,0,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0" Content="系统名称:"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Margin="0,4"
+                                 Text="{Binding Settings.SystemName, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Label Grid.Row="1" Grid.Column="0" Content="数据采集间隔 (ms):"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Margin="0,4"
+                                 Text="{Binding Settings.DataSamplingIntervalMs, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+                </GroupBox>
+
+                <!-- Alarm Thresholds -->
+                <GroupBox Header="报警阈值" Margin="0,0,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0" Content="温度报警阈值 (°C):"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Margin="0,4"
+                                 Text="{Binding Settings.TemperatureAlarmThreshold, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Label Grid.Row="1" Grid.Column="0" Content="压力报警阈值 (MPa):"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Margin="0,4"
+                                 Text="{Binding Settings.PressureAlarmThreshold, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Label Grid.Row="2" Grid.Column="0" Content="转速报警阈值 (rpm):"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Margin="0,4"
+                                 Text="{Binding Settings.SpeedAlarmThreshold, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+                </GroupBox>
+
+                <!-- Communication -->
+                <GroupBox Header="通信设置" Margin="0,0,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0" Content="TCP 服务器 IP:"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Margin="0,4"
+                                 Text="{Binding Settings.TcpServerIp, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Label Grid.Row="1" Grid.Column="0" Content="TCP 端口:"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Margin="0,4"
+                                 Text="{Binding Settings.TcpServerPort, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Label Grid.Row="2" Grid.Column="0" Content="串口名称:"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Margin="0,4"
+                                 Text="{Binding Settings.SerialPortName, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Label Grid.Row="3" Grid.Column="0" Content="串口波特率:"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Margin="0,4"
+                                 Text="{Binding Settings.SerialBaudRate, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+                </GroupBox>
+
+                <!-- Logging -->
+                <GroupBox Header="日志设置">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0" Content="日志保留天数:"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Margin="0,4"
+                                 Text="{Binding Settings.LogRetentionDays, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Label Grid.Row="1" Grid.Column="0" Content="最大日志条数:"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Margin="0,4"
+                                 Text="{Binding Settings.MaxLogEntries, UpdateSourceTrigger=PropertyChanged}"/>
+                    </Grid>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -1,0 +1,102 @@
+<UserControl x:Class="SmartHMI.UI.Views.VisionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgDark}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 控制栏 -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="启动视觉" Style="{StaticResource SuccessButton}"
+                    Command="{Binding StartCommand}" Margin="0,0,8,0"/>
+            <Button Content="停止视觉" Style="{StaticResource BaseButton}"
+                    Command="{Binding StopCommand}" Margin="0,0,8,0"/>
+            <Button Content="触发检测" Style="{StaticResource AccentButton}"
+                    Command="{Binding TriggerCommand}" Margin="0,0,8,0"/>
+            <Button Content="清空" Style="{StaticResource BaseButton}"
+                    Command="{Binding ClearCommand}" Margin="0,0,16,0"/>
+            <TextBlock Text="Job:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+            <TextBox Text="{Binding JobName, UpdateSourceTrigger=PropertyChanged}" Width="100" Margin="0,0,8,0"/>
+            <TextBlock Text="相机:" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+            <TextBox Text="{Binding CameraId, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
+        </StackPanel>
+
+        <!-- KPI 统计 -->
+        <Grid Grid.Row="1" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,8,0">
+                <StackPanel>
+                    <TextBlock Text="总检测数" Style="{StaticResource SectionHeader}"/>
+                    <TextBlock Text="{Binding TotalCount}" Style="{StaticResource ValueDisplay}" Foreground="{StaticResource AccentCyan}"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="1" Style="{StaticResource Card}" Margin="4,0">
+                <StackPanel>
+                    <TextBlock Text="OK 数量" Style="{StaticResource SectionHeader}"/>
+                    <TextBlock Text="{Binding OkCount}" Style="{StaticResource ValueDisplay}" Foreground="{StaticResource AccentGreen}"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="2" Style="{StaticResource Card}" Margin="4,0">
+                <StackPanel>
+                    <TextBlock Text="NG 数量" Style="{StaticResource SectionHeader}"/>
+                    <TextBlock Text="{Binding NgCount}" Style="{StaticResource ValueDisplay}" Foreground="{StaticResource AccentRed}"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="3" Style="{StaticResource Card}" Margin="8,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="良率" Style="{StaticResource SectionHeader}"/>
+                    <TextBlock Text="{Binding YieldRate, StringFormat={}{0:F1}%}" Style="{StaticResource ValueDisplay}" Foreground="{StaticResource AccentAmber}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- 检测结果列表 -->
+        <Border Grid.Row="2" Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,0,0,8"/>
+                <DataGrid ItemsSource="{Binding Results}" SelectedItem="{Binding SelectedResult}"
+                          IsReadOnly="True" AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="结果" Width="70">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding ResultType}" FontWeight="Bold" HorizontalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{StaticResource AccentAmber}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ResultType}" Value="OK">
+                                                        <Setter Property="Foreground" Value="{StaticResource AccentGreen}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding ResultType}" Value="NG">
+                                                        <Setter Property="Foreground" Value="{StaticResource AccentRed}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="相机" Binding="{Binding CameraId}" Width="70"/>
+                        <DataGridTextColumn Header="Job" Binding="{Binding JobName}" Width="100"/>
+                        <DataGridTextColumn Header="置信度" Binding="{Binding Confidence, StringFormat={}{0:P1}}" Width="80"/>
+                        <DataGridTextColumn Header="缺陷类型" Binding="{Binding DefectType}" Width="100"/>
+                        <DataGridTextColumn Header="偏移X(mm)" Binding="{Binding OffsetX, StringFormat={}{0:F3}}" Width="90"/>
+                        <DataGridTextColumn Header="偏移Y(mm)" Binding="{Binding OffsetY, StringFormat={}{0:F3}}" Width="90"/>
+                        <DataGridTextColumn Header="时间" Binding="{Binding Timestamp, StringFormat={}{0:HH:mm:ss.fff}}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

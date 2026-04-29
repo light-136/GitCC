@@ -1,0 +1,263 @@
+<!--
+    MainWindow.xaml — 主窗口视图
+    MVVM 说明：
+      - DataContext = MainViewModel（在 MainWindow.xaml.cs 构造函数中通过 DI 注入）
+      - ContentControl 绑定 MainViewModel.CurrentViewModel
+      - WPF 根据 App.xaml 中注册的 DataTemplate 自动渲染对应 View
+      - 侧边栏按钮通过 Command 绑定 NavigateCommand，参数为页面标识字符串
+      - 无任何 code-behind 导航逻辑，完全符合 MVVM 原则
+-->
+<Window x:Class="SmartHMI.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SmartHMI 工业上位机系统"
+        Height="800" Width="1280"
+        MinHeight="600" MinWidth="1000"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BgDark}">
+
+    <Window.Resources>
+        <!-- 转换器已在 Styles.xaml 全局注册，此处无需重复声明 -->
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>   <!-- 顶部标题栏 -->
+            <RowDefinition Height="*"/>      <!-- 主内容区 -->
+            <RowDefinition Height="28"/>     <!-- 底部状态栏 -->
+        </Grid.RowDefinitions>
+
+        <!-- ==================== 顶部标题栏 ==================== -->
+        <Border Grid.Row="0"
+                Background="{StaticResource BgSidebar}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,0,0,1">
+            <Grid Height="48">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"/>  <!-- Logo 区 -->
+                    <ColumnDefinition Width="*"/>    <!-- 页面标题 -->
+                    <ColumnDefinition Width="Auto"/> <!-- 右侧信息区 -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Logo -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal"
+                            VerticalAlignment="Center" Margin="16,0">
+                    <Border Width="8" Height="8"
+                            Background="{StaticResource AccentCyan}"
+                            CornerRadius="2" Margin="0,0,8,0"/>
+                    <TextBlock Text="SmartHMI"
+                               Foreground="{StaticResource AccentCyan}"
+                               FontSize="16" FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- 当前页面标题 -->
+                <TextBlock Grid.Column="1"
+                           Text="{Binding CurrentPageTitle}"
+                           Foreground="{StaticResource TextPrimary}"
+                           FontSize="15" FontWeight="SemiBold"
+                           VerticalAlignment="Center" Margin="16,0"/>
+
+                <!-- 右侧：报警徽章 + 时间 + 用户 + 退出 -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal"
+                            VerticalAlignment="Center" Margin="0,0,16,0">
+
+                    <!-- 报警徽章（有活动报警时显示） -->
+                    <Border Background="#6E0A0A" CornerRadius="10"
+                            Padding="8,2" Margin="0,0,12,0"
+                            Visibility="{Binding ActiveAlarmCount, Converter={StaticResource PosToVis}}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚠ "
+                                       Foreground="{StaticResource AccentRed}"
+                                       FontSize="11"/>
+                            <TextBlock Text="{Binding ActiveAlarmCount}"
+                                       Foreground="{StaticResource AccentRed}"
+                                       FontSize="11" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 系统时间 -->
+                    <TextBlock Text="{Binding CurrentTime}"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontSize="12" VerticalAlignment="Center"
+                               Margin="0,0,16,0"/>
+
+                    <!-- 当前用户 -->
+                    <TextBlock Text="{Binding CurrentUserDisplay}"
+                               Foreground="{StaticResource TextPrimary}"
+                               FontSize="12" VerticalAlignment="Center"
+                               Margin="0,0,12,0"/>
+
+                    <!-- 退出按钮 -->
+                    <Button Content="退出"
+                            Style="{StaticResource BaseButton}"
+                            Command="{Binding LogoutCommand}"
+                            Padding="8,4" FontSize="12"
+                            Visibility="{Binding IsLoggedIn, Converter={StaticResource BoolToVisible}}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ==================== 主内容区 ==================== -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>  <!-- 左侧导航栏 -->
+                <ColumnDefinition Width="*"/>    <!-- 右侧内容区 -->
+            </Grid.ColumnDefinitions>
+
+            <!-- 左侧导航栏（登录后才显示） -->
+            <Border Grid.Column="0"
+                    Background="{StaticResource BgSidebar}"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="0,0,1,0"
+                    Visibility="{Binding IsLoggedIn, Converter={StaticResource BoolToVisible}}">
+                <StackPanel Margin="0,8">
+
+                    <!-- 监控分组 -->
+                    <TextBlock Text="监  控"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontSize="11" Margin="16,8,0,4"
+                               FontWeight="SemiBold"/>
+                    <Button Content="📊  仪表盘"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Dashboard"/>
+                    <Button Content="🖥  设备管理"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Device"/>
+                    <Button Content="📡  通信监控"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Communication"/>
+
+                    <Separator Margin="16,8"/>
+
+                    <!-- 控制分组 -->
+                    <TextBlock Text="控  制"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontSize="11" Margin="16,0,0,4"
+                               FontWeight="SemiBold"/>
+                    <Button Content="⚙  运动控制"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Motion"/>
+                    <Button Content="🛡  安全互锁"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Safety"/>
+                    <Button Content="👁  视觉检测"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Vision"/>
+
+                    <Separator Margin="16,8"/>
+
+                    <!-- 生产分组 -->
+                    <TextBlock Text="生  产"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontSize="11" Margin="16,0,0,4"
+                               FontWeight="SemiBold"/>
+                    <Button Content="📦  配方管理"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Recipe"/>
+                    <Button Content="🔍  追溯系统"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Traceability"/>
+                    <Button Content="📊  报表导出"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Report"/>
+                    <Button Content="🏭  MES 协同"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Mes"/>
+
+                    <Separator Margin="16,8"/>
+
+                    <!-- 诊断分组 -->
+                    <TextBlock Text="诊  断"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontSize="11" Margin="16,0,0,4"
+                               FontWeight="SemiBold"/>
+                    <Button Content="🔔  报警管理"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Alarm"/>
+                    <Button Content="📋  系统日志"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Log"/>
+
+                    <Separator Margin="16,8"/>
+
+                    <!-- 云端与AI分组 -->
+                    <TextBlock Text="云端 / AI"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontSize="11" Margin="16,0,0,4"
+                               FontWeight="SemiBold"/>
+                    <Button Content="☁  云端同步"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="CloudSync"/>
+                    <Button Content="⚡  SECS/GEM"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="SecsGem"/>
+                    <Button Content="🤖  AI 助手"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="AiAssistant"/>
+
+                    <Separator Margin="16,8"/>
+
+                    <!-- 系统分组 -->
+                    <TextBlock Text="系  统"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontSize="11" Margin="16,0,0,4"
+                               FontWeight="SemiBold"/>
+                    <Button Content="🔧  参数配置"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Settings"/>
+                    <Button Content="👤  用户管理"
+                            Style="{StaticResource NavButton}"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="User"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 右侧内容区：ContentControl 绑定 CurrentViewModel -->
+            <!-- WPF 根据 DataTemplate 自动渲染对应 View，无需 code-behind -->
+            <Border Grid.Column="1" Background="{StaticResource BgDark}">
+                <ContentControl Content="{Binding CurrentViewModel}"
+                                Margin="0"/>
+            </Border>
+        </Grid>
+
+        <!-- ==================== 底部状态栏 ==================== -->
+        <Border Grid.Row="2"
+                Background="{StaticResource BgSidebar}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,1,0,0">
+            <Grid Margin="16,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <!-- 状态消息 -->
+                <TextBlock Grid.Column="0"
+                           Text="{Binding StatusMessage}"
+                           Foreground="{StaticResource TextSecondary}"
+                           FontSize="11" VerticalAlignment="Center"/>
+                <!-- 版本信息 -->
+                <TextBlock Grid.Column="1"
+                           Text="SmartHMI v1.0  |  .NET 9 + WPF  |  MVVM"
+                           Foreground="{StaticResource TextSecondary}"
+                           FontSize="11" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

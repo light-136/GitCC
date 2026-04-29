@@ -1,0 +1,238 @@
+<UserControl x:Class="SmartMES.UI.Modules.ReportModule.ReportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgDarkBrush}">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <!-- 工具栏 -->
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="8"/>
+            <!-- KPI 汇总卡片区 -->
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="8"/>
+            <!-- 主内容区（左:产量表格 | 右:报警统计） -->
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="8"/>
+            <!-- 底部日志 -->
+            <RowDefinition Height="130"/>
+        </Grid.RowDefinitions>
+
+        <!-- ════════ 工具栏 ════════ -->
+        <Border Grid.Row="0" Style="{StaticResource CardPanel}">
+            <WrapPanel Orientation="Horizontal">
+                <TextBlock Text="统计周期：" Foreground="{StaticResource TextPrimaryBrush}"
+                           VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <ComboBox ItemsSource="{Binding PeriodOptions}"
+                          SelectedItem="{Binding SelectedPeriod}"
+                          Width="90" Margin="0,0,10,0"/>
+
+                <TextBlock Text="日期：" Foreground="{StaticResource TextPrimaryBrush}"
+                           VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <DatePicker SelectedDate="{Binding SelectedDate}"
+                            Width="130" Margin="0,0,10,0"/>
+
+                <Button Content="🔄 刷新报表" Style="{StaticResource PrimaryButton}"
+                        Command="{Binding RefreshCommand}" Margin="0,0,8,0"/>
+                <Button Content="📤 导出CSV"  Style="{StaticResource SuccessButton}"
+                        Command="{Binding ExportCsvCommand}" Margin="0,0,8,0"/>
+                <Button Content="🧹 清空日志" Style="{StaticResource DangerButton}"
+                        Command="{Binding ClearLogCommand}"/>
+
+                <!-- 加载状态 -->
+                <TextBlock Text="⏳ 加载中..." Foreground="#F59E0B"
+                           VerticalAlignment="Center" Margin="16,0,0,0"
+                           Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                <TextBlock Text="{Binding StatusText}" Foreground="{StaticResource TextSecondaryBrush}"
+                           VerticalAlignment="Center" Margin="16,0,0,0"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- ════════ KPI 汇总卡片区 ════════ -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 总产量卡 -->
+            <Border Grid.Column="0" Style="{StaticResource CardPanel}">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="📦 总产量" Foreground="{StaticResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center" FontSize="12"/>
+                    <TextBlock Text="{Binding TotalProduction}" Foreground="#60A5FA"
+                               FontSize="28" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock Text="件" Foreground="{StaticResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center" FontSize="11"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 良品率卡 -->
+            <Border Grid.Column="2" Style="{StaticResource CardPanel}">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="✅ 综合良品率" Foreground="{StaticResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center" FontSize="12"/>
+                    <TextBlock Text="{Binding OverallPassRate, StringFormat={}{0:F1}%}"
+                               Foreground="#34D399" FontSize="28" FontWeight="Bold"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 报警总数卡 -->
+            <Border Grid.Column="4" Style="{StaticResource CardPanel}">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="🔔 报警总数" Foreground="{StaticResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center" FontSize="12"/>
+                    <TextBlock Text="{Binding TotalAlarms}" Foreground="#FBBF24"
+                               FontSize="28" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding CriticalAlarms, StringFormat=严重: {0}}"
+                               Foreground="#F87171" HorizontalAlignment="Center" FontSize="11"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 运行时长卡 -->
+            <Border Grid.Column="6" Style="{StaticResource CardPanel}">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="⏱ 运行时长" Foreground="{StaticResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center" FontSize="12"/>
+                    <TextBlock Text="{Binding RunningHours, StringFormat={}{0:F1}h}"
+                               Foreground="#A78BFA" FontSize="28" FontWeight="Bold"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- OEE 卡 -->
+            <Border Grid.Column="8" Style="{StaticResource CardPanel}">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="⚙ OEE" Foreground="{StaticResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center" FontSize="12"/>
+                    <TextBlock Text="{Binding OeePercent, StringFormat={}{0:F1}%}"
+                               Foreground="#FB923C" FontSize="28" FontWeight="Bold"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 更新时间卡 -->
+            <Border Grid.Column="10" Style="{StaticResource CardPanel}">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="🕒 更新时间" Foreground="{StaticResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center" FontSize="12"/>
+                    <TextBlock Text="{Binding GeneratedAt}" Foreground="{StaticResource TextPrimaryBrush}"
+                               FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ════════ 主内容区：产量表格 + 报警统计 ════════ -->
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="380"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 左：产量报表表格 -->
+            <Border Grid.Column="0" Style="{StaticResource CardPanel}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="6"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="📊 产量报表（按小时）"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               FontSize="14" FontWeight="Bold"/>
+
+                    <DataGrid Grid.Row="2"
+                              ItemsSource="{Binding ProductionRows}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="Horizontal"
+                              Background="Transparent"
+                              RowBackground="#1E293B"
+                              AlternatingRowBackground="#172033"
+                              Foreground="{StaticResource TextPrimaryBrush}"
+                              BorderThickness="0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="时段"     Binding="{Binding Period}"      Width="140"/>
+                            <DataGridTextColumn Header="计划量"   Binding="{Binding PlannedQty}"  Width="60"/>
+                            <DataGridTextColumn Header="实际量"   Binding="{Binding ActualQty}"   Width="60"/>
+                            <DataGridTextColumn Header="合格品"   Binding="{Binding PassQty}"     Width="60"/>
+                            <DataGridTextColumn Header="不合格"   Binding="{Binding FailQty}"     Width="60"/>
+                            <DataGridTextColumn Header="良品率(%)" Binding="{Binding PassRate}"   Width="80"/>
+                            <DataGridTextColumn Header="达成率(%)" Binding="{Binding AchieveRate}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <!-- 右：报警统计表格 -->
+            <Border Grid.Column="2" Style="{StaticResource CardPanel}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="6"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="🔔 报警统计（Top 10）"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               FontSize="14" FontWeight="Bold"/>
+
+                    <DataGrid Grid.Row="2"
+                              ItemsSource="{Binding AlarmStatRows}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="Horizontal"
+                              Background="Transparent"
+                              RowBackground="#1E293B"
+                              AlternatingRowBackground="#172033"
+                              Foreground="{StaticResource TextPrimaryBrush}"
+                              BorderThickness="0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="代码"     Binding="{Binding Code}"              Width="55"/>
+                            <DataGridTextColumn Header="描述"     Binding="{Binding Description}"       Width="85"/>
+                            <DataGridTextColumn Header="级别"     Binding="{Binding Level}"             Width="65"/>
+                            <DataGridTextColumn Header="次数"     Binding="{Binding Count}"             Width="45"/>
+                            <DataGridTextColumn Header="均处理(min)" Binding="{Binding AvgHandleMinutes}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ════════ 底部日志 ════════ -->
+        <Border Grid.Row="6" Style="{StaticResource CardPanel}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="4"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="📋 操作日志"
+                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                <ListBox Grid.Row="2"
+                         ItemsSource="{Binding Logs}"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         Foreground="#94A3B8"
+                         FontSize="12"
+                         FontFamily="Consolas"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         ScrollViewer.CanContentScroll="True"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

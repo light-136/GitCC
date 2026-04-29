@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="3782e886-2c78-4515-bd50-7368d3d8ec4b" name="Jie Yu@LIGHT 2026-04-02 19:17:03" runUser="LIGHT\Jie Yu" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-04-02T19:17:03.7584905+08:00" queuing="2026-04-02T19:17:03.7584911+08:00" start="2026-04-02T19:17:00.3390564+08:00" finish="2026-04-02T19:36:34.8626405+08:00" />
+  <TestSettings name="default" id="ebecaaec-0b9e-4d4b-b4b5-4aaa40c4b9b3">
+    <Deployment runDeploymentRoot="Jie_Yu_LIGHT_2026-04-02_19_17_03" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="7358c0a2-a850-4d50-a628-56b9a4961554" testId="57e3bf8a-976c-1d39-c2f6-5005367cd706" testName="SmartMES.Tests.TaskSchedulerServiceTests.PeriodicTask_ShouldRunMultipleTimes" computerName="LIGHT" duration="00:00:00.3301655" startTime="2026-04-02T19:17:04.0491956+08:00" endTime="2026-04-02T19:17:04.3795685+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7358c0a2-a850-4d50-a628-56b9a4961554" />
+    <UnitTestResult executionId="25ead81e-9fbd-4513-9396-0daf2f64087f" testId="084faf20-4f42-862f-0164-eca8b19f202b" testName="SmartMES.Tests.SafetyServiceTests.AddInterlock_ShouldBlockMatchingOperation" computerName="LIGHT" duration="00:00:00.0003713" startTime="2026-04-02T19:17:03.7215473+08:00" endTime="2026-04-02T19:17:03.7220593+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="25ead81e-9fbd-4513-9396-0daf2f64087f" />
+    <UnitTestResult executionId="acd633a3-69a7-474c-92c2-6808891b58b7" testId="a5c2803c-a33c-a692-b15f-76a82c53e2b0" testName="SmartMES.Tests.StateMachineEngineTests.ForceState_ShouldAlwaysChangeState" computerName="LIGHT" duration="00:00:00.0002264" startTime="2026-04-02T19:17:03.7229014+08:00" endTime="2026-04-02T19:17:03.7230036+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="acd633a3-69a7-474c-92c2-6808891b58b7" />
+    <UnitTestResult executionId="83b22ff0-8967-49f2-95ad-8aca47d52dc4" testId="5109a752-efb0-8028-ce3e-5461564a5907" testName="SmartMES.Tests.MultiAxisControllerTests.HomeAllAsync_ShouldBringAllAxesToIdleAndZero" computerName="LIGHT" duration="00:00:01.2622092" startTime="2026-04-02T19:17:03.6873936+08:00" endTime="2026-04-02T19:17:04.9097713+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="83b22ff0-8967-49f2-95ad-8aca47d52dc4" />
+    <UnitTestResult executionId="e0904fb0-f409-4e17-8af1-daf62fb2279b" testId="13a9956a-0226-a379-d72e-dc703f5ccac1" testName="SmartMES.Tests.StateMachineEngineTests.BuildStandard_ShouldStartFromIdle" computerName="LIGHT" duration="00:00:00.0134815" startTime="2026-04-02T19:17:03.6874669+08:00" endTime="2026-04-02T19:17:03.6909790+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e0904fb0-f409-4e17-8af1-daf62fb2279b" />
+    <UnitTestResult executionId="4bd04261-3deb-4ba5-a7cb-3311c84fcb08" testId="91d0d47a-71b1-0c4d-5dd8-993c03371e2f" testName="SmartMES.Tests.SafetyServiceTests.StartDevice_ShouldBeBlocked_WhenDoorOpen" computerName="LIGHT" duration="00:00:00.0103822" startTime="2026-04-02T19:17:03.6875264+08:00" endTime="2026-04-02T19:17:03.6961752+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4bd04261-3deb-4ba5-a7cb-3311c84fcb08" />
+    <UnitTestResult executionId="9b71752e-7add-4cd2-8688-22ef98cb941a" testId="0563fe36-a162-74c3-9cb7-aa84884fb402" testName="SmartMES.Tests.AxisControllerTests.SetErrorThenReset_ShouldRecoverToIdle" computerName="LIGHT" duration="00:00:00.0005130" startTime="2026-04-02T19:17:04.8940686+08:00" endTime="2026-04-02T19:17:04.8941592+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9b71752e-7add-4cd2-8688-22ef98cb941a" />
+    <UnitTestResult executionId="6e22d343-3041-4947-8e8c-eb0c36f7d2ec" testId="2cf02cad-b930-5a17-a25e-32cdcac49ae1" testName="SmartMES.Tests.StateMachineEngineTests.Fire_WithGuard_ShouldBlockThenAllowTransition" computerName="LIGHT" duration="00:00:00.0004773" startTime="2026-04-02T19:17:03.7232855+08:00" endTime="2026-04-02T19:17:03.7235528+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6e22d343-3041-4947-8e8c-eb0c36f7d2ec" />
+    <UnitTestResult executionId="d85d68cd-67e1-4830-a683-e5927dbe8e2f" testId="050ed895-8ba9-03df-5bce-65cdd3c22857" testName="SmartMES.Tests.TaskSchedulerServiceTests.OnceTask_ShouldRunAndComplete" computerName="LIGHT" duration="00:00:00.2072381" startTime="2026-04-02T19:17:03.6852525+08:00" endTime="2026-04-02T19:17:03.8545913+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d85d68cd-67e1-4830-a683-e5927dbe8e2f" />
+    <UnitTestResult executionId="fe4633d3-24b5-46a0-a2a3-1225cc645b89" testId="c2bd319f-ed52-5758-549c-99d6ebf64d37" testName="SmartMES.Tests.SimulatedIoDeviceTests.WriteAnalog_ShouldUpdateAnalogValue" computerName="LIGHT" duration="00:00:00.0008921" startTime="2026-04-02T19:17:03.7219424+08:00" endTime="2026-04-02T19:17:03.7233264+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fe4633d3-24b5-46a0-a2a3-1225cc645b89" />
+    <UnitTestResult executionId="1af14af5-6713-4691-8927-54d106268847" testId="5a110804-8101-5b35-ca6a-37f225943ce3" testName="SmartMES.Tests.RecipeServiceTests.Constructor_ShouldLoadSamplesAndActivateDefault" computerName="LIGHT" duration="00:00:00.0245520" startTime="2026-04-02T19:17:03.6889760+08:00" endTime="2026-04-02T19:17:03.7257096+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1af14af5-6713-4691-8927-54d106268847" />
+    <UnitTestResult executionId="14b4af8c-30da-431b-9341-2e3bbe94acf9" testId="4814cbca-ba63-b2b8-e9ea-199858d2c190" testName="SmartMES.Tests.TenAxisControllerTests.Constructor_ShouldCreateTenAxes" computerName="LIGHT" duration="00:00:00.0170279" startTime="2026-04-02T19:17:03.6889274+08:00" endTime="2026-04-02T19:17:03.7097568+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="14b4af8c-30da-431b-9341-2e3bbe94acf9" />
+    <UnitTestResult executionId="bc61ea94-36c5-49ca-910b-608acbfa52ce" testId="f08b45c5-5e6e-f716-5901-701a8ea49c96" testName="SmartMES.Tests.RecipeServiceTests.Activate_ShouldSwitchActiveRecipe" computerName="LIGHT" duration="00:00:00.0001881" startTime="2026-04-02T19:17:03.7275819+08:00" endTime="2026-04-02T19:17:03.7277298+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="bc61ea94-36c5-49ca-910b-608acbfa52ce" />
+    <UnitTestResult executionId="7a3dd0a7-b18c-4a34-ac6c-11e3c59304ef" testId="7703d8db-f9fc-a247-0f96-6724e1bb1037" testName="SmartMES.Tests.GCodeCommandTests.Parse_BlankLine_ShouldKeepUnknownAndNoAxis" computerName="LIGHT" duration="00:00:00.0023963" startTime="2026-04-02T19:17:03.8080527+08:00" endTime="2026-04-02T19:17:03.8102065+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7a3dd0a7-b18c-4a34-ac6c-11e3c59304ef" />
+    <UnitTestResult executionId="826ec374-73b5-49e6-a40a-ac080d223f85" testId="3e049630-1bba-fd60-2c38-29fff172dbb3" testName="SmartMES.Tests.RecipeServiceTests.SaveAndLoad_ShouldPersistRecipes" computerName="LIGHT" duration="00:00:00.0963044" startTime="2026-04-02T19:17:03.7280758+08:00" endTime="2026-04-02T19:17:03.7716341+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="826ec374-73b5-49e6-a40a-ac080d223f85" />
+    <UnitTestResult executionId="18dac896-c6ff-46be-a536-b87f83df3994" testId="81151c7e-4824-da3f-486f-9dd7543f471d" testName="SmartMES.Tests.MultiAxisControllerTests.LinearInterpolateAsync_ShouldMoveAxesToTargets" computerName="LIGHT" duration="00:00:01.0119297" startTime="2026-04-02T19:17:04.9101250+08:00" endTime="2026-04-02T19:17:05.9226410+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="18dac896-c6ff-46be-a536-b87f83df3994" />
+    <UnitTestResult executionId="760228aa-e6b8-4d40-8745-0df08b590f96" testId="13897d4f-574a-bb10-63e0-332c78c69669" testName="SmartMES.Tests.GCodeCommandTests.Parse_G1Line_ShouldParseTypeAxisAndFeedRate" computerName="LIGHT" duration="00:00:00.0003635" startTime="2026-04-02T19:17:03.8077115+08:00" endTime="2026-04-02T19:17:03.8078176+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="760228aa-e6b8-4d40-8745-0df08b590f96" />
+    <UnitTestResult executionId="fce2cb94-0c69-4cd8-989f-2cc92e6bd52a" testId="1428791c-453c-daae-2a86-65f574283d06" testName="SmartMES.Tests.TraceServiceTests.Query_ShouldFilterByResult" computerName="LIGHT" duration="00:00:00.0033329" startTime="2026-04-02T19:17:03.7095424+08:00" endTime="2026-04-02T19:17:03.7246719+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fce2cb94-0c69-4cd8-989f-2cc92e6bd52a" />
+    <UnitTestResult executionId="98a88b41-d1b7-485b-ad8f-8cc7979e4d9d" testId="d97560a8-2925-39a8-d343-2a5567688cd8" testName="SmartMES.Tests.GCodeCommandTests.Parse_M2Line_ShouldParseProgramEnd" computerName="LIGHT" duration="00:00:00.0003490" startTime="2026-04-02T19:17:03.8105122+08:00" endTime="2026-04-02T19:17:03.8106211+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="98a88b41-d1b7-485b-ad8f-8cc7979e4d9d" />
+    <UnitTestResult executionId="5d4039b7-077c-45e4-9302-effdf6b16e78" testId="fd0a033e-8e2b-197f-57eb-50276d99dbd0" testName="SmartMES.Tests.StateMachineEngineTests.Fire_ShouldReturnFalse_WhenTriggerInvalidForCurrentState" computerName="LIGHT" duration="00:00:00.0011451" startTime="2026-04-02T19:17:03.7092840+08:00" endTime="2026-04-02T19:17:03.7222663+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5d4039b7-077c-45e4-9302-effdf6b16e78" />
+    <UnitTestResult executionId="2be5dc9d-4d7c-4d9e-9c84-4e6ce7feac50" testId="eddd9e6c-1446-a73b-e1b1-0af5b6f8d624" testName="SmartMES.Tests.AxisControllerTests.MoveTo_ShouldReachTargetAndReturnIdle" computerName="LIGHT" duration="00:00:00.3100234" startTime="2026-04-02T19:17:04.8943182+08:00" endTime="2026-04-02T19:17:05.2040635+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2be5dc9d-4d7c-4d9e-9c84-4e6ce7feac50" />
+    <UnitTestResult executionId="97ef127c-e5de-4c42-b44f-3d7d5bbd4a5f" testId="50085b4a-aaa4-1b4b-54b6-ff83c0b1e899" testName="SmartMES.Tests.SimulatedIoDeviceTests.WriteOutputThenReadInput_ShouldKeepWrittenValueOnOutputAddress" computerName="LIGHT" duration="00:00:00.0008030" startTime="2026-04-02T19:17:03.7093374+08:00" endTime="2026-04-02T19:17:03.7216621+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="97ef127c-e5de-4c42-b44f-3d7d5bbd4a5f" />
+    <UnitTestResult executionId="8881e0f2-97aa-442a-87dd-9e353bf1ac8f" testId="611655f1-a5dc-1b86-aad8-68d013a7f91f" testName="SmartMES.Tests.TaskSchedulerServiceTests.FaultedTask_ShouldMarkFaultedAndStoreError" computerName="LIGHT" duration="00:00:00.1935504" startTime="2026-04-02T19:17:03.8549504+08:00" endTime="2026-04-02T19:17:04.0489967+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8881e0f2-97aa-442a-87dd-9e353bf1ac8f" />
+    <UnitTestResult executionId="e79d883c-be41-442f-974e-3bd46a119cae" testId="65fc70eb-eb5e-17ef-1bf2-6467cc765bc5" testName="SmartMES.Tests.GCodeCommandTests.Parse_UnknownToken_ShouldReturnUnknownType" computerName="LIGHT" duration="00:00:00.1604690" startTime="2026-04-02T19:17:03.6888160+08:00" endTime="2026-04-02T19:17:03.8073729+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e79d883c-be41-442f-974e-3bd46a119cae" />
+    <UnitTestResult executionId="11999c74-f755-4dcb-b5ed-8fabbf0e9b05" testId="6f2f9e45-acba-e44e-8a0a-863e71e43fc1" testName="SmartMES.Tests.AxisControllerTests.PauseAndResume_ShouldSwitchStatesAndFinishMove" computerName="LIGHT" duration="00:00:01.2450117" startTime="2026-04-02T19:17:03.6888759+08:00" endTime="2026-04-02T19:17:04.8926585+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="11999c74-f755-4dcb-b5ed-8fabbf0e9b05" />
+    <UnitTestResult executionId="995ef3b2-70c6-4443-b71d-3dbcc230432b" testId="5e531318-39d1-5faf-3f07-2c6690719a89" testName="SmartMES.Tests.TraceServiceTests.StartTraceAndProcess_ShouldRecordAndQuery" computerName="LIGHT" duration="00:00:00.0120011" startTime="2026-04-02T19:17:03.6872935+08:00" endTime="2026-04-02T19:17:03.6963898+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="995ef3b2-70c6-4443-b71d-3dbcc230432b" />
+    <UnitTestResult executionId="09b1af89-82b3-4334-a6ec-128511436bd4" testId="a33b47a8-77a1-72d8-9fd9-0d78abbc2f4e" testName="SmartMES.Tests.SafetyServiceTests.TriggerAndResetEStop_ShouldChangeState" computerName="LIGHT" duration="00:00:00.0006120" startTime="2026-04-02T19:17:03.7093844+08:00" endTime="2026-04-02T19:17:03.7212227+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="09b1af89-82b3-4334-a6ec-128511436bd4" />
+    <UnitTestResult executionId="ae2e3277-78d5-47ab-a16d-ce69f70a61cd" testId="96a7581f-7850-a3fb-f129-e012e898fd08" testName="SmartMES.Tests.StateMachineEngineTests.Fire_ShouldFollowStandardRoute_IdleToRunningToPausedToRunningToIdle" computerName="LIGHT" duration="00:00:00.0002069" startTime="2026-04-02T19:17:03.7225249+08:00" endTime="2026-04-02T19:17:03.7226314+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ae2e3277-78d5-47ab-a16d-ce69f70a61cd" />
+    <UnitTestResult executionId="7cca0444-f15e-403d-b302-b353bd0992de" testId="e8f2e1ad-311b-4cf9-ae0a-3d7bd2576ff7" testName="SmartMES.Tests.SimulatedIoDeviceTests.Constructor_ShouldCreateExpectedChannels" computerName="LIGHT" duration="00:00:00.0156674" startTime="2026-04-02T19:17:03.6890369+08:00" endTime="2026-04-02T19:17:03.6964467+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7cca0444-f15e-403d-b302-b353bd0992de" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="SmartMES.Tests.MultiAxisControllerTests.HomeAllAsync_ShouldBringAllAxesToIdleAndZero" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="5109a752-efb0-8028-ce3e-5461564a5907">
+      <Execution id="83b22ff0-8967-49f2-95ad-8aca47d52dc4" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.MultiAxisControllerTests" name="HomeAllAsync_ShouldBringAllAxesToIdleAndZero" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.GCodeCommandTests.Parse_BlankLine_ShouldKeepUnknownAndNoAxis" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="7703d8db-f9fc-a247-0f96-6724e1bb1037">
+      <Execution id="7a3dd0a7-b18c-4a34-ac6c-11e3c59304ef" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.GCodeCommandTests" name="Parse_BlankLine_ShouldKeepUnknownAndNoAxis" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.GCodeCommandTests.Parse_G1Line_ShouldParseTypeAxisAndFeedRate" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="13897d4f-574a-bb10-63e0-332c78c69669">
+      <Execution id="760228aa-e6b8-4d40-8745-0df08b590f96" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.GCodeCommandTests" name="Parse_G1Line_ShouldParseTypeAxisAndFeedRate" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.TraceServiceTests.StartTraceAndProcess_ShouldRecordAndQuery" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="5e531318-39d1-5faf-3f07-2c6690719a89">
+      <Execution id="995ef3b2-70c6-4443-b71d-3dbcc230432b" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.TraceServiceTests" name="StartTraceAndProcess_ShouldRecordAndQuery" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.MultiAxisControllerTests.LinearInterpolateAsync_ShouldMoveAxesToTargets" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="81151c7e-4824-da3f-486f-9dd7543f471d">
+      <Execution id="18dac896-c6ff-46be-a536-b87f83df3994" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.MultiAxisControllerTests" name="LinearInterpolateAsync_ShouldMoveAxesToTargets" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.AxisControllerTests.MoveTo_ShouldReachTargetAndReturnIdle" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="eddd9e6c-1446-a73b-e1b1-0af5b6f8d624">
+      <Execution id="2be5dc9d-4d7c-4d9e-9c84-4e6ce7feac50" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.AxisControllerTests" name="MoveTo_ShouldReachTargetAndReturnIdle" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.StateMachineEngineTests.Fire_ShouldReturnFalse_WhenTriggerInvalidForCurrentState" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="fd0a033e-8e2b-197f-57eb-50276d99dbd0">
+      <Execution id="5d4039b7-077c-45e4-9302-effdf6b16e78" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.StateMachineEngineTests" name="Fire_ShouldReturnFalse_WhenTriggerInvalidForCurrentState" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.SafetyServiceTests.StartDevice_ShouldBeBlocked_WhenDoorOpen" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="91d0d47a-71b1-0c4d-5dd8-993c03371e2f">
+      <Execution id="4bd04261-3deb-4ba5-a7cb-3311c84fcb08" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.SafetyServiceTests" name="StartDevice_ShouldBeBlocked_WhenDoorOpen" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.StateMachineEngineTests.Fire_WithGuard_ShouldBlockThenAllowTransition" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="2cf02cad-b930-5a17-a25e-32cdcac49ae1">
+      <Execution id="6e22d343-3041-4947-8e8c-eb0c36f7d2ec" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.StateMachineEngineTests" name="Fire_WithGuard_ShouldBlockThenAllowTransition" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.TaskSchedulerServiceTests.OnceTask_ShouldRunAndComplete" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="050ed895-8ba9-03df-5bce-65cdd3c22857">
+      <Execution id="d85d68cd-67e1-4830-a683-e5927dbe8e2f" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.TaskSchedulerServiceTests" name="OnceTask_ShouldRunAndComplete" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.GCodeCommandTests.Parse_UnknownToken_ShouldReturnUnknownType" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="65fc70eb-eb5e-17ef-1bf2-6467cc765bc5">
+      <Execution id="e79d883c-be41-442f-974e-3bd46a119cae" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.GCodeCommandTests" name="Parse_UnknownToken_ShouldReturnUnknownType" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.SafetyServiceTests.AddInterlock_ShouldBlockMatchingOperation" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="084faf20-4f42-862f-0164-eca8b19f202b">
+      <Execution id="25ead81e-9fbd-4513-9396-0daf2f64087f" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.SafetyServiceTests" name="AddInterlock_ShouldBlockMatchingOperation" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.TaskSchedulerServiceTests.FaultedTask_ShouldMarkFaultedAndStoreError" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="611655f1-a5dc-1b86-aad8-68d013a7f91f">
+      <Execution id="8881e0f2-97aa-442a-87dd-9e353bf1ac8f" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.TaskSchedulerServiceTests" name="FaultedTask_ShouldMarkFaultedAndStoreError" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.AxisControllerTests.SetErrorThenReset_ShouldRecoverToIdle" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="0563fe36-a162-74c3-9cb7-aa84884fb402">
+      <Execution id="9b71752e-7add-4cd2-8688-22ef98cb941a" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.AxisControllerTests" name="SetErrorThenReset_ShouldRecoverToIdle" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.StateMachineEngineTests.Fire_ShouldFollowStandardRoute_IdleToRunningToPausedToRunningToIdle" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="96a7581f-7850-a3fb-f129-e012e898fd08">
+      <Execution id="ae2e3277-78d5-47ab-a16d-ce69f70a61cd" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.StateMachineEngineTests" name="Fire_ShouldFollowStandardRoute_IdleToRunningToPausedToRunningToIdle" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.RecipeServiceTests.Constructor_ShouldLoadSamplesAndActivateDefault" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="5a110804-8101-5b35-ca6a-37f225943ce3">
+      <Execution id="1af14af5-6713-4691-8927-54d106268847" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.RecipeServiceTests" name="Constructor_ShouldLoadSamplesAndActivateDefault" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.SimulatedIoDeviceTests.WriteAnalog_ShouldUpdateAnalogValue" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="c2bd319f-ed52-5758-549c-99d6ebf64d37">
+      <Execution id="fe4633d3-24b5-46a0-a2a3-1225cc645b89" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.SimulatedIoDeviceTests" name="WriteAnalog_ShouldUpdateAnalogValue" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.SimulatedIoDeviceTests.Constructor_ShouldCreateExpectedChannels" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="e8f2e1ad-311b-4cf9-ae0a-3d7bd2576ff7">
+      <Execution id="7cca0444-f15e-403d-b302-b353bd0992de" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.SimulatedIoDeviceTests" name="Constructor_ShouldCreateExpectedChannels" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.StateMachineEngineTests.ForceState_ShouldAlwaysChangeState" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="a5c2803c-a33c-a692-b15f-76a82c53e2b0">
+      <Execution id="acd633a3-69a7-474c-92c2-6808891b58b7" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.StateMachineEngineTests" name="ForceState_ShouldAlwaysChangeState" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.GCodeCommandTests.Parse_M2Line_ShouldParseProgramEnd" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="d97560a8-2925-39a8-d343-2a5567688cd8">
+      <Execution id="98a88b41-d1b7-485b-ad8f-8cc7979e4d9d" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.GCodeCommandTests" name="Parse_M2Line_ShouldParseProgramEnd" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.AxisControllerTests.PauseAndResume_ShouldSwitchStatesAndFinishMove" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="6f2f9e45-acba-e44e-8a0a-863e71e43fc1">
+      <Execution id="11999c74-f755-4dcb-b5ed-8fabbf0e9b05" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.AxisControllerTests" name="PauseAndResume_ShouldSwitchStatesAndFinishMove" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.RecipeServiceTests.SaveAndLoad_ShouldPersistRecipes" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="3e049630-1bba-fd60-2c38-29fff172dbb3">
+      <Execution id="826ec374-73b5-49e6-a40a-ac080d223f85" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.RecipeServiceTests" name="SaveAndLoad_ShouldPersistRecipes" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.StateMachineEngineTests.BuildStandard_ShouldStartFromIdle" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="13a9956a-0226-a379-d72e-dc703f5ccac1">
+      <Execution id="e0904fb0-f409-4e17-8af1-daf62fb2279b" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.StateMachineEngineTests" name="BuildStandard_ShouldStartFromIdle" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.RecipeServiceTests.Activate_ShouldSwitchActiveRecipe" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="f08b45c5-5e6e-f716-5901-701a8ea49c96">
+      <Execution id="bc61ea94-36c5-49ca-910b-608acbfa52ce" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.RecipeServiceTests" name="Activate_ShouldSwitchActiveRecipe" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.SimulatedIoDeviceTests.WriteOutputThenReadInput_ShouldKeepWrittenValueOnOutputAddress" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="50085b4a-aaa4-1b4b-54b6-ff83c0b1e899">
+      <Execution id="97ef127c-e5de-4c42-b44f-3d7d5bbd4a5f" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.SimulatedIoDeviceTests" name="WriteOutputThenReadInput_ShouldKeepWrittenValueOnOutputAddress" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.TenAxisControllerTests.Constructor_ShouldCreateTenAxes" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="4814cbca-ba63-b2b8-e9ea-199858d2c190">
+      <Execution id="14b4af8c-30da-431b-9341-2e3bbe94acf9" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.TenAxisControllerTests" name="Constructor_ShouldCreateTenAxes" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.TaskSchedulerServiceTests.PeriodicTask_ShouldRunMultipleTimes" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="57e3bf8a-976c-1d39-c2f6-5005367cd706">
+      <Execution id="7358c0a2-a850-4d50-a628-56b9a4961554" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.TaskSchedulerServiceTests" name="PeriodicTask_ShouldRunMultipleTimes" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.TraceServiceTests.Query_ShouldFilterByResult" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="1428791c-453c-daae-2a86-65f574283d06">
+      <Execution id="fce2cb94-0c69-4cd8-989f-2cc92e6bd52a" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.TraceServiceTests" name="Query_ShouldFilterByResult" />
+    </UnitTest>
+    <UnitTest name="SmartMES.Tests.SafetyServiceTests.TriggerAndResetEStop_ShouldChangeState" storage="d:\软件\cursor\文档存放\代码区\smartmes\smartmes.tests\bin\release\net9.0-windows\smartmes.tests.dll" id="a33b47a8-77a1-72d8-9fd9-0d78abbc2f4e">
+      <Execution id="09b1af89-82b3-4334-a6ec-128511436bd4" />
+      <TestMethod codeBase="d:\软件\Cursor\文档存放\代码区\SmartMES\SmartMES.Tests\bin\Release\net9.0-windows\SmartMES.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="SmartMES.Tests.SafetyServiceTests" name="TriggerAndResetEStop_ShouldChangeState" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="57e3bf8a-976c-1d39-c2f6-5005367cd706" executionId="7358c0a2-a850-4d50-a628-56b9a4961554" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="084faf20-4f42-862f-0164-eca8b19f202b" executionId="25ead81e-9fbd-4513-9396-0daf2f64087f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a5c2803c-a33c-a692-b15f-76a82c53e2b0" executionId="acd633a3-69a7-474c-92c2-6808891b58b7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5109a752-efb0-8028-ce3e-5461564a5907" executionId="83b22ff0-8967-49f2-95ad-8aca47d52dc4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="13a9956a-0226-a379-d72e-dc703f5ccac1" executionId="e0904fb0-f409-4e17-8af1-daf62fb2279b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="91d0d47a-71b1-0c4d-5dd8-993c03371e2f" executionId="4bd04261-3deb-4ba5-a7cb-3311c84fcb08" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0563fe36-a162-74c3-9cb7-aa84884fb402" executionId="9b71752e-7add-4cd2-8688-22ef98cb941a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2cf02cad-b930-5a17-a25e-32cdcac49ae1" executionId="6e22d343-3041-4947-8e8c-eb0c36f7d2ec" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="050ed895-8ba9-03df-5bce-65cdd3c22857" executionId="d85d68cd-67e1-4830-a683-e5927dbe8e2f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c2bd319f-ed52-5758-549c-99d6ebf64d37" executionId="fe4633d3-24b5-46a0-a2a3-1225cc645b89" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5a110804-8101-5b35-ca6a-37f225943ce3" executionId="1af14af5-6713-4691-8927-54d106268847" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4814cbca-ba63-b2b8-e9ea-199858d2c190" executionId="14b4af8c-30da-431b-9341-2e3bbe94acf9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f08b45c5-5e6e-f716-5901-701a8ea49c96" executionId="bc61ea94-36c5-49ca-910b-608acbfa52ce" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7703d8db-f9fc-a247-0f96-6724e1bb1037" executionId="7a3dd0a7-b18c-4a34-ac6c-11e3c59304ef" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3e049630-1bba-fd60-2c38-29fff172dbb3" executionId="826ec374-73b5-49e6-a40a-ac080d223f85" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="81151c7e-4824-da3f-486f-9dd7543f471d" executionId="18dac896-c6ff-46be-a536-b87f83df3994" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="13897d4f-574a-bb10-63e0-332c78c69669" executionId="760228aa-e6b8-4d40-8745-0df08b590f96" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1428791c-453c-daae-2a86-65f574283d06" executionId="fce2cb94-0c69-4cd8-989f-2cc92e6bd52a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d97560a8-2925-39a8-d343-2a5567688cd8" executionId="98a88b41-d1b7-485b-ad8f-8cc7979e4d9d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fd0a033e-8e2b-197f-57eb-50276d99dbd0" executionId="5d4039b7-077c-45e4-9302-effdf6b16e78" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="eddd9e6c-1446-a73b-e1b1-0af5b6f8d624" executionId="2be5dc9d-4d7c-4d9e-9c84-4e6ce7feac50" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="50085b4a-aaa4-1b4b-54b6-ff83c0b1e899" executionId="97ef127c-e5de-4c42-b44f-3d7d5bbd4a5f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="611655f1-a5dc-1b86-aad8-68d013a7f91f" executionId="8881e0f2-97aa-442a-87dd-9e353bf1ac8f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="65fc70eb-eb5e-17ef-1bf2-6467cc765bc5" executionId="e79d883c-be41-442f-974e-3bd46a119cae" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6f2f9e45-acba-e44e-8a0a-863e71e43fc1" executionId="11999c74-f755-4dcb-b5ed-8fabbf0e9b05" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5e531318-39d1-5faf-3f07-2c6690719a89" executionId="995ef3b2-70c6-4443-b71d-3dbcc230432b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a33b47a8-77a1-72d8-9fd9-0d78abbc2f4e" executionId="09b1af89-82b3-4334-a6ec-128511436bd4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="96a7581f-7850-a3fb-f129-e012e898fd08" executionId="ae2e3277-78d5-47ab-a16d-ce69f70a61cd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e8f2e1ad-311b-4cf9-ae0a-3d7bd2576ff7" executionId="7cca0444-f15e-403d-b302-b353bd0992de" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="29" executed="29" passed="29" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 9.0.11)&#xD;
+[xUnit.net 00:00:00.09]   Discovering: SmartMES.Tests&#xD;
+[xUnit.net 00:00:00.14]   Discovered:  SmartMES.Tests&#xD;
+[xUnit.net 00:00:00.17]   Starting:    SmartMES.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="LIGHT" outcome="Error" timestamp="2026-04-02T19:36:34.8337495+08:00">
+        <Text>活动的测试运行已中止。原因: 测试主机进程崩溃</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

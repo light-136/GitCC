@@ -1,0 +1,71 @@
+<UserControl x:Class="SmartHMI.UI.Views.AlarmView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgDark}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="确认报警" Style="{StaticResource AccentButton}"
+                    Command="{Binding AcknowledgeCommand}" Margin="0,0,8,0"/>
+            <Button Content="清除报警" Style="{StaticResource BaseButton}"
+                    Command="{Binding ClearCommand}" Margin="0,0,8,0"/>
+            <Button Content="清除全部" Style="{StaticResource DangerButton}"
+                    Command="{Binding ClearAllCommand}" Margin="0,0,8,0"/>
+            <Button Content="刷新" Style="{StaticResource BaseButton}"
+                    Command="{Binding RefreshCommand}"/>
+        </StackPanel>
+
+        <!-- Tabs -->
+        <TabControl Grid.Row="1">
+            <!-- Active Alarms -->
+            <TabItem Header="活动报警">
+                <DataGrid ItemsSource="{Binding ActiveAlarms}"
+                          SelectedItem="{Binding SelectedAlarm}"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="代码" Binding="{Binding Code}" Width="80"/>
+                        <DataGridTextColumn Header="消息" Binding="{Binding Message}" Width="*"/>
+                        <DataGridTextColumn Header="级别" Binding="{Binding Level}" Width="80"/>
+                        <DataGridTextColumn Header="来源" Binding="{Binding Source}" Width="100"/>
+                        <DataGridTextColumn Header="触发时间" Binding="{Binding TriggeredAt, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="160"/>
+                        <DataGridTextColumn Header="确认时间" Binding="{Binding AcknowledgedAt, StringFormat={}{0:HH:mm:ss}}" Width="90"/>
+                    </DataGrid.Columns>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Level}" Value="Critical">
+                                    <Setter Property="Background" Value="#3A0A0A"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Level}" Value="Error">
+                                    <Setter Property="Background" Value="#2A1A0A"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Level}" Value="Warning">
+                                    <Setter Property="Background" Value="#2A2A0A"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                </DataGrid>
+            </TabItem>
+
+            <!-- History -->
+            <TabItem Header="历史记录">
+                <DataGrid ItemsSource="{Binding HistoryAlarms}" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="代码" Binding="{Binding Code}" Width="80"/>
+                        <DataGridTextColumn Header="消息" Binding="{Binding Message}" Width="*"/>
+                        <DataGridTextColumn Header="级别" Binding="{Binding Level}" Width="80"/>
+                        <DataGridTextColumn Header="来源" Binding="{Binding Source}" Width="100"/>
+                        <DataGridTextColumn Header="触发时间" Binding="{Binding TriggeredAt, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="160"/>
+                        <DataGridTextColumn Header="清除时间" Binding="{Binding ClearedAt, StringFormat={}{0:HH:mm:ss}}" Width="90"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

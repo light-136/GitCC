@@ -1,0 +1,56 @@
+<UserControl x:Class="SmartMES.UI.Modules.MesCommModule.MesCommView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgDarkBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="200"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 控制栏 -->
+        <Border Grid.Row="0" Style="{StaticResource CardPanel}">
+            <WrapPanel Orientation="Horizontal">
+                <TextBlock Text="协议:" VerticalAlignment="Center" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
+                <ComboBox ItemsSource="{Binding Protocols}" SelectedItem="{Binding SelectedProtocol}" Width="120" Margin="0,0,12,0"/>
+                <Button Content="连接MES" Style="{StaticResource SuccessButton}" Command="{Binding ConnectCommand}" Margin="0,0,8,0"/>
+                <Button Content="断开" Style="{StaticResource DangerButton}" Command="{Binding DisconnectCommand}" Margin="0,0,8,0"/>
+                <Button Content="获取工单" Style="{StaticResource PrimaryButton}" Command="{Binding GetOrdersCommand}" Margin="0,0,8,0"/>
+                <Button Content="上报结果" Style="{StaticResource OrangeButton}" Command="{Binding ReportCommand}" Margin="0,0,12,0"/>
+                <Button Content="清空" Style="{StaticResource DangerButton}" Command="{Binding ClearCommand}"/>
+                <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center"
+                           Foreground="{StaticResource AccentBrush}" Margin="16,0,0,0" FontWeight="Bold"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- 工单列表 -->
+        <Border Grid.Row="2" Style="{StaticResource CardPanel}" Padding="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="📋 MES工单" Style="{StaticResource HeadingText}" Margin="12,8"/>
+                <DataGrid Grid.Row="1" ItemsSource="{Binding WorkOrders}" IsReadOnly="True" AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="工单号" Binding="{Binding OrderId}" Width="120"/>
+                        <DataGridTextColumn Header="产品编码" Binding="{Binding ProductCode}" Width="100"/>
+                        <DataGridTextColumn Header="产品名称" Binding="{Binding ProductName}" Width="120"/>
+                        <DataGridTextColumn Header="计划数" Binding="{Binding PlannedQty}" Width="70"/>
+                        <DataGridTextColumn Header="实际数" Binding="{Binding ActualQty}" Width="70"/>
+                        <DataGridTextColumn Header="状态" Binding="{Binding Status}" Width="80"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- 消息日志 -->
+        <Border Grid.Row="4" Style="{StaticResource CardPanel}" Padding="8">
+            <ListBox ItemsSource="{Binding Messages}" Background="Transparent" BorderThickness="0"
+                     FontFamily="Consolas" FontSize="11" Foreground="{StaticResource AccentGreenBrush}"/>
+        </Border>
+    </Grid>
+</UserControl>

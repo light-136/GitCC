@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "SmartMES (Debug)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/SmartMES.UI/bin/Debug/net9.0-windows/SmartMES.UI.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}/SmartMES.UI",
+      "stopAtEntry": false,
+      "console": "internalConsole"
+    },
+    {
+      "name": "SmartMES (Release)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "publish",
+      "program": "${workspaceFolder}/SmartMES.UI/bin/Release/net9.0-windows/SmartMES.UI.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}/SmartMES.UI",
+      "stopAtEntry": false,
+      "console": "internalConsole"
+    }
+  ]
+}

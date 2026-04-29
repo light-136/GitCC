@@ -1,0 +1,44 @@
+# ===== .NET =====
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.cache
+*.log
+
+# ===== 发布输出 =====
+publish/
+out/
+
+# ===== SQLite数据库文件 =====
+*.db
+*.db-shm
+*.db-wal
+
+# ===== 配置文件（含敏感信息） =====
+settings.json
+appsettings.local.json
+
+# ===== 日志目录 =====
+Logs/
+logs/
+
+# ===== 插件目录（运行时生成） =====
+plugins/
+
+# ===== NuGet =====
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== IDE =====
+.idea/
+*.swp
+*.swo

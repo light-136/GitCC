@@ -1,0 +1,135 @@
+<!--
+    CommunicationView.xaml — 通信监控视图
+    MVVM 说明：DataContext = CommunicationViewModel，转换器使用全局资源
+-->
+<UserControl x:Class="SmartHMI.UI.Views.CommunicationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgDark}">
+
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Channel List -->
+        <Border Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,12,0">
+            <StackPanel>
+                <TextBlock Text="通信通道" Style="{StaticResource SectionHeader}"/>
+                <ListBox ItemsSource="{Binding Channels}"
+                         SelectedItem="{Binding SelectedChannel}"
+                         Background="Transparent" BorderThickness="0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Ellipse Grid.Column="0" Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center">
+                                    <Ellipse.Fill>
+                                        <SolidColorBrush Color="{Binding Status, Converter={StaticResource StatusColor}}"/>
+                                    </Ellipse.Fill>
+                                </Ellipse>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding Name}" Foreground="{StaticResource TextPrimary}" FontSize="13"/>
+                                    <TextBlock Text="{Binding Protocol}" Foreground="{StaticResource TextSecondary}" FontSize="11"/>
+                                    <TextBlock Text="{Binding Endpoint}" Foreground="{StaticResource TextSecondary}" FontSize="10"/>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <Separator/>
+                <Button Content="连接" Style="{StaticResource AccentButton}"
+                        Command="{Binding ConnectCommand}" Margin="0,4,0,4"/>
+                <Button Content="断开" Style="{StaticResource BaseButton}"
+                        Command="{Binding DisconnectCommand}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Right Panel -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Channel Detail -->
+            <Border Grid.Row="0" Style="{StaticResource Card}" Margin="0,0,0,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="通道信息" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="12">
+                            <Run Text="名称: "/>
+                            <Run Text="{Binding SelectedChannel.Name}" Foreground="{StaticResource TextPrimary}"/>
+                        </TextBlock>
+                        <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,4,0,0">
+                            <Run Text="协议: "/>
+                            <Run Text="{Binding SelectedChannel.Protocol}" Foreground="{StaticResource TextPrimary}"/>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="流量统计" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="12">
+                            <Run Text="发送: "/>
+                            <Run Text="{Binding SelectedChannel.TotalBytesSent}" Foreground="{StaticResource AccentCyan}"/>
+                            <Run Text=" bytes" Foreground="{StaticResource TextSecondary}"/>
+                        </TextBlock>
+                        <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,4,0,0">
+                            <Run Text="接收: "/>
+                            <Run Text="{Binding SelectedChannel.TotalBytesReceived}" Foreground="{StaticResource AccentGreen}"/>
+                            <Run Text=" bytes" Foreground="{StaticResource TextSecondary}"/>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="连接状态" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="12">
+                            <Run Text="状态: "/>
+                            <Run Text="{Binding SelectedChannel.Status}" Foreground="{StaticResource TextPrimary}"/>
+                        </TextBlock>
+                        <TextBlock Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,4,0,0">
+                            <Run Text="最后连接: "/>
+                            <Run Text="{Binding SelectedChannel.LastConnectedAt, StringFormat={}{0:HH:mm:ss}}" Foreground="{StaticResource TextPrimary}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Message Log -->
+            <Border Grid.Row="1" Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="消息日志" Style="{StaticResource SectionHeader}"/>
+                    <TextBox Text="{Binding MessageLog, Mode=OneWay}"
+                             IsReadOnly="True" TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"
+                             Height="200" FontFamily="Consolas" FontSize="12"
+                             Background="{StaticResource BgPanel}"
+                             Foreground="{StaticResource AccentGreen}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Send Panel -->
+            <Border Grid.Row="2" Style="{StaticResource Card}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" Text="{Binding SendText, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,8,0" FontSize="13"/>
+                    <Button Grid.Column="1" Content="发送" Style="{StaticResource AccentButton}"
+                            Command="{Binding SendCommand}" Width="80"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

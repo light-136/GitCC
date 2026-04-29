@@ -1,0 +1,96 @@
+﻿<UserControl x:Class="SmartMES.UI.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgDarkBrush}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="200"/>
+            </Grid.RowDefinitions>
+
+            <!-- 控制栏 -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                <Button Content="▶  启动监控" Style="{StaticResource SuccessButton}"
+                        Command="{Binding StartMonitorCommand}"/>
+                <Button Content="⏹  停止监控" Style="{StaticResource DangerButton}"
+                        Command="{Binding StopMonitorCommand}"/>
+                <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center"
+                           Foreground="{StaticResource AccentBrush}" FontSize="13"/>
+            </StackPanel>
+
+            <!-- 三个数值卡片 -->
+            <UniformGrid Grid.Row="2" Columns="3" Rows="1">
+                <!-- 温度卡片 -->
+                <Border Style="{StaticResource CardPanel}" Margin="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock Text="🌡 温度" Style="{StaticResource SecondaryText}"/>
+                        <TextBlock Text="{Binding Temperature, StringFormat='{}{0:F1} °C'}"
+                                   Style="{StaticResource MetricValue}" Margin="0,8"/>
+                        <ProgressBar Value="{Binding Temperature}" Minimum="0" Maximum="120"
+                                     Height="6" Background="#333" Foreground="{StaticResource AccentBrush}">
+                            <ProgressBar.Style>
+                                <Style TargetType="ProgressBar">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Temperature}" Value="85">
+                                            <Setter Property="Foreground" Value="{StaticResource AccentRedBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ProgressBar.Style>
+                        </ProgressBar>
+                        <TextBlock Text="正常范围: 0 - 120 °C" Style="{StaticResource SecondaryText}" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 压力卡片 -->
+                <Border Style="{StaticResource CardPanel}" Margin="5,0">
+                    <StackPanel>
+                        <TextBlock Text="💧 压力" Style="{StaticResource SecondaryText}"/>
+                        <TextBlock Text="{Binding Pressure, StringFormat='{}{0:F2} MPa'}"
+                                   Style="{StaticResource MetricValue}"
+                                   Foreground="{StaticResource AccentGreenBrush}" Margin="0,8"/>
+                        <ProgressBar Value="{Binding Pressure}" Minimum="0" Maximum="15"
+                                     Height="6" Background="#333" Foreground="{StaticResource AccentGreenBrush}"/>
+                        <TextBlock Text="正常范围: 0 - 15 MPa" Style="{StaticResource SecondaryText}" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 速度卡片 -->
+                <Border Style="{StaticResource CardPanel}" Margin="10,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="⚙ 转速" Style="{StaticResource SecondaryText}"/>
+                        <TextBlock Text="{Binding Speed, StringFormat='{}{0:F0} rpm'}"
+                                   Style="{StaticResource MetricValue}"
+                                   Foreground="{StaticResource AccentOrangeBrush}" Margin="0,8"/>
+                        <ProgressBar Value="{Binding Speed}" Minimum="0" Maximum="4000"
+                                     Height="6" Background="#333" Foreground="{StaticResource AccentOrangeBrush}"/>
+                        <TextBlock Text="正常范围: 0 - 4000 rpm" Style="{StaticResource SecondaryText}" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- 历史数据列表（简易图表替代）-->
+            <Border Grid.Row="4" Style="{StaticResource CardPanel}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="📈 实时趋势（最近60次采样）"
+                               Style="{StaticResource HeadingText}" Margin="0,0,0,8"/>
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding TemperatureHistory}"
+                              IsReadOnly="True" MaxHeight="150">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="时间" Binding="{Binding Timestamp, StringFormat=HH:mm:ss}" Width="80"/>
+                            <DataGridTextColumn Header="温度(°C)" Binding="{Binding Value, StringFormat=F1}" Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>
