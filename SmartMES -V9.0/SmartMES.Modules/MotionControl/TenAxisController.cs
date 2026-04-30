@@ -147,7 +147,10 @@ namespace SmartMES.Modules.MotionControl
                             {
                                 var movingAxes = cmd.AxisPositions.Keys.Where(k => _mc.Axes.ContainsKey(k)).Select(k => _mc.Axes[k]).ToList();
                                 while (movingAxes.Any(a => a.State == AxisState.Running))
+                                {
+                                    ct.ThrowIfCancellationRequested();
                                     Thread.Sleep(20);
+                                }
                             }, ct);
                             break;
 

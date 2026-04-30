@@ -166,7 +166,7 @@ namespace SmartMES.Modules.Vision
             }
 
             var annotated = DrawAnnotations(src, defects, isNG);
-            var score = Math.Round((1.0 - defectRatio * 100) * 100, 1);
+            var score = Math.Max(0, Math.Round((1.0 - defectRatio * 100) * 100, 1));
 
             return new InspectionResult
             {

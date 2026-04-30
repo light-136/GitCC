@@ -1,6 +1,6 @@
 # SmartMES V9.0 单元测试报告
 
-**测试日期：** 2026-04-29  
+**测试日期：** 2026-04-30（最终版）  
 **测试框架：** xUnit 2.9.3 / .NET 9.0  
 **测试执行环境：** Windows 11 Pro / Visual Studio Test Platform 18.0.1  
 
@@ -12,13 +12,29 @@
 |--------|--------|------|------|------|------|
 | RecipeServiceTests（原有） | 3 | 3 | 0 | 0 | 已有测试保持通过 |
 | SafetyServiceTests（原有） | 3 | 3 | 0 | 0 | 已有测试保持通过 |
-| AxisControllerTests（原有） | - | - | - | - | 原有测试 |
-| StateMachineEngineTests（原有） | - | - | - | - | 原有测试 |
+| AxisControllerTests（原有） | 4 | 4 | 0 | 0 | 原有测试 |
+| StateMachineEngineTests（原有） | 5 | 5 | 0 | 0 | 原有测试 |
+| GCodeCommandTests（原有） | 4 | 4 | 0 | 0 | 原有测试 |
+| MultiAxisControllerTests（原有） | 3 | 3 | 0 | 0 | 原有测试 |
+| TenAxisControllerTests（修复） | 3 | 3 | 0 | 0 | 修复GBK乱码+挂起 |
+| TaskSchedulerServiceTests（原有） | 3 | 3 | 0 | 0 | 原有测试 |
+| TraceServiceTests（原有） | 3 | 3 | 0 | 0 | 原有测试 |
+| SimulatedIoDeviceTests（原有） | 3 | 3 | 0 | 0 | 原有测试 |
+| MainViewModelPermissionTests（原有） | 3 | 3 | 0 | 0 | 原有测试 |
 | **RecipeVersionManagementTests（新增）** | **34** | **34** | **0** | **0** | 配方版本管理 |
 | **ConfigurationCenterTests（新增）** | **31** | **31** | **0** | **0** | 配置中心 |
 | **ReportServiceTests（新增）** | **38** | **38** | **0** | **0** | 报表服务 |
 | **ModbusTcpServiceTests（新增）** | **22** | **17** | **0** | **5** | Modbus通信 |
-| **全套汇总** | **≥125** | **≥120** | **0** | **5** | |
+| **SCurveProfileTests（新增）** | **5** | **5** | **0** | **0** | S曲线运动规划 |
+| **CircularInterpolatorTests（新增）** | **4** | **4** | **0** | **0** | 圆弧插补 |
+| **LookAheadPlannerTests（新增）** | **4** | **4** | **0** | **0** | 前瞻速度规划 |
+| **GCodeParserV2Tests（新增）** | **6** | **6** | **0** | **0** | 扩展G代码解析 |
+| **CoordinateManagerTests（新增）** | **4** | **4** | **0** | **0** | 坐标系管理 |
+| **SecsIICodecTests（新增）** | **8** | **8** | **0** | **0** | SECS-II 编解码 |
+| **GemStateMachineTests（新增）** | **8** | **8** | **0** | **0** | GEM 双层状态机 |
+| **VisionEngineV2Tests（新增）** | **12** | **12** | **0** | **0** | 视觉引擎V2 |
+| **ThirtyAxisControllerTests（新增）** | **15** | **15** | **0** | **0** | 30轴控制系统 |
+| **全套汇总** | **225** | **220** | **0** | **5** | |
 
 > 注：跳过的 5 个测试为需要真实/本地TCP连接的集成测试，标记 `[Fact(Skip=...)]`，可在有网络环境时手动单独运行。
 
@@ -200,7 +216,163 @@ dotnet test --filter "FullyQualifiedName~ModbusTcpServiceTests&FullyQualifiedNam
 
 ---
 
-## 六、已有测试回归验证
+## 六、高级运动控制测试详细结果
+
+### 6.1 SCurveProfileTests
+
+**文件：** `SmartMES.Tests/SCurveProfileTests.cs`
+**覆盖功能：** S曲线7段运动规划（加加速度限制）
+
+| 测试用例 | 结果 | 说明 |
+|---------|------|------|
+| Evaluate_ShouldStartAtZeroVelocity | ✅ 通过 | t=0时速度为0 |
+| Evaluate_ShouldReachTargetPosition | ✅ 通过 | 运动结束位置等于目标距离 |
+| Evaluate_ShouldReturnIsFinished | ✅ 通过 | 超过总时间后标记完成 |
+| Evaluate_VelocityShouldBeContinuous | ✅ 通过 | 相邻采样点速度差<阈值 |
+| Evaluate_ShortDistance_ShouldDegrade | ✅ 通过 | 短距离自动退化为三角形曲线 |
+
+### 6.2 CircularInterpolatorTests
+
+**文件：** `SmartMES.Tests/CircularInterpolatorTests.cs`
+**覆盖功能：** 圆弧插补（G2/G3 CW/CCW，I/J 与 R 模式）
+
+| 测试用例 | 结果 | 说明 |
+|---------|------|------|
+| GenerateArc_CW_ShouldMaintainRadius | ✅ 通过 | 所有弧上点到圆心距离一致 |
+| GenerateArc_CCW_DirectionCorrect | ✅ 通过 | 逆时针弧方向正确 |
+| GenerateArc_FullCircle_ShouldClose | ✅ 通过 | 整圆首尾闭合 |
+| GenerateArc_WithRadius_ShouldWork | ✅ 通过 | R半径法圆弧正确 |
+
+### 6.3 LookAheadPlannerTests
+
+**文件：** `SmartMES.Tests/LookAheadPlannerTests.cs`
+**覆盖功能：** 前瞻速度规划（三遍算法：前向→后向→再前向）
+
+| 测试用例 | 结果 | 说明 |
+|---------|------|------|
+| Plan_StraightLine_ShouldReachMaxSpeed | ✅ 通过 | 直线路径达到最大速度 |
+| Plan_SharpCorner_ShouldDecelerate | ✅ 通过 | 急拐角处减速 |
+| Plan_LastSegment_ShouldStopAtEnd | ✅ 通过 | 末段减速至零 |
+| Plan_EmptyPath_ShouldReturnEmpty | ✅ 通过 | 空路径返回空结果 |
+
+### 6.4 GCodeParserV2Tests
+
+**文件：** `SmartMES.Tests/GCodeParserV2Tests.cs`
+**覆盖功能：** 扩展G代码解析（G0~G3/G4/G17~G19/G28/G54~G59/G90/G91/M指令）
+
+| 测试用例 | 结果 | 说明 |
+|---------|------|------|
+| Parse_G0_LinearRapid | ✅ 通过 | G0快速定位解析 |
+| Parse_G2_ArcCW_WithIJ | ✅ 通过 | G2顺时针弧+I/J偏移 |
+| Parse_G3_ArcCCW_WithR | ✅ 通过 | G3逆时针弧+R半径 |
+| Parse_G54_CoordinateSystem | ✅ 通过 | 坐标系选择模态 |
+| Parse_G91_IncrementalMode | ✅ 通过 | 增量模式切换 |
+| Parse_Comments_Stripped | ✅ 通过 | 注释剥离（括号和分号） |
+
+### 6.5 CoordinateManagerTests
+
+**文件：** `SmartMES.Tests/CoordinateManagerTests.cs`
+**覆盖功能：** 坐标系管理（G54~G59，2D仿射变换）
+
+| 测试用例 | 结果 | 说明 |
+|---------|------|------|
+| SetAndGet_Offset_ShouldPersist | ✅ 通过 | 坐标偏移设置/查询 |
+| ToMachine_ShouldApplyOffset | ✅ 通过 | 工件坐标→机械坐标转换 |
+| ToWork_ShouldReverseOffset | ✅ 通过 | 机械坐标→工件坐标逆变换 |
+| RoundTrip_ShouldBeConsistent | ✅ 通过 | 往返变换一致性 |
+
+---
+
+## 七、SECS/GEM 半导体通信测试详细结果
+
+### 7.1 SecsIICodecTests
+
+**文件：** `SmartMES.Tests/SecsIICodecTests.cs`
+**覆盖功能：** SECS-II 消息编解码（SEMI E5标准）
+
+| 测试用例 | 结果 | 说明 |
+|---------|------|------|
+| Encode_Ascii_RoundTrip | ✅ 通过 | ASCII字符串编解码往返 |
+| Encode_U4_RoundTrip | ✅ 通过 | 无符号32位整数编解码 |
+| Encode_I4_RoundTrip | ✅ 通过 | 有符号32位整数编解码 |
+| Encode_F4_RoundTrip | ✅ 通过 | 单精度浮点编解码 |
+| Encode_Boolean_RoundTrip | ✅ 通过 | 布尔值编解码 |
+| Encode_Binary_RoundTrip | ✅ 通过 | 二进制数据编解码 |
+| Encode_NestedList_RoundTrip | ✅ 通过 | 嵌套列表递归编解码 |
+| Encode_BigEndian_ByteOrder | ✅ 通过 | 大端序验证 |
+
+### 7.2 GemStateMachineTests
+
+**文件：** `SmartMES.Tests/GemStateMachineTests.cs`
+**覆盖功能：** GEM 双层状态机（SEMI E30标准）
+
+| 测试用例 | 结果 | 说明 |
+|---------|------|------|
+| Initial_State_ShouldBeDisabled | ✅ 通过 | 初始控制状态=Disabled |
+| CommunicationState_Enable_Transition | ✅ 通过 | 通信状态启用转换 |
+| ControlState_GoOnline_FromLocal | ✅ 通过 | 本地→在线转换 |
+| ControlState_GoOnline_FromRemote | ✅ 通过 | 远程→在线转换 |
+| ControlState_GoOffline | ✅ 通过 | 在线→离线转换 |
+| IllegalTransition_ShouldBeRejected | ✅ 通过 | 非法状态转换拒绝 |
+| StateChanged_EventFired | ✅ 通过 | 状态变更事件触发 |
+| HostRequestOnline_ShouldSucceed | ✅ 通过 | 主机请求在线成功 |
+
+---
+
+## 八、视觉系统测试详细结果
+
+**文件：** `SmartMES.Tests/VisionEngineV2Tests.cs`
+**覆盖功能：** 图像处理、模板匹配、Blob分析、测量工具、标定、管线执行
+
+| 测试用例 | 结果 | 说明 |
+|---------|------|------|
+| Grayscale_ReducesTo1Channel | ✅ 通过 | 3通道RGB→1通道灰度 |
+| OtsuThreshold_ProducesBinary | ✅ 通过 | OTSU自动阈值产生纯二值图 |
+| Morphology_PreservesSize | ✅ 通过 | 6种形态学运算保持尺寸 |
+| TemplateMatching_SelfMatch | ✅ 通过 | NCC模板匹配定位嵌入图案 |
+| BlobAnalysis_FindsCircles | ✅ 通过 | 连通域分析检测圆形目标 |
+| CircleFit_Accuracy | ✅ 通过 | Kasa圆拟合精度<0.01像素 |
+| LineFit_Accuracy | ✅ 通过 | 最小二乘直线拟合精度<0.001 |
+| Calibration_ReducesError | ✅ 通过 | 9点仿射标定误差<1.0mm |
+| Pipeline_ExecutesAllSteps | ✅ 通过 | 默认管线链式执行 |
+| PipelineDiagnostics_ReturnsAllSteps | ✅ 通过 | 管线诊断返回4步结果 |
+| MeasureDistance_PythagoreanTriple | ✅ 通过 | 勾股定理距离验证 |
+| MeasureAngle_RightAngle | ✅ 通过 | 直角角度=90° |
+
+### 视觉系统修复的缺陷
+
+| 缺陷 | 文件 | 修复方式 |
+|------|------|---------| 
+| NCC分母计算错误导致匹配得分被压缩至接近零 | TemplateMatcher.cs | 修正分母公式：`sqrt(iVar) * tStdDev * tw * th` → `sqrt(iVar * tStdDev² * tw * th)` |
+
+---
+
+## 8.2 30轴工业级运动控制系统测试详细结果
+
+**文件：** `SmartMES.Tests/ThirtyAxisControllerTests.cs`
+**覆盖功能：** 30轴初始化、轴组管理、软限位保护、急停、性能监控、碰撞检测、状态查询、复位
+
+| 测试用例 | 结果 | 说明 |
+|---------|------|------|
+| Initialization_Creates30Axes | ✅ 通过 | 默认配置创建30轴 |
+| Initialization_Creates6Groups | ✅ 通过 | 6组：Gantry1/2,Robot,Conveyor,Spindle,Auxiliary |
+| Initialization_Creates6Channels | ✅ 通过 | 6个独立G代码执行通道 |
+| AxisConfigs_ContainsAllTypes | ✅ 通过 | 包含Linear/Rotary/Spindle三种轴类型 |
+| GroupManager_GetGroupAxes_Robot | ✅ 通过 | Robot组包含J1~J6共6轴 |
+| GroupManager_AreAllAxesIdle_Default | ✅ 通过 | 初始化后所有轴Idle |
+| MoveAxis_WithinSoftLimits | ✅ 通过 | 软限位内运动成功 |
+| MoveAxis_ExceedsSoftLimit | ✅ 通过 | 超出软限位被拒绝 |
+| EmergencyStop_StopsAllAxes | ✅ 通过 | 急停后所有轴归Idle |
+| PerformanceMonitor_Sample30 | ✅ 通过 | 采样返回30个快照 |
+| PerformanceMonitor_Report | ✅ 通过 | 报告TotalAxes=30 |
+| CollisionDetector_DefaultZone | ✅ 通过 | 默认龙门防撞区域生效 |
+| GroupStatus_Gantry1_Has5 | ✅ 通过 | Gantry1组状态含5轴 |
+| GetAllPositions_Returns30 | ✅ 通过 | 30轴位置查询完整 |
+| ResetAll_ResetsErrorAxis | ✅ 通过 | 复位后Error轴恢复Idle |
+
+---
+
+## 九、已有测试回归验证（含V9.0新增模块）
 
 | 测试类 | 状态 | 说明 |
 |--------|------|------|
@@ -218,7 +390,7 @@ dotnet test --filter "FullyQualifiedName~ModbusTcpServiceTests&FullyQualifiedNam
 
 ---
 
-## 七、本次迭代发现并修复的缺陷
+## 十、本次迭代发现并修复的缺陷
 
 | 缺陷 | 严重程度 | 文件 | 修复方式 |
 |------|---------|------|---------|
@@ -228,17 +400,38 @@ dotnet test --filter "FullyQualifiedName~ModbusTcpServiceTests&FullyQualifiedNam
 | AxisController.MoveTo() 嵌套锁死锁风险 | 高 | AxisController.cs | 分离锁顺序 |
 | ReportService.cs 缺少 using 指令 | 中 | ReportService.cs | 添加 `using SmartMES.Core.Interfaces` |
 | ReportViewModel.cs 缺少 using System.IO | 中 | ReportViewModel.cs | 添加 `using System.IO` |
+| NCC模板匹配分母计算错误 | 高 | TemplateMatcher.cs | 修正分母公式 `sqrt(iVar * tSumVar)` |
+| TemplateMatcher 金字塔搜索线程不安全 | 中 | TemplateMatcher.cs | 用局部阈值变量代替修改属性 |
+| VisionEngine 评分公式可能产生负值 | 中 | VisionEngine.cs | 添加 `Math.Max(0, ...)` 保护 |
+| TenAxisController.RunGCodeAsync 取消挂起 | 高 | TenAxisController.cs | while循环中添加 `ct.ThrowIfCancellationRequested()` |
+| TenAxisControllerTests 断言文字 GBK 乱码 | 中 | TenAxisControllerTests.cs | 重写为正确 UTF-8 中文 |
+| SecsGemService 缺少 S7F1/3/5/17 处理 | 中 | SecsGemService.cs | 添加工艺程序管理消息处理 |
 
 ---
 
-## 八、代码覆盖率分析（估算）
+## 十一、代码覆盖率分析（估算）
 
 | 模块 | 行覆盖率（估算） | 分支覆盖率（估算） |
-|------|-----------------|-----------------|
+|------|-----------------|--------------------|
 | RecipeService（版本管理） | ≥ 85% | ≥ 80% |
 | ConfigurationCenter | ≥ 90% | ≥ 85% |
 | ReportService | ≥ 95% | ≥ 90% |
 | ModbusTcpService（逻辑部分） | ≥ 60% | ≥ 55% |
+| SCurveProfile（S曲线） | ≥ 85% | ≥ 80% |
+| CircularInterpolator（圆弧插补） | ≥ 80% | ≥ 75% |
+| LookAheadPlanner（前瞻规划） | ≥ 75% | ≥ 70% |
+| GCodeParserV2（G代码解析） | ≥ 80% | ≥ 75% |
+| CoordinateManager（坐标管理） | ≥ 85% | ≥ 80% |
+| SecsIICodec（SECS编解码） | ≥ 85% | ≥ 80% |
+| GemStateMachine（GEM状态机） | ≥ 80% | ≥ 75% |
+| VisionEngineV2（视觉引擎） | ≥ 80% | ≥ 75% |
+| TemplateMatcher（模板匹配） | ≥ 75% | ≥ 70% |
+| BlobAnalyzer（Blob分析） | ≥ 70% | ≥ 65% |
+| ThirtyAxisController（30轴控制） | ≥ 75% | ≥ 70% |
+| AxisGroupManager（轴组管理） | ≥ 80% | ≥ 75% |
+| CollisionDetector（碰撞检测） | ≥ 70% | ≥ 65% |
+| PerformanceMonitor（性能监控） | ≥ 75% | ≥ 70% |
+| MultiChannelController（多通道） | ≥ 65% | ≥ 60% |
 
 > 注：实际覆盖率可通过 `dotnet test --collect:"XPlat Code Coverage"` 生成详细报告。
 
