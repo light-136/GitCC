@@ -11,6 +11,8 @@ using SmartMES.UI.Modules.NativeModule;
 using SmartMES.UI.Modules.VisionModule;
 using SmartMES.UI.Modules.ReportModule;
 using SmartMES.UI.Modules.VisionMotionModule;
+using SmartMES.UI.Modules.SecsGemModule;
+using SmartMES.UI.Modules.VisionV2Module;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -56,6 +58,12 @@ namespace SmartMES.UI.ViewModels
         public VisionMotionViewModel VisionMotionVM { get; }
 
         public IndustrialViewModel IndustrialVM { get; }
+
+        /// <summary>SECS/GEM 半导体通信模块 ViewModel</summary>
+        public SecsGemViewModel SecsGemVM { get; }
+
+        /// <summary>视觉算法V2模块 ViewModel</summary>
+        public VisionV2ViewModel VisionV2VM { get; }
 
         /// <summary>报表统计模块 ViewModel</summary>
         public ReportViewModel ReportVM { get; }
@@ -108,6 +116,12 @@ namespace SmartMES.UI.ViewModels
         public bool CanAccessVisionMotion => HasPermission(p => p.VisionMotion);
         public bool CanAccessIndustrial => HasPermission(p => p.Industrial);
 
+        /// <summary>SECS/GEM 模块权限</summary>
+        public bool CanAccessSecsGem => HasPermission(p => p.SecsGem);
+
+        /// <summary>视觉V2 模块权限</summary>
+        public bool CanAccessVisionV2 => HasPermission(p => p.VisionV2);
+
         /// <summary>报表模块权限</summary>
         public bool CanAccessReport => HasPermission(p => p.Dashboard);
         public bool HasSampleAccess => CanAccessMotion10 || CanAccessVision || CanAccessVisionMotion;
@@ -129,6 +143,12 @@ namespace SmartMES.UI.ViewModels
         public RelayCommand NavVisionCommand { get; }
         public RelayCommand NavVisionMotionCommand { get; }
         public RelayCommand NavIndustrialCommand { get; }
+
+        /// <summary>导航到SECS/GEM半导体通信模块</summary>
+        public RelayCommand NavSecsGemCommand { get; }
+
+        /// <summary>导航到视觉算法V2模块</summary>
+        public RelayCommand NavVisionV2Command { get; }
 
         /// <summary>导航到报表统计模块</summary>
         public RelayCommand NavReportCommand { get; }
@@ -165,6 +185,8 @@ namespace SmartMES.UI.ViewModels
             VisionVM = new VisionViewModel();
             VisionMotionVM = new VisionMotionViewModel();
             IndustrialVM = new IndustrialViewModel();
+            SecsGemVM = new SecsGemViewModel();
+            VisionV2VM = new VisionV2ViewModel();
             ReportVM = new ReportViewModel();
 
             CurrentPage = DashboardVM;
@@ -186,6 +208,8 @@ namespace SmartMES.UI.ViewModels
             NavVisionCommand = new RelayCommand(_ => Navigate(VisionVM, "视觉检测样例"));
             NavVisionMotionCommand = new RelayCommand(_ => Navigate(VisionMotionVM, "视觉+运动协同"));
             NavIndustrialCommand = new RelayCommand(_ => Navigate(IndustrialVM, "工业系统总览"));
+            NavSecsGemCommand    = new RelayCommand(_ => Navigate(SecsGemVM,    "SECS/GEM 半导体通信"));
+            NavVisionV2Command   = new RelayCommand(_ => Navigate(VisionV2VM,   "视觉算法V2引擎"));
             NavReportCommand     = new RelayCommand(_ => Navigate(ReportVM,     "报表统计"));
 
             _eventBus.Subscribe<UserLoginEvent>(ev =>
@@ -233,6 +257,8 @@ namespace SmartMES.UI.ViewModels
             OnPropertyChanged(nameof(CanAccessVision));
             OnPropertyChanged(nameof(CanAccessVisionMotion));
             OnPropertyChanged(nameof(CanAccessIndustrial));
+            OnPropertyChanged(nameof(CanAccessSecsGem));
+            OnPropertyChanged(nameof(CanAccessVisionV2));
             OnPropertyChanged(nameof(CanAccessReport));
             OnPropertyChanged(nameof(HasSampleAccess));
         }
@@ -262,6 +288,8 @@ namespace SmartMES.UI.ViewModels
             if (CurrentPage == VisionVM && CanAccessVision) return;
             if (CurrentPage == VisionMotionVM && CanAccessVisionMotion) return;
             if (CurrentPage == IndustrialVM && CanAccessIndustrial) return;
+            if (CurrentPage == SecsGemVM && CanAccessSecsGem) return;
+            if (CurrentPage == VisionV2VM && CanAccessVisionV2) return;
             if (CurrentPage == ReportVM && CanAccessReport) return;
 
             var fallbackPages = new (bool allowed, ViewModelBase page, string title)[]
@@ -281,6 +309,8 @@ namespace SmartMES.UI.ViewModels
                 (CanAccessMotion10, Motion10VM, "10轴版面切换"),
                 (CanAccessVisionMotion, VisionMotionVM, "视觉+运动协同"),
                 (CanAccessIndustrial, IndustrialVM, "工业系统总览"),
+                (CanAccessSecsGem, SecsGemVM, "SECS/GEM 半导体通信"),
+                (CanAccessVisionV2, VisionV2VM, "视觉算法V2引擎"),
                 (CanAccessSettings, SettingsVM, "参数配置"),
                 (CanAccessUser, UserVM, "用户管理")
             };

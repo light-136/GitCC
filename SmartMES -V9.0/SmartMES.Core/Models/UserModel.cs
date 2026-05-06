@@ -25,6 +25,8 @@ namespace SmartMES.Core.Models
         public bool Vision        { get; set; } = true;
         public bool VisionMotion  { get; set; } = true;
         public bool Industrial    { get; set; } = true;
+        public bool SecsGem       { get; set; } = true;
+        public bool VisionV2      { get; set; } = true;
 
         /// <summary>根据角色生成默认权限</summary>
         public static PagePermissions ForRole(UserRole role) => role switch
@@ -44,7 +46,7 @@ namespace SmartMES.Core.Models
                 FileProcess=false, Database=false, Motion=false,
                 Native=false, Settings=false, UserManage=false,
                 Motion10Axis=false, Vision=true, VisionMotion=false,
-                Industrial=false
+                Industrial=false, SecsGem=false, VisionV2=false
             },
             _ => new PagePermissions()
         };

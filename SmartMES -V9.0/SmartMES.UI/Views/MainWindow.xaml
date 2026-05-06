@@ -13,6 +13,8 @@
         xmlns:vism="clr-namespace:SmartMES.UI.Modules.VisionMotionModule"
         xmlns:ind="clr-namespace:SmartMES.UI.Modules.IndustrialModule"
         xmlns:rpt="clr-namespace:SmartMES.UI.Modules.ReportModule"
+        xmlns:secsgem="clr-namespace:SmartMES.UI.Modules.SecsGemModule"
+        xmlns:visv2="clr-namespace:SmartMES.UI.Modules.VisionV2Module"
         Title="{Binding CurrentPageTitle, StringFormat='SmartMES - {0}'}"
         Width="1440" Height="860" MinWidth="1100" MinHeight="660"
         Background="{StaticResource BgDarkBrush}"
@@ -38,6 +40,8 @@
         <DataTemplate DataType="{x:Type vism:VisionMotionViewModel}"><vism:VisionMotionView/></DataTemplate>
         <DataTemplate DataType="{x:Type ind:IndustrialViewModel}"><ind:IndustrialView/></DataTemplate>
         <DataTemplate DataType="{x:Type rpt:ReportViewModel}"><rpt:ReportView/></DataTemplate>
+        <DataTemplate DataType="{x:Type secsgem:SecsGemViewModel}"><secsgem:SecsGemView/></DataTemplate>
+        <DataTemplate DataType="{x:Type visv2:VisionV2ViewModel}"><visv2:VisionV2View/></DataTemplate>
     </Window.Resources>
 
     <Grid>
@@ -117,6 +121,13 @@
                                         Visibility="{Binding CanAccessVisionMotion, Converter={StaticResource BoolToVisConverter}}"/>
                             </StackPanel>
                         </Border>
+
+                        <Separator Margin="16,8" Background="{StaticResource BorderBrush}"/>
+                        <TextBlock Text="半导体 &amp; 算法" Style="{StaticResource SecondaryText}" Margin="20,0,0,4" FontSize="10" FontWeight="Bold"/>
+                        <Button Content="🔬  SECS/GEM 通信" Style="{StaticResource NavButton}" Command="{Binding NavSecsGemCommand}"
+                                Visibility="{Binding CanAccessSecsGem, Converter={StaticResource BoolToVisConverter}}"/>
+                        <Button Content="🧠  视觉算法V2" Style="{StaticResource NavButton}" Command="{Binding NavVisionV2Command}"
+                                Visibility="{Binding CanAccessVisionV2, Converter={StaticResource BoolToVisConverter}}"/>
 
                         <Separator Margin="16,8" Background="{StaticResource BorderBrush}"/>
                         <TextBlock Text="工业级能力" Style="{StaticResource SecondaryText}" Margin="20,0,0,4" FontSize="10" FontWeight="Bold"/>

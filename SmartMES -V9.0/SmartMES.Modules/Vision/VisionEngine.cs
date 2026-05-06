@@ -1,5 +1,7 @@
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace SmartMES.Modules.Vision
 {
@@ -25,13 +27,19 @@ namespace SmartMES.Modules.Vision
         public WriteableBitmap? ProcessedImage { get; set; }
     }
 
-    /// <summary>视觉处理引擎（纯 C# 示例）。</summary>
+    /// <summary>
+    /// 视觉处理引擎（纯 C# 示例）。
+    /// 所有像素操作使用 int[] 数组，避免 WriteableBitmap 跨线程访问问题。
+    /// WriteableBitmap 仅在最终输出时通过 Dispatcher 创建。
+    /// </summary>
     public static class VisionEngine
     {
-        /// <summary>生成模拟工件图像。</summary>
-        public static WriteableBitmap GenerateWorkpieceImage(int width = 640, int height = 480, bool hasDefect = false)
+        /// <summary>
+        /// 生成模拟工件图像像素数据（线程安全，不依赖 WPF 对象）。
+        /// </summary>
+        public static (int[] pixels, int width, int height) GenerateWorkpiecePixels(
+            int width = 640, int height = 480, bool hasDefect = false)
         {
-            var wb = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgr32, null);
             var pixels = new int[width * height];
 
             for (int i = 0; i < pixels.Length; i++)
@@ -71,17 +79,48 @@ namespace SmartMES.Modules.Vision
                 }
             }
 
-            wb.WritePixels(new System.Windows.Int32Rect(0, 0, width, height), pixels, width * 4, 0);
+            return (pixels, width, height);
+        }
+
+        /// <summary>
+        /// 从像素数组创建 WriteableBitmap（必须在 UI 线程调用，或通过 Dispatcher）。
+        /// </summary>
+        public static WriteableBitmap PixelsToBitmap(int[] pixels, int width, int height)
+        {
+            var wb = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgr32, null);
+            wb.WritePixels(new Int32Rect(0, 0, width, height), pixels, width * 4, 0);
             return wb;
         }
 
-        /// <summary>灰度化。</summary>
-        public static byte[] ToGrayscale(WriteableBitmap src)
+        /// <summary>
+        /// 在 UI 线程上安全创建 WriteableBitmap。
+        /// 如果当前线程不是 UI 线程，自动使用 Dispatcher 切换。
+        /// </summary>
+        public static WriteableBitmap PixelsToBitmapSafe(int[] pixels, int width, int height)
         {
-            int w = src.PixelWidth, h = src.PixelHeight;
-            var pixels = new int[w * h];
-            src.CopyPixels(pixels, w * 4, 0);
-            var gray = new byte[w * h];
+            if (Application.Current?.Dispatcher != null &&
+                !Application.Current.Dispatcher.CheckAccess())
+            {
+                return Application.Current.Dispatcher.Invoke(
+                    () => PixelsToBitmap(pixels, width, height));
+            }
+            return PixelsToBitmap(pixels, width, height);
+        }
+
+        /// <summary>
+        /// 生成模拟工件图像（兼容旧接口，自动处理线程安全）。
+        /// </summary>
+        public static WriteableBitmap GenerateWorkpieceImage(
+            int width = 640, int height = 480, bool hasDefect = false)
+        {
+            var (pixels, w, h) = GenerateWorkpiecePixels(width, height, hasDefect);
+            return PixelsToBitmapSafe(pixels, w, h);
+        }
+
+        /// <summary>灰度化（从像素数组，线程安全）。</summary>
+        public static byte[] ToGrayscaleFromPixels(int[] pixels)
+        {
+            var gray = new byte[pixels.Length];
             for (int i = 0; i < pixels.Length; i++)
             {
                 int b = pixels[i] & 0xFF;
@@ -90,6 +129,15 @@ namespace SmartMES.Modules.Vision
                 gray[i] = (byte)(0.299 * r + 0.587 * g + 0.114 * b);
             }
             return gray;
+        }
+
+        /// <summary>灰度化（从 WriteableBitmap，需在创建线程调用）。</summary>
+        public static byte[] ToGrayscale(WriteableBitmap src)
+        {
+            int w = src.PixelWidth, h = src.PixelHeight;
+            var pixels = new int[w * h];
+            src.CopyPixels(pixels, w * 4, 0);
+            return ToGrayscaleFromPixels(pixels);
         }
 
         /// <summary>Sobel 边缘检测。</summary>
@@ -113,17 +161,19 @@ namespace SmartMES.Modules.Vision
                 }
             }
 
-            var wb = new WriteableBitmap(w, h, 96, 96, PixelFormats.Bgr32, null);
-            wb.WritePixels(new System.Windows.Int32Rect(0, 0, w, h), result, w * 4, 0);
-            return wb;
+            return PixelsToBitmapSafe(result, w, h);
         }
 
-        /// <summary>缺陷检测（阈值法）。</summary>
-        public static InspectionResult Inspect(WriteableBitmap src, int threshold = 50, double defectRatioLimit = 0.005)
+        /// <summary>
+        /// 缺陷检测（线程安全版本，使用像素数组代替 WriteableBitmap）。
+        /// 可在任何线程调用，内部自动通过 Dispatcher 创建输出位图。
+        /// </summary>
+        public static InspectionResult InspectPixels(
+            int[] srcPixels, int w, int h,
+            int threshold = 50, double defectRatioLimit = 0.005)
         {
             var start = DateTime.Now;
-            int w = src.PixelWidth, h = src.PixelHeight;
-            var gray = ToGrayscale(src);
+            var gray = ToGrayscaleFromPixels(srcPixels);
 
             int mx = w / 6, my = h / 6, mw = w * 4 / 6, mh = h * 4 / 6;
             int totalPx = mw * mh;
@@ -165,8 +215,19 @@ namespace SmartMES.Modules.Vision
                 });
             }
 
-            var annotated = DrawAnnotations(src, defects, isNG);
+            var annotatedPixels = DrawAnnotationsOnPixels(srcPixels, w, h, defects, isNG);
             var score = Math.Max(0, Math.Round((1.0 - defectRatio * 100) * 100, 1));
+
+            // 安全地在 UI 线程创建输出位图
+            WriteableBitmap? annotatedBitmap = null;
+            try
+            {
+                annotatedBitmap = PixelsToBitmapSafe(annotatedPixels, w, h);
+            }
+            catch
+            {
+                // 在无 Dispatcher 的环境中（如单元测试）忽略位图创建
+            }
 
             return new InspectionResult
             {
@@ -177,16 +238,48 @@ namespace SmartMES.Modules.Vision
                     ? $"NG - 检测到 {defects.Count} 处缺陷，暗像素率: {defectRatio:P2}"
                     : $"OK - 产品合格，评分: {score}",
                 ProcessTime = DateTime.Now - start,
-                ProcessedImage = annotated
+                ProcessedImage = annotatedBitmap
             };
         }
 
-        /// <summary>绘制标注。</summary>
-        private static WriteableBitmap DrawAnnotations(WriteableBitmap src, List<DefectInfo> defects, bool isNG)
+        /// <summary>
+        /// 缺陷检测（兼容旧接口 — 接受 WriteableBitmap）。
+        /// 自动提取像素数据后调用线程安全版本。
+        /// </summary>
+        public static InspectionResult Inspect(
+            WriteableBitmap src, int threshold = 50, double defectRatioLimit = 0.005)
         {
-            int w = src.PixelWidth, h = src.PixelHeight;
-            var pixels = new int[w * h];
-            src.CopyPixels(pixels, w * 4, 0);
+            int w, h;
+            int[] pixels;
+
+            // 如果当前线程不是 WriteableBitmap 的所有者线程，通过 Dispatcher 读取像素
+            if (!src.Dispatcher.CheckAccess())
+            {
+                (pixels, w, h) = src.Dispatcher.Invoke(() =>
+                {
+                    int pw = src.PixelWidth, ph = src.PixelHeight;
+                    var px = new int[pw * ph];
+                    src.CopyPixels(px, pw * 4, 0);
+                    return (px, pw, ph);
+                });
+            }
+            else
+            {
+                w = src.PixelWidth;
+                h = src.PixelHeight;
+                pixels = new int[w * h];
+                src.CopyPixels(pixels, w * 4, 0);
+            }
+
+            return InspectPixels(pixels, w, h, threshold, defectRatioLimit);
+        }
+
+        /// <summary>在像素数组上绘制标注（线程安全）。</summary>
+        private static int[] DrawAnnotationsOnPixels(
+            int[] srcPixels, int w, int h, List<DefectInfo> defects, bool isNG)
+        {
+            var pixels = new int[srcPixels.Length];
+            Array.Copy(srcPixels, pixels, srcPixels.Length);
 
             int mx = w / 6, my = h / 6, mw = w * 4 / 6, mh = h * 4 / 6;
             int borderColor = isNG ? unchecked((int)0x00FF4757) : 0x0039D353;
@@ -195,9 +288,7 @@ namespace SmartMES.Modules.Vision
             foreach (var d in defects)
                 DrawRect(pixels, w, d.X, d.Y, d.Width, d.Height, 0x00FFA502, 2);
 
-            var wb = new WriteableBitmap(w, h, 96, 96, PixelFormats.Bgr32, null);
-            wb.WritePixels(new System.Windows.Int32Rect(0, 0, w, h), pixels, w * 4, 0);
-            return wb;
+            return pixels;
         }
 
         /// <summary>绘制矩形框。</summary>

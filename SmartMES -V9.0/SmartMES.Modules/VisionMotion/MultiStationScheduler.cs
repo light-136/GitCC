@@ -98,12 +98,12 @@ namespace SmartMES.Modules.VisionMotion
                 SetState(StationState.Capturing);
                 await Task.Delay(200, ct); // 模拟曝光
                 bool hasDefect = _rnd.NextDouble() < 0.2;
-                var img = VisionEngine.GenerateWorkpieceImage(320, 240, hasDefect);
+                var (pixels, pw, ph) = VisionEngine.GenerateWorkpiecePixels(320, 240, hasDefect);
                 Emit($"[{Name}] 拍照完成，疑似缺陷: {hasDefect}");
 
-                // 3. 视觉检测
+                // 3. 视觉检测（使用线程安全的像素数组版本）
                 SetState(StationState.Detecting);
-                var result = await Task.Run(() => VisionEngine.Inspect(img, 70, 0.004), ct);
+                var result = await Task.Run(() => VisionEngine.InspectPixels(pixels, pw, ph, 70, 0.004), ct);
                 bool isOk = result.Result == DetectionResult.OK;
                 Emit($"[{Name}] 检测: {result.Result} — {result.Message}");
 

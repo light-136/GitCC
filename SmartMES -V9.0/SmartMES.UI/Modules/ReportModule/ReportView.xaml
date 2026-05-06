@@ -41,7 +41,7 @@
                 <!-- 加载状态 -->
                 <TextBlock Text="⏳ 加载中..." Foreground="#F59E0B"
                            VerticalAlignment="Center" Margin="16,0,0,0"
-                           Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                           Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisConverter}}"/>
 
                 <TextBlock Text="{Binding StatusText}" Foreground="{StaticResource TextSecondaryBrush}"
                            VerticalAlignment="Center" Margin="16,0,0,0"/>
