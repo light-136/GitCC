@@ -3,7 +3,22 @@
     "allow": [
       "Bash(grep \":$\")",
       "Bash(dotnet build *)",
-      "Bash(dotnet test *)"
+      "Bash(dotnet test *)",
+      "Bash(cat *)",
+      "Bash(taskkill /f /im testhost.exe)",
+      "PowerShell(Get-Process *)",
+      "Bash(taskkill //F //IM testhost.exe)",
+      "Bash(taskkill //F //IM dotnet.exe)",
+      "Bash(grep -q \"总计\" \"C:\\\\\\\\Users\\\\\\\\lenovo\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\D-----Gemi\\\\\\\\cacb87f1-9f7a-41f4-8dad-60da0c36b959\\\\\\\\tasks\\\\\\\\bt8k2ajmf.output\")",
+      "Bash(grep -E \"\\(已通过|失败|通过:|总计\\)\" \"C:\\\\\\\\Users\\\\\\\\lenovo\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\D-----Gemi\\\\\\\\cacb87f1-9f7a-41f4-8dad-60da0c36b959\\\\\\\\tasks\\\\\\\\bt8k2ajmf.output\")",
+      "Bash(taskkill //F //IM vstest.console.exe)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(ls -la \"SmartMES -V9.0/SmartMES.UI/Modules/SecsGemModule/\")",
+      "Bash(ls -la \"SmartMES -V9.0/SmartMES.UI/Modules/VisionV2Module/\")",
+      "Bash(ls -la \"SmartMES.Modules/\")",
+      "Bash(git commit *)"
     ]
   }
 }

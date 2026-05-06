@@ -137,25 +137,30 @@ namespace SmartMES.UI.Modules.VisionV2Module
             IsBusy = true;
             StatusText = "管线执行中...";
             Log("▶ 开始执行图像处理管线");
-
-            // Pipeline.Execute 返回 ImageData（最终输出）
-            var result = await Task.Run(() =>
+            try
             {
-                var img = CreateTestImage();
-                return _engine.RunPipeline(img);
-            });
+                var (result, diag) = await Task.Run(() =>
+                {
+                    var img = CreateTestImage();
+                    var r = _engine.RunPipeline(img);
+                    var d = _engine.RunPipelineWithDiagnostics(CreateTestImage());
+                    return (r, d);
+                });
 
-            PipelineResult = $"管线完成 — 输出: {result.Width}x{result.Height}, {result.Channels}通道";
-            Log($"  管线输出: {result.Width}x{result.Height}, 像素范围: [{result.Pixels.Min()}..{result.Pixels.Max()}]");
-
-            // 诊断模式：返回每个步骤的中间结果 List<PipelineStepResult>
-            var diag = _engine.RunPipelineWithDiagnostics(CreateTestImage());
-            Log($"  诊断模式: {diag.Count} 步骤完成");
-            foreach (var step in diag)
-                Log($"    - {step.StepName}: {step.Output.Width}x{step.Output.Height}");
-
-            StatusText = "管线完成";
-            IsBusy = false;
+                PipelineResult = $"管线完成 — 输出: {result.Width}x{result.Height}, {result.Channels}通道";
+                Log($"  管线输出: {result.Width}x{result.Height}, 像素范围: [{result.Pixels.Min()}..{result.Pixels.Max()}]");
+                Log($"  诊断模式: {diag.Count} 步骤完成");
+                foreach (var step in diag)
+                    Log($"    - {step.StepName}: {step.Output.Width}x{step.Output.Height}");
+                StatusText = "管线完成";
+            }
+            catch (Exception ex)
+            {
+                PipelineResult = $"管线失败: {ex.Message}";
+                Log($"  ✗ 管线异常: {ex.Message}");
+                StatusText = "管线失败";
+            }
+            finally { IsBusy = false; }
         }
 
         /// <summary>执行NCC模板匹配（从图像中心提取模板，在原图中搜索）。</summary>
@@ -164,43 +169,48 @@ namespace SmartMES.UI.Modules.VisionV2Module
             IsBusy = true;
             StatusText = "模板匹配中...";
             Log("▶ 开始NCC模板匹配（归一化互相关 + 金字塔搜索）");
-
-            // TemplateMatcher.Match 返回 List<TemplateMatchResult>（按Score降序）
-            var results = await Task.Run(() =>
+            try
             {
-                var image = CreateTestImage();
-                int tw = 30, th = 30;
-                var templateData = new byte[tw * th];
-                int cx = image.Width / 2, cy = image.Height / 2;
+                var results = await Task.Run(() =>
+                {
+                    var image = CreateTestImage();
+                    int tw = 30, th = 30;
+                    var templateData = new byte[tw * th];
+                    int cx = image.Width / 2, cy = image.Height / 2;
 
-                // 从原图中心裁剪一个 30×30 的模板区域
-                for (int y = 0; y < th; y++)
-                    for (int x = 0; x < tw; x++)
-                    {
-                        int srcX = cx - tw / 2 + x;
-                        int srcY = cy - th / 2 + y;
-                        if (srcX >= 0 && srcX < image.Width && srcY >= 0 && srcY < image.Height)
-                            templateData[y * tw + x] = image.Pixels[srcY * image.Width + srcX];
-                    }
-                var template = new ImageData { Width = tw, Height = th, Channels = 1, Pixels = templateData };
-                return _engine.MatchTemplate(image, template);
-            });
+                    for (int y = 0; y < th; y++)
+                        for (int x = 0; x < tw; x++)
+                        {
+                            int srcX = cx - tw / 2 + x;
+                            int srcY = cy - th / 2 + y;
+                            if (srcX >= 0 && srcX < image.Width && srcY >= 0 && srcY < image.Height)
+                                templateData[y * tw + x] = image.Pixels[srcY * image.Width + srcX];
+                        }
+                    var template = new ImageData { Width = tw, Height = th, Channels = 1, Pixels = templateData };
+                    return _engine.MatchTemplate(image, template);
+                });
 
-            if (results.Count > 0)
-            {
-                var best = results[0];
-                MatchResult = $"匹配成功: ({best.X},{best.Y}) 得分={best.Score:F3}";
-                Log($"  最佳匹配: 位置=({best.X},{best.Y}), Score={best.Score:F4}");
-                Log($"  共找到 {results.Count} 个匹配位置");
+                if (results.Count > 0)
+                {
+                    var best = results[0];
+                    MatchResult = $"匹配成功: ({best.X},{best.Y}) 得分={best.Score:F3}";
+                    Log($"  最佳匹配: 位置=({best.X},{best.Y}), Score={best.Score:F4}");
+                    Log($"  共找到 {results.Count} 个匹配位置");
+                }
+                else
+                {
+                    MatchResult = "未找到匹配";
+                    Log("  未找到匹配位置");
+                }
+                StatusText = "匹配完成";
             }
-            else
+            catch (Exception ex)
             {
-                MatchResult = "未找到匹配";
-                Log("  未找到匹配位置");
+                MatchResult = $"匹配失败: {ex.Message}";
+                Log($"  ✗ 匹配异常: {ex.Message}");
+                StatusText = "匹配失败";
             }
-
-            StatusText = "匹配完成";
-            IsBusy = false;
+            finally { IsBusy = false; }
         }
 
         /// <summary>执行Blob连通域分析（先OTSU二值化，再CCL标记连通域）。</summary>
@@ -209,23 +219,28 @@ namespace SmartMES.UI.Modules.VisionV2Module
             IsBusy = true;
             StatusText = "Blob分析中...";
             Log("▶ 开始Blob分析（两遍CCL + 并查集 + 特征提取）");
-
-            // BlobAnalyzer.Analyze 返回 List<BlobInfo>（按面积降序）
-            var blobs = await Task.Run(() =>
+            try
             {
-                var img = CreateTestImage();
-                // 使用 VisionEngineV2 的门面方法进行 OTSU 二值化
-                var binary = _engine.OtsuThreshold(img);
-                return _engine.FindBlobs(binary);
-            });
+                var blobs = await Task.Run(() =>
+                {
+                    var img = CreateTestImage();
+                    var binary = _engine.OtsuThreshold(img);
+                    return _engine.FindBlobs(binary);
+                });
 
-            BlobResult = $"检测到 {blobs.Count} 个连通域";
-            Log($"  连通域数量: {blobs.Count}");
-            foreach (var b in blobs.Take(5))
-                Log($"    Blob: 面积={b.Area}, 重心=({b.CenterX:F1},{b.CenterY:F1}), 矩形=({b.BoundX},{b.BoundY},{b.BoundWidth},{b.BoundHeight})");
-
-            StatusText = "Blob分析完成";
-            IsBusy = false;
+                BlobResult = $"检测到 {blobs.Count} 个连通域";
+                Log($"  连通域数量: {blobs.Count}");
+                foreach (var b in blobs.Take(5))
+                    Log($"    Blob: 面积={b.Area}, 重心=({b.CenterX:F1},{b.CenterY:F1}), 矩形=({b.BoundX},{b.BoundY},{b.BoundWidth},{b.BoundHeight})");
+                StatusText = "Blob分析完成";
+            }
+            catch (Exception ex)
+            {
+                BlobResult = $"Blob分析失败: {ex.Message}";
+                Log($"  ✗ Blob异常: {ex.Message}");
+                StatusText = "Blob分析失败";
+            }
+            finally { IsBusy = false; }
         }
 
         /// <summary>
@@ -237,39 +252,46 @@ namespace SmartMES.UI.Modules.VisionV2Module
             IsBusy = true;
             StatusText = "测量中...";
             Log("▶ 开始测量工具演示");
-
-            await Task.Run(() =>
+            try
             {
-                // 距离测量：(0,0)→(3,4) = 5.0（勾股定理验证）
-                double dist = _engine.MeasureDistance(0, 0, 3, 4);
-                Log($"  距离测量: (0,0)→(3,4) = {dist:F4} (勾股定理验证)");
-
-                // 角度测量：三点构成直角
-                double angle = _engine.MeasureAngle(1, 0, 0, 0, 0, 1);
-                Log($"  角度测量: 直角 = {angle:F2}°");
-
-                // 圆拟合(Kasa)：36个均匀分布的点在半径25的圆上
-                var circlePoints = new List<(double X, double Y)>();
-                for (int i = 0; i < 36; i++)
+                var logs = await Task.Run(() =>
                 {
-                    double a = i * Math.PI * 2 / 36;
-                    circlePoints.Add((50 + 25 * Math.Cos(a), 50 + 25 * Math.Sin(a)));
-                }
-                // FitCircle 返回 (CenterX, CenterY, Radius, Error)
-                var (cx, cy, cr, cerr) = _engine.FitCircle(circlePoints);
-                Log($"  圆拟合(Kasa): 中心=({cx:F2},{cy:F2}), 半径={cr:F2}, 误差={cerr:F4}");
+                    var entries = new List<string>();
 
-                // 直线拟合：y = 2x + 1 的5个精确点
-                var linePoints = new List<(double X, double Y)>
-                    { (0, 1), (1, 3), (2, 5), (3, 7), (4, 9) };
-                // FitLine 返回 (K, B, Error)
-                var (slope, intercept, lerr) = _engine.FitLine(linePoints);
-                Log($"  直线拟合: y = {slope:F3}x + {intercept:F3}, 误差={lerr:F4}");
-            });
+                    double dist = _engine.MeasureDistance(0, 0, 3, 4);
+                    entries.Add($"  距离测量: (0,0)→(3,4) = {dist:F4} (勾股定理验证)");
 
-            MeasureResult = "测量完成 — 距离/角度/圆拟合/直线拟合";
-            StatusText = "测量完成";
-            IsBusy = false;
+                    double angle = _engine.MeasureAngle(1, 0, 0, 0, 0, 1);
+                    entries.Add($"  角度测量: 直角 = {angle:F2}°");
+
+                    var circlePoints = new List<(double X, double Y)>();
+                    for (int i = 0; i < 36; i++)
+                    {
+                        double a = i * Math.PI * 2 / 36;
+                        circlePoints.Add((50 + 25 * Math.Cos(a), 50 + 25 * Math.Sin(a)));
+                    }
+                    var (cx, cy, cr, cerr) = _engine.FitCircle(circlePoints);
+                    entries.Add($"  圆拟合(Kasa): 中心=({cx:F2},{cy:F2}), 半径={cr:F2}, 误差={cerr:F4}");
+
+                    var linePoints = new List<(double X, double Y)>
+                        { (0, 1), (1, 3), (2, 5), (3, 7), (4, 9) };
+                    var (slope, intercept, lerr) = _engine.FitLine(linePoints);
+                    entries.Add($"  直线拟合: y = {slope:F3}x + {intercept:F3}, 误差={lerr:F4}");
+
+                    return entries;
+                });
+
+                foreach (var entry in logs) Log(entry);
+                MeasureResult = "测量完成 — 距离/角度/圆拟合/直线拟合";
+                StatusText = "测量完成";
+            }
+            catch (Exception ex)
+            {
+                MeasureResult = $"测量失败: {ex.Message}";
+                Log($"  ✗ 测量异常: {ex.Message}");
+                StatusText = "测量失败";
+            }
+            finally { IsBusy = false; }
         }
 
         /// <summary>
@@ -281,81 +303,93 @@ namespace SmartMES.UI.Modules.VisionV2Module
             IsBusy = true;
             StatusText = "标定中...";
             Log("▶ 开始9点仿射标定（最小二乘法求解2x3矩阵）");
-
-            var calibData = await Task.Run(() =>
+            try
             {
-                var calib = _engine.CalibrationService;
-                double scale = 0.05;
-                var rnd = Random.Shared;
-
-                // 构建9点标定对（3×3网格，像素坐标 → 世界坐标）
-                var points = new List<CalibrationPointPair>();
-                for (int row = 0; row < 3; row++)
+                var calibData = await Task.Run(() =>
                 {
-                    for (int col = 0; col < 3; col++)
+                    var calib = _engine.CalibrationService;
+                    double scale = 0.05;
+                    var rnd = Random.Shared;
+
+                    var points = new List<CalibrationPointPair>();
+                    for (int row = 0; row < 3; row++)
                     {
-                        double px = 100 + col * 200 + rnd.NextDouble() * 2 - 1;
-                        double py = 100 + row * 200 + rnd.NextDouble() * 2 - 1;
-                        double wx = col * 200 * scale;
-                        double wy = row * 200 * scale;
-                        points.Add(new CalibrationPointPair
+                        for (int col = 0; col < 3; col++)
                         {
-                            PixelX = px, PixelY = py,
-                            WorldX = wx, WorldY = wy
-                        });
+                            double px = 100 + col * 200 + rnd.NextDouble() * 2 - 1;
+                            double py = 100 + row * 200 + rnd.NextDouble() * 2 - 1;
+                            double wx = col * 200 * scale;
+                            double wy = row * 200 * scale;
+                            points.Add(new CalibrationPointPair
+                            {
+                                PixelX = px, PixelY = py,
+                                WorldX = wx, WorldY = wy
+                            });
+                        }
                     }
-                }
+                    return calib.Calibrate(points);
+                });
 
-                // Calibrate 返回 CalibrationData（含TransformMatrix/MaxError/MeanError）
-                return calib.Calibrate(points);
-            });
-
-            CalibResult = $"标定完成 — 最大误差={calibData.MaxError:F4}mm, 平均误差={calibData.MeanError:F4}mm";
-            Log($"  标定残差: Max={calibData.MaxError:F4}mm, Mean={calibData.MeanError:F4}mm");
-            Log($"  标定点数: {calibData.PointCount}");
-            Log($"  仿射矩阵已更新，可用于像素→世界坐标变换");
-
-            StatusText = "标定完成";
-            IsBusy = false;
+                CalibResult = $"标定完成 — 最大误差={calibData.MaxError:F4}mm, 平均误差={calibData.MeanError:F4}mm";
+                Log($"  标定残差: Max={calibData.MaxError:F4}mm, Mean={calibData.MeanError:F4}mm");
+                Log($"  标定点数: {calibData.PointCount}");
+                Log($"  仿射矩阵已更新，可用于像素→世界坐标变换");
+                StatusText = "标定完成";
+            }
+            catch (Exception ex)
+            {
+                CalibResult = $"标定失败: {ex.Message}";
+                Log($"  ✗ 标定异常: {ex.Message}");
+                StatusText = "标定失败";
+            }
+            finally { IsBusy = false; }
         }
 
         /// <summary>
         /// 执行直方图分析。
         /// 使用 VisionEngineV2 门面方法（ComputeHistogram/ComputeOtsuThreshold），
         /// 内部委托给静态 HistogramAnalyzer 类。
-        /// OTSU二值化通过 OtsuThreshold() 门面方法执行。
         /// </summary>
         private async Task RunHistogramAsync()
         {
             IsBusy = true;
             StatusText = "直方图分析中...";
             Log("▶ 开始直方图分析（OTSU阈值 + 均衡化）");
-
-            await Task.Run(() =>
+            try
             {
-                var img = CreateTestImage();
+                var logs = await Task.Run(() =>
+                {
+                    var entries = new List<string>();
+                    var img = CreateTestImage();
 
-                // OTSU自适应阈值计算
-                byte otsu = _engine.ComputeOtsuThreshold(img);
-                Log($"  OTSU最佳阈值: {otsu}");
+                    byte otsu = _engine.ComputeOtsuThreshold(img);
+                    entries.Add($"  OTSU最佳阈值: {otsu}");
 
-                // 直方图统计
-                var histogram = _engine.ComputeHistogram(img);
-                int peakBin = 0, peakVal = 0;
-                for (int i = 0; i < histogram.Bins.Length; i++)
-                    if (histogram.Bins[i] > peakVal) { peakVal = histogram.Bins[i]; peakBin = i; }
-                Log($"  直方图峰值: bin={peakBin}, count={peakVal}");
-                Log($"  均值={histogram.Mean:F2}, 标准差={histogram.StdDev:F2}");
+                    var histogram = _engine.ComputeHistogram(img);
+                    int peakBin = 0, peakVal = 0;
+                    for (int i = 0; i < histogram.Bins.Length; i++)
+                        if (histogram.Bins[i] > peakVal) { peakVal = histogram.Bins[i]; peakBin = i; }
+                    entries.Add($"  直方图峰值: bin={peakBin}, count={peakVal}");
+                    entries.Add($"  均值={histogram.Mean:F2}, 标准差={histogram.StdDev:F2}");
 
-                // OTSU二值化（用 OtsuThresholdProcessor 执行）
-                var binarized = _engine.OtsuThreshold(img);
-                var binHist = _engine.ComputeHistogram(binarized);
-                Log($"  二值化后: 均值={binHist.Mean:F2}, 标准差={binHist.StdDev:F2}");
-            });
+                    var binarized = _engine.OtsuThreshold(img);
+                    var binHist = _engine.ComputeHistogram(binarized);
+                    entries.Add($"  二值化后: 均值={binHist.Mean:F2}, 标准差={binHist.StdDev:F2}");
 
-            HistogramInfo = "OTSU + 直方图分析完成";
-            StatusText = "直方图分析完成";
-            IsBusy = false;
+                    return entries;
+                });
+
+                foreach (var entry in logs) Log(entry);
+                HistogramInfo = "OTSU + 直方图分析完成";
+                StatusText = "直方图分析完成";
+            }
+            catch (Exception ex)
+            {
+                HistogramInfo = $"直方图分析失败: {ex.Message}";
+                Log($"  ✗ 直方图异常: {ex.Message}");
+                StatusText = "直方图分析失败";
+            }
+            finally { IsBusy = false; }
         }
 
         /// <summary>运行所有算法演示（顺序执行全部6项）。</summary>
@@ -365,12 +399,19 @@ namespace SmartMES.UI.Modules.VisionV2Module
             Log("▶▶ 一键运行全部视觉算法演示");
             Log("══════════════════════════════════════");
 
-            await RunPipelineAsync();
-            await RunHistogramAsync();
-            await RunMatchAsync();
-            await RunBlobAsync();
-            await RunMeasureAsync();
-            await RunCalibAsync();
+            try
+            {
+                await RunPipelineAsync();
+                await RunHistogramAsync();
+                await RunMatchAsync();
+                await RunBlobAsync();
+                await RunMeasureAsync();
+                await RunCalibAsync();
+            }
+            catch (Exception ex)
+            {
+                Log($"✗ 运行中断: {ex.Message}");
+            }
 
             Log("══════════════════════════════════════");
             Log("✓ 全部算法演示完成");
