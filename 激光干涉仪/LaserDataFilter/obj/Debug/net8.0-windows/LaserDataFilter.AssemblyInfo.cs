@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LaserDataFilter")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f11ce24ddd15f2203c87a6fdcba1ae4096e56bc5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+57bcc3df4d16ca5256ea3574b3c4ebd8da639f61")]
 [assembly: System.Reflection.AssemblyProductAttribute("LaserDataFilter")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LaserDataFilter")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

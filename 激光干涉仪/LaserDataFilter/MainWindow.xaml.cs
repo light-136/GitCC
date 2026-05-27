@@ -13,18 +13,49 @@ namespace LaserDataFilter
         private string _currentSeries = string.Empty;
         private DateTime _currentDate;
 
+        // 路径记忆文件，存放在程序所在目录下
+        private static readonly string ConfigFilePath =
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "last_path.txt");
+
         public MainWindow()
         {
             InitializeComponent();
-            var defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "量测数据");
-            if (Directory.Exists(defaultPath))
-                SetDataPath(Path.GetFullPath(defaultPath));
+            var savedPath = LoadSavedPath();
+            if (!string.IsNullOrEmpty(savedPath) && Directory.Exists(savedPath))
+            {
+                SetDataPath(savedPath, save: false);
+            }
+            else
+            {
+                var defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "量测数据");
+                if (Directory.Exists(defaultPath))
+                    SetDataPath(Path.GetFullPath(defaultPath));
+            }
         }
 
-        public void SetDataPath(string path)
+        /// <summary>
+        /// 从本地文件加载上次保存的数据源路径
+        /// </summary>
+        private static string? LoadSavedPath()
+        {
+            if (!File.Exists(ConfigFilePath)) return null;
+            var path = File.ReadAllText(ConfigFilePath, System.Text.Encoding.UTF8).Trim();
+            return string.IsNullOrEmpty(path) ? null : path;
+        }
+
+        /// <summary>
+        /// 将数据源路径保存到本地文件
+        /// </summary>
+        private static void SavePath(string path)
+        {
+            File.WriteAllText(ConfigFilePath, path, System.Text.Encoding.UTF8);
+        }
+
+        public void SetDataPath(string path, bool save = true)
         {
             TxtDataPath.Text = path;
             _service = new DataFilterService(path);
+            if (save) SavePath(path);
             LoadSeries();
         }
 
