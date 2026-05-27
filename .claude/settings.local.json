@@ -18,7 +18,28 @@
       "Bash(ls -la \"SmartMES -V9.0/SmartMES.UI/Modules/SecsGemModule/\")",
       "Bash(ls -la \"SmartMES -V9.0/SmartMES.UI/Modules/VisionV2Module/\")",
       "Bash(ls -la \"SmartMES.Modules/\")",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(powershell.exe -Command \"Get-Content 'D:\\\\软件\\\\Gemi\\\\技术需求.txt' -Encoding Default\")",
+      "PowerShell([System.IO.File]::ReadAllText\\('D:\\\\软件\\\\Gemi\\\\技术需求.txt', [System.Text.Encoding]::GetEncoding\\('GB2312'\\)\\))",
+      "Bash(dotnet new *)",
+      "Bash(dotnet sln *)",
+      "Bash(dotnet run *)",
+      "Bash(where g++)",
+      "Bash(where cl *)",
+      "Bash(where cmake *)",
+      "PowerShell(& \"C:\\\\msys64\\\\mingw64\\\\bin\\\\g++.exe\" -std=c++20 -O2 -Wall -Wextra -o \"D:\\\\软件\\\\Gemi\\\\CppMasterClass\\\\CppMasterClass.exe\" \"D:\\\\软件\\\\Gemi\\\\CppMasterClass\\\\src\\\\main.cpp\" \"D:\\\\软件\\\\Gemi\\\\CppMasterClass\\\\src\\\\01_basics.cpp\" \"D:\\\\软件\\\\Gemi\\\\CppMasterClass\\\\src\\\\02_pointers.cpp\" \"D:\\\\软件\\\\Gemi\\\\CppMasterClass\\\\src\\\\03_oop.cpp\" \"D:\\\\软件\\\\Gemi\\\\CppMasterClass\\\\src\\\\04_templates.cpp\" \"D:\\\\软件\\\\Gemi\\\\CppMasterClass\\\\src\\\\05_stl.cpp\" \"D:\\\\软件\\\\Gemi\\\\CppMasterClass\\\\src\\\\06_memory.cpp\" \"D:\\\\软件\\\\Gemi\\\\CppMasterClass\\\\src\\\\07_concurrency.cpp\" \"D:\\\\软件\\\\Gemi\\\\CppMasterClass\\\\src\\\\08_modern_cpp.cpp\" \"D:\\\\软件\\\\Gemi\\\\CppMasterClass\\\\src\\\\09_design_patterns.cpp\" \"D:\\\\软件\\\\Gemi\\\\CppMasterClass\\\\src\\\\10_real_world.cpp\")",
+      "PowerShell(Set-Location \"D:\\\\软件\\\\Gemi\\\\CppMasterClass\"; if \\(Test-Path \"CppMasterClass.exe\"\\) { Write-Output \"文件大小: $\\(\\(Get-Item CppMasterClass.exe\\).Length / 1KB\\) KB\" } else { Write-Output \"编译失败\" })",
+      "PowerShell(Set-Location \"D:\\\\软件\\\\Gemi\\\\CppMasterClass\"; [System.IO.File]::WriteAllText\\(\"test_input.txt\", \"1`r`nq`r`n\"\\); Get-Content test_input.txt | .\\\\CppMasterClass.exe 2>&1)",
+      "Bash(./CppMasterClass.exe)",
+      "Bash(dotnet clean *)",
+      "Bash(kill %1)",
+      "Bash(wait)",
+      "Bash(git -c http.sslBackend=openssl push)",
+      "Bash(xargs wc *)",
+      "Bash(xargs grep *)",
+      "Bash(powershell.exe *)",
+      "Bash(dotnet restore *)",
+      "Bash(xargs -I{} sh -c 'echo \"=== {} ===\" && cat {}')"
     ]
   }
 }
