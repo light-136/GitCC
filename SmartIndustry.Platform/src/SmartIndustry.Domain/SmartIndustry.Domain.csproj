@@ -1,0 +1,40 @@
+<!--
+  项目：SmartIndustry.Domain
+  层级：领域层（最内层，零外部依赖）
+  职责：定义核心业务实体、值对象、领域事件、仓储接口及领域服务接口。
+        任何其他层均可引用本层，本层不引用任何其他层。
+  目标框架：net9.0（无 WPF，无 Windows 特性，保持可跨平台）
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- 输出类型：类库 -->
+    <OutputType>Library</OutputType>
+    <!-- 目标框架：.NET 9.0，不依赖 Windows 平台 -->
+    <TargetFramework>net9.0</TargetFramework>
+    <!-- 启用可空引用类型检查，提升代码健壮性 -->
+    <Nullable>enable</Nullable>
+    <!-- 启用隐式 using，减少重复 using 声明 -->
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- 程序集名称 -->
+    <AssemblyName>SmartIndustry.Domain</AssemblyName>
+    <!-- 根命名空间 -->
+    <RootNamespace>SmartIndustry.Domain</RootNamespace>
+    <!-- 语言版本：使用 C# 13（.NET 9 默认） -->
+    <LangVersion>latest</LangVersion>
+    <!-- 版本信息 -->
+    <Version>1.0.0</Version>
+    <Company>SmartIndustry</Company>
+    <Product>SmartIndustry Platform</Product>
+  </PropertyGroup>
+
+  <!--
+    NuGet 包依赖：
+    - System.Text.Json：用于领域对象序列化/反序列化（例如领域事件持久化）
+      .NET 9 内置版本已满足需求，此处显式声明以锁定版本
+  -->
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="9.0.5" />
+  </ItemGroup>
+
+</Project>

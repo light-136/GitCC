@@ -1,0 +1,44 @@
+<!--
+  项目：SmartIndustry.Hardware
+  层级：硬件抽象层
+  职责：封装与工业硬件设备的通信逻辑，包括串口通信、PLC 接口、传感器数据采集、
+        激光干涉仪控制等硬件驱动实现。向上层提供统一的硬件访问接口。
+  目标框架：net9.0（硬件层不直接依赖 UI）
+  项目引用：SmartIndustry.Domain + SmartIndustry.Infrastructure
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>SmartIndustry.Hardware</AssemblyName>
+    <RootNamespace>SmartIndustry.Hardware</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Version>1.0.0</Version>
+    <Company>SmartIndustry</Company>
+    <Product>SmartIndustry Platform</Product>
+    <!-- 允许不安全代码（部分硬件驱动可能需要指针操作） -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <!--
+    NuGet 包依赖说明：
+    - Microsoft.Extensions.DependencyInjection.Abstractions：IServiceCollection 扩展
+    - Microsoft.Extensions.DependencyInjection：AddSingleton 等扩展方法
+    - System.Text.Json：管线配置和标定数据序列化
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
+    <PackageReference Include="System.Text.Json" Version="9.0.5" />
+  </ItemGroup>
+
+  <!-- 项目引用：依赖领域层和基础设施层 -->
+  <ItemGroup>
+    <ProjectReference Include="..\SmartIndustry.Domain\SmartIndustry.Domain.csproj" />
+    <ProjectReference Include="..\SmartIndustry.Infrastructure\SmartIndustry.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

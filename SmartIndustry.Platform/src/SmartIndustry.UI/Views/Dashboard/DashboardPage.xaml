@@ -1,0 +1,61 @@
+<UserControl x:Class="SmartIndustry.UI.Views.Dashboard.DashboardPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 页面标题 -->
+        <TextBlock Grid.Row="0" Text="仪表盘" FontSize="24" FontWeight="Bold"/>
+
+        <!-- 状态卡片 -->
+        <UniformGrid Grid.Row="2" Columns="4" Rows="1">
+            <Border Margin="5" Padding="15" Background="#E3F2FD" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Text="运动轴" FontSize="12" Foreground="Gray"/>
+                    <TextBlock Text="6 轴就绪" FontSize="18" FontWeight="Bold" Margin="0,5,0,0"/>
+                    <TextBlock Text="状态：全部使能" Foreground="Green" FontSize="11"/>
+                </StackPanel>
+            </Border>
+            <Border Margin="5" Padding="15" Background="#E8F5E9" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Text="视觉引擎" FontSize="12" Foreground="Gray"/>
+                    <TextBlock Text="2 台在线" FontSize="18" FontWeight="Bold" Margin="0,5,0,0"/>
+                    <TextBlock Text="模拟模式运行中" Foreground="Green" FontSize="11"/>
+                </StackPanel>
+            </Border>
+            <Border Margin="5" Padding="15" Background="#FFF3E0" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Text="IO 通道" FontSize="12" Foreground="Gray"/>
+                    <TextBlock Text="40 通道" FontSize="18" FontWeight="Bold" Margin="0,5,0,0"/>
+                    <TextBlock Text="16DI + 16DO + 4AI + 4AO" Foreground="Orange" FontSize="11"/>
+                </StackPanel>
+            </Border>
+            <Border Margin="5" Padding="15" Background="#FCE4EC" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Text="报警" FontSize="12" Foreground="Gray"/>
+                    <TextBlock Text="0 条活跃" FontSize="18" FontWeight="Bold" Margin="0,5,0,0"/>
+                    <TextBlock Text="系统运行正常" Foreground="Green" FontSize="11"/>
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- 系统信息 -->
+        <Border Grid.Row="4" Padding="15" Background="#FAFAFA" CornerRadius="8" BorderBrush="#E0E0E0" BorderThickness="1">
+            <StackPanel>
+                <TextBlock Text="系统信息" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                <TextBlock Text="平台版本：SmartIndustry Platform v1.0" Margin="0,3"/>
+                <TextBlock Text="运行模式：模拟仿真（Simulation）" Margin="0,3"/>
+                <TextBlock Text="框架版本：.NET 9.0 + WPF" Margin="0,3"/>
+                <TextBlock Text="视觉引擎：SimulationVisionEngine（30fps仿真）" Margin="0,3"/>
+                <TextBlock Text="运动控制：SimulatedMotionDriver（6轴模拟）" Margin="0,3"/>
+                <TextBlock Text="通信协议：MQTT / Modbus TCP / SECS/GEM（模拟）" Margin="0,3"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

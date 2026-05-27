@@ -1,0 +1,57 @@
+<!--
+  项目：SmartIndustry.UI
+  层级：表现层（WPF 桌面应用）
+  职责：提供 WPF 用户界面，实现 MVVM 模式（使用 CommunityToolkit.Mvvm），
+        展示实时数据图表（LiveCharts2），管理依赖注入容器（Microsoft.Extensions.DI），
+        协调各层初始化和生命周期管理。
+  目标框架：net9.0-windows（WPF 仅支持 Windows 平台）
+  UseWPF：true（启用 WPF 特性，包含 XAML 支持）
+  项目引用：所有层（Domain + Infrastructure + Hardware + Application）
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- WinExe：生成 Windows 可执行文件（不显示控制台窗口） -->
+    <OutputType>WinExe</OutputType>
+    <!-- net9.0-windows：目标 Windows 平台，WPF 必须 -->
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <!-- 启用 WPF：允许使用 XAML、WPF 控件、数据绑定等 -->
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>SmartIndustry.UI</AssemblyName>
+    <RootNamespace>SmartIndustry.UI</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Version>1.0.0</Version>
+    <Company>SmartIndustry</Company>
+    <Product>SmartIndustry Platform</Product>
+    <!-- 应用程序图标（如有） -->
+    <!-- <ApplicationIcon>Resources\app.ico</ApplicationIcon> -->
+    <!-- 启动对象：WPF 应用程序入口 -->
+    <StartupObject>SmartIndustry.UI.App</StartupObject>
+  </PropertyGroup>
+
+  <!--
+    NuGet 包依赖说明：
+    - CommunityToolkit.Mvvm 8.4.0：MVVM 工具包，提供 ObservableObject、RelayCommand、
+      源生成器等，简化 ViewModel 开发
+    - Microsoft.Extensions.DependencyInjection 9.0.5：微软官方 DI 容器，
+      用于统一管理所有层的服务注册和生命周期
+    - LiveChartsCore.SkiaSharpView.WPF 2.0.0-rc3.3：基于 SkiaSharp 的高性能图表库，
+      用于展示实时工业数据曲线（激光干涉数据、传感器波形等）
+  -->
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc3.3" />
+  </ItemGroup>
+
+  <!-- 项目引用：依赖所有业务层 -->
+  <ItemGroup>
+    <ProjectReference Include="..\SmartIndustry.Domain\SmartIndustry.Domain.csproj" />
+    <ProjectReference Include="..\SmartIndustry.Infrastructure\SmartIndustry.Infrastructure.csproj" />
+    <ProjectReference Include="..\SmartIndustry.Hardware\SmartIndustry.Hardware.csproj" />
+    <ProjectReference Include="..\SmartIndustry.Application\SmartIndustry.Application.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,62 @@
+<!--
+  项目：SmartIndustry.Infrastructure
+  层级：基础设施层
+  职责：实现领域层定义的仓储接口、提供数据库访问（EF Core + SQLite）、
+        日志记录（Serilog）、消息队列通信（MQTTnet）、JSON 序列化等基础能力。
+  目标框架：net9.0（基础设施层不直接依赖 UI，保持无 WPF 依赖）
+  项目引用：SmartIndustry.Domain
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>SmartIndustry.Infrastructure</AssemblyName>
+    <RootNamespace>SmartIndustry.Infrastructure</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Version>1.0.0</Version>
+    <Company>SmartIndustry</Company>
+    <Product>SmartIndustry Platform</Product>
+  </PropertyGroup>
+
+  <!--
+    NuGet 包依赖说明：
+    - Serilog 4.2.0：结构化日志框架核心库
+    - Serilog.Sinks.File 6.0.0：Serilog 文件输出接收器，将日志写入本地文件
+    - Serilog.Formatting.Compact 3.0.0：紧凑 JSON 格式化输出（结构化日志）
+    - Microsoft.EntityFrameworkCore.Sqlite 9.0.5：EF Core SQLite 提供程序，用于本地数据持久化
+    - Microsoft.EntityFrameworkCore.Design 9.0.5：EF Core 设计时工具（迁移、脚手架）
+    - System.Text.Json 9.0.5：高性能 JSON 序列化，用于消息序列化和配置读取
+    - MQTTnet 4.3.7：MQTT 协议客户端/服务端库，用于工业设备消息通信
+    - System.Reactive 6.0.1：Rx.NET 响应式编程库（FileSystemWatcher -> IObservable 封装）
+    - Microsoft.Extensions.Http 9.0.5：HttpClientFactory，管理 HttpClient 生命周期
+    - Microsoft.Extensions.DependencyInjection 9.0.5：IServiceCollection 扩展（DI 注册）
+  -->
+  <ItemGroup>
+    <PackageReference Include="Serilog" Version="4.2.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="Serilog.Formatting.Compact" Version="3.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+      <!-- Design 包仅在开发时使用，不需要打包到输出 -->
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Text.Json" Version="9.0.5" />
+    <PackageReference Include="MQTTnet" Version="4.3.7.1192" />
+    <!-- Rx.NET：FileSystemWatcher -> IObservable 封装（WatchDirectory 方法使用） -->
+    <PackageReference Include="System.Reactive" Version="6.0.1" />
+    <!-- HttpClientFactory：管理 HttpClient 连接池和 Handler 生命周期 -->
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.5" />
+    <!-- DI 扩展：IServiceCollection 和 AddDbContext 等扩展方法 -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
+  </ItemGroup>
+
+  <!-- 项目引用：依赖领域层 -->
+  <ItemGroup>
+    <ProjectReference Include="..\SmartIndustry.Domain\SmartIndustry.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

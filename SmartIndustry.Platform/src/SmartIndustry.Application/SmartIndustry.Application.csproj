@@ -1,0 +1,32 @@
+<!--
+  项目：SmartIndustry.Application
+  层级：应用层（用例编排层）
+  职责：实现应用程序用例（Use Cases），编排领域对象和基础设施服务，
+        处理业务流程、命令/查询分发（CQRS）、数据过滤与分析逻辑、
+        以及应用层事件处理。不包含 UI 逻辑，不直接访问数据库。
+  目标框架：net9.0（应用层与 UI 无关，保持可测试性）
+  项目引用：SmartIndustry.Domain + SmartIndustry.Infrastructure + SmartIndustry.Hardware
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>SmartIndustry.Application</AssemblyName>
+    <RootNamespace>SmartIndustry.Application</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Version>1.0.0</Version>
+    <Company>SmartIndustry</Company>
+    <Product>SmartIndustry Platform</Product>
+  </PropertyGroup>
+
+  <!-- 项目引用：依赖领域层、基础设施层、硬件层 -->
+  <ItemGroup>
+    <ProjectReference Include="..\SmartIndustry.Domain\SmartIndustry.Domain.csproj" />
+    <ProjectReference Include="..\SmartIndustry.Infrastructure\SmartIndustry.Infrastructure.csproj" />
+    <ProjectReference Include="..\SmartIndustry.Hardware\SmartIndustry.Hardware.csproj" />
+  </ItemGroup>
+
+</Project>
