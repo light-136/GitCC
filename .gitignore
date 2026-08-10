@@ -28,3 +28,10 @@ Logs/
 # ===== OS 文件 =====
 Thumbs.db
 .DS_Store
+
+# ===== 蓝牙语音识别记录：加密副本与大压缩包不提交 =====
+蓝牙语音识别记录/加密/
+蓝牙语音识别记录/蓝牙第三版 OK版本.rar
+
+# ===== Claude Code 官方仓库副本：排除演示动图（11MB）=====
+claude-code-main/demo.gif
