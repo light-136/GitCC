@@ -1,0 +1,306 @@
+代码  使用的是WPF +MVVM模式
+
+需求 ：如图片所示，如何做到鼠标右击箭头所指工程项目，可以出现修改名称，并直接可以输入新名称进行修改 如第二张图片样板。 
+在 文件目录下 有两张图 需要修改的.png 和 可以参考的.png
+理解我的意思  给我一个实现的WPF  mvvm 模式 基于我的代码 可以实现我的需求的工程项目
+
+        <TreeView
+            x:Name="LeftTreeList"
+            Background="Transparent"
+            BorderBrush="Transparent"
+            ItemsSource="{Binding TreeNodes}"
+            SelectedValuePath="Name"
+            Style="{x:Null}">
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                </Style>
+            </TreeView.ItemContainerStyle>
+            <TreeView.Resources>
+                <!--  覆盖系统默认深蓝色选中  -->
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#D1E0F2" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#000000" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#E4EDF9" />
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#333333" />
+
+                <!--  统一TreeViewItem样式：黑色三角箭头 + 无子项隐藏箭头 + 选中颜色控制  -->
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="Foreground" Value="#333333" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TreeViewItem">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" MinWidth="19" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+
+                                    <!--  展开折叠三角按钮，标签严格闭合  -->
+                                    <ToggleButton
+                                        x:Name="Expander"
+                                        Grid.Column="0"
+                                        Margin="0,3,0,0"
+                                        ClickMode="Press"
+                                        IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}">
+                                        <ToggleButton.Style>
+                                            <Style TargetType="ToggleButton">
+                                                <Setter Property="Width" Value="20" />
+                                                <Setter Property="Height" Value="20" />
+                                                <Setter Property="Background" Value="Transparent" />
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="ToggleButton">
+                                                            <Grid Background="Transparent">
+                                                                <!--  折叠状态：向右三角  -->
+                                                                <Path
+                                                                    x:Name="Arrow"
+                                                                    HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center"
+                                                                    Data="M 0 0 L 4 4 L 0 8 Z"
+                                                                    Fill="#000000" />
+                                                            </Grid>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsChecked" Value="True">
+                                                                    <!--  展开状态：向下三角  -->
+                                                                    <Setter TargetName="Arrow" Property="Data" Value="M 0 8 L 8 8 L 8 0 Z" />
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </ToggleButton.Style>
+                                    </ToggleButton>
+
+                                    <!--  选中背景容器  -->
+                                    <Border
+                                        x:Name="SelectionBorder"
+                                        Grid.Column="1"
+                                        Grid.ColumnSpan="2"
+                                        Background="Transparent"
+                                        CornerRadius="2">
+                                        <ContentPresenter
+                                            x:Name="PART_Header"
+                                            HorizontalAlignment="Left"
+                                            ContentSource="Header" />
+                                    </Border>
+
+                                    <ItemsPresenter
+                                        x:Name="ItemsHost"
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Grid.ColumnSpan="2"
+                                        Margin="16,0,0,0"
+                                        Visibility="Collapsed" />
+                                </Grid>
+
+                                <ControlTemplate.Triggers>
+                                    <!--  有子项才显示子节点列表  -->
+                                    <Trigger Property="IsExpanded" Value="True">
+                                        <Setter TargetName="ItemsHost" Property="Visibility" Value="Visible" />
+                                    </Trigger>
+
+                                    <!--  ========== 新增：无子节点时隐藏箭头 ==========  -->
+                                    <Trigger Property="HasItems" Value="False">
+                                        <Setter TargetName="Expander" Property="Visibility" Value="Collapsed" />
+                                    </Trigger>
+
+                                    <!--  焦点选中加深底色  -->
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsSelected" Value="True" />
+                                            <Condition Property="IsSelectionActive" Value="True" />
+                                        </MultiTrigger.Conditions>
+                                        <Setter TargetName="SelectionBorder" Property="Background" Value="#D1E0F2" />
+                                        <Setter Property="Foreground" Value="#000000" />
+                                    </MultiTrigger>
+                                    <!--  失焦选中  -->
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsSelected" Value="True" />
+                                            <Condition Property="IsSelectionActive" Value="False" />
+                                        </MultiTrigger.Conditions>
+                                        <Setter TargetName="SelectionBorder" Property="Background" Value="#E4EDF9" />
+                                        <Setter Property="Foreground" Value="#333333" />
+                                    </MultiTrigger>
+
+
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+
+                <!--  你的原有节点数据模板无改动  -->
+                <HierarchicalDataTemplate DataType="{x:Type tree:TreeNode}" ItemsSource="{Binding Children}">
+                    <StackPanel
+                        Margin="0,5,2,0"
+                        Orientation="Horizontal"
+                        ToolTip="{Binding ToolTip}">
+                        <Path
+                            Width="16"
+                            Height="16"
+                            Margin="0,0,0,0"
+                            Data="{Binding Icon}"
+                            Fill="#007ACC"
+                            Stretch="Fill" />
+                        <TextBlock Margin="4,0,0,0" Text="{Binding Name}" />
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+            </TreeView.Resources>
+
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectedItemChanged">
+                    <prism:InvokeCommandAction Command="{Binding ExecuteCommandS}" CommandParameter="{Binding ElementName=LeftTreeList, Path=SelectedItem}" />
+                </i:EventTrigger>
+                <i:EventTrigger EventName="MouseDoubleClick">
+                    <prism:InvokeCommandAction Command="{Binding ExecuteCommandS}" CommandParameter="{Binding ElementName=LeftTreeList, Path=SelectedItem}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TreeView>
+
+
+
+
+
+
+        #region 工程项目
+        public ObservableCollection<TreeNode> TreeNodes
+        {
+            get;
+        }
+=
+new ObservableCollection<TreeNode>()
+{
+    new TreeNode
+    {
+        Name=Common_GlobalData.GongChengXiangMu,
+        Icon=Common_TreeNodeUrlEnum.工程项目,
+        IsExpanded=true,
+
+        Children=
+        {
+            new TreeNode
+            {
+                Name="控制器["+Common_GlobalData.SoftWareLocalConnectIP+"]",
+                ToolTip="控制器IP[" + Common_GlobalData.SoftWareLocalConnectIP + "]",
+                Icon=Common_TreeNodeUrlEnum.控制器,
+                  IsExpanded=true,
+                Children=
+                {
+                    new TreeNode
+                    {
+                        Name="系统总成",
+                        Icon=Common_TreeNodeUrlEnum.系统总成ss
+                    },
+
+                    new TreeNode
+                    {
+                        Name="工程参数配置",
+                        Icon=Common_TreeNodeUrlEnum.工程配置参数
+                    },
+
+                    new TreeNode
+                    {
+                        Name="监控",
+                        Icon=Common_TreeNodeUrlEnum.监控,
+                          IsExpanded=false,
+                        Children=
+                        {
+                            new TreeNode
+                            {
+                                Name="IO监控",
+                                Icon=Common_TreeNodeUrlEnum.IO
+                            },
+
+                            //new TreeNode
+                            //{
+                            //    Name="AD监控",
+                            //    Icon="/XiCS_Studio;component/Images/故障维护.png"
+                            //},
+
+                           
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
+        public void Execute(object NavigateName)
+        {
+            if (NavigateName is TreeNode node)
+            {
+                //MessageBox.Show(node.Name);
+                if (node.Name== Common_StaticMethods.LanguageLocalDicConvertAndReturnMeans("系统总成"))
+                {
+                    ViewCreateOrShow("系统总成");
+                }
+                else if (node.Name == Common_StaticMethods.LanguageLocalDicConvertAndReturnMeans("工程参数配置"))
+                {
+                    ViewCreateOrShow("工程配置");
+                }
+            }
+            //bool IsZero = false;
+            //var el = (XmlElement)NavigateName;
+            //var attribute = el.Attributes["Title"];
+
+            //if (string.IsNullOrWhiteSpace(attribute.Value)) return;
+            //string ViewName = attribute.Value;
+            //ViewCreateOrShow(ViewName);
+
+
+        }
+        #endregion 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+需要修改的
+
+
+
+
+
+
+
+
+
+
+
+
+可以借鉴的
+
+
+
+
+
+
+
+
+
+
+
+

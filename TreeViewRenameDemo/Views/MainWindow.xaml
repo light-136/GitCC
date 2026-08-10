@@ -1,0 +1,284 @@
+<Window x:Class="TreeViewRenameDemo.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:viewmodels="clr-namespace:TreeViewRenameDemo.ViewModels"
+        xmlns:converters="clr-namespace:TreeViewRenameDemo.Converters"
+        xmlns:models="clr-namespace:TreeViewRenameDemo.Models"
+        xmlns:helpers="clr-namespace:TreeViewRenameDemo.Helpers"
+        mc:Ignorable="d"
+        Title="TreeView 重命名功能演示"
+        Height="600"
+        Width="400"
+        Background="#F5F5F5">
+
+    <Window.DataContext>
+        <viewmodels:MainViewModel />
+    </Window.DataContext>
+
+    <Window.Resources>
+        <!-- 转换器资源 -->
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+
+        <!-- 绑定代理：用于将 ViewModel 传递给不在可视树中的 ContextMenu -->
+        <helpers:BindingProxy x:Key="ViewModelProxy" Data="{Binding}" />
+
+        <!-- 覆盖系统默认选中颜色 -->
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#D1E0F2" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#000000" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#E4EDF9" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#333333" />
+
+        <!-- 编辑模式 TextBox 样式 -->
+        <Style x:Key="EditingTextBoxStyle" TargetType="TextBox">
+            <Setter Property="BorderBrush" Value="#007ACC" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="2" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="MinWidth" Value="100" />
+        </Style>
+
+        <!-- 工程项目节点专用右键菜单（放在资源中，代码中动态赋值） -->
+        <ContextMenu x:Key="ProjectContextMenu">
+            <MenuItem
+                Header="重命名"
+                Command="{Binding Data.RenameCommand, Source={StaticResource ViewModelProxy}}"
+                CommandParameter="{Binding}">
+                <MenuItem.Icon>
+                    <Path Data="M 2 2 L 10 2 L 10 4 L 2 4 Z M 2 6 L 10 6 L 10 8 L 2 8 Z M 2 10 L 10 10 L 10 12 L 2 12 Z"
+                          Fill="#007ACC" Stretch="Uniform" Width="12" Height="12" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+                Header="工程载入"
+                Command="{Binding Data.LoadProjectCommand, Source={StaticResource ViewModelProxy}}"
+                CommandParameter="{Binding}">
+                <MenuItem.Icon>
+                    <Path Data="M 1 3 L 6 3 L 7 1 L 14 1 L 14 12 L 1 12 Z"
+                          Fill="#D4A017" Stretch="Uniform" Width="12" Height="12" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+                Header="工程另存"
+                Command="{Binding Data.SaveProjectAsCommand, Source={StaticResource ViewModelProxy}}"
+                CommandParameter="{Binding}">
+                <MenuItem.Icon>
+                    <Path Data="M 2 1 L 12 1 L 14 3 L 14 14 L 2 14 Z M 5 1 L 5 5 L 11 5 L 11 1 M 5 9 L 11 9 M 5 11 L 11 11"
+                          Fill="#28A745" Stretch="Uniform" Width="12" Height="12" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </ContextMenu>
+
+        <!-- TreeViewItem 统一样式：控制箭头、背景色、选中效果 -->
+        <Style TargetType="TreeViewItem">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#333333" />
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TreeViewItem">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" MinWidth="19" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <!-- 展开/收起箭头按钮 -->
+                            <ToggleButton
+                                x:Name="Expander"
+                                Grid.Column="0"
+                                Margin="0,3,0,0"
+                                ClickMode="Press"
+                                IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Style>
+                                    <Style TargetType="ToggleButton">
+                                        <Setter Property="Width" Value="20" />
+                                        <Setter Property="Height" Value="20" />
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ToggleButton">
+                                                    <Grid Background="Transparent">
+                                                        <!-- 收起状态：右箭头 ▶ -->
+                                                        <Path
+                                                            x:Name="Arrow"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            Data="M 0 0 L 4 4 L 0 8 Z"
+                                                            Fill="#000000" />
+                                                    </Grid>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsChecked" Value="True">
+                                                            <!-- 展开状态：下箭头 ▼ -->
+                                                            <Setter TargetName="Arrow" Property="Data" Value="M 0 0 L 8 0 L 4 8 Z" />
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ToggleButton.Style>
+                            </ToggleButton>
+
+                            <!-- 选中背景边框 -->
+                            <Border
+                                x:Name="SelectionBorder"
+                                Grid.Column="1"
+                                Grid.ColumnSpan="2"
+                                Background="Transparent"
+                                CornerRadius="2">
+                                <ContentPresenter
+                                    x:Name="PART_Header"
+                                    Margin="2"
+                                    HorizontalAlignment="Left"
+                                    ContentSource="Header" />
+                            </Border>
+
+                            <!-- 子节点容器 -->
+                            <ItemsPresenter
+                                x:Name="ItemsHost"
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Grid.ColumnSpan="2"
+                                Visibility="Collapsed" />
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <!-- 展开时显示子节点列表 -->
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="ItemsHost" Property="Visibility" Value="Visible" />
+                            </Trigger>
+
+                            <!-- 无子节点时隐藏箭头 -->
+                            <Trigger Property="HasItems" Value="False">
+                                <Setter TargetName="Expander" Property="Visibility" Value="Hidden" />
+                            </Trigger>
+
+                            <!-- 选中且激活时的背景色 -->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="True" />
+                                    <Condition Property="IsSelectionActive" Value="True" />
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="SelectionBorder" Property="Background" Value="#D1E0F2" />
+                                <Setter Property="Foreground" Value="#000000" />
+                            </MultiTrigger>
+
+                            <!-- 选中但失去焦点时的背景色 -->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="True" />
+                                    <Condition Property="IsSelectionActive" Value="False" />
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="SelectionBorder" Property="Background" Value="#E4EDF9" />
+                                <Setter Property="Foreground" Value="#333333" />
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+        </Style>
+
+        <!-- 节点内容数据模板 ⭐核心功能：编辑模式切换 -->
+        <HierarchicalDataTemplate DataType="{x:Type models:TreeNode}" ItemsSource="{Binding Children}">
+            <StackPanel
+                Margin="0,5,2,0"
+                Orientation="Horizontal"
+                ToolTip="{Binding ToolTip}">
+
+                <!-- 节点图标 -->
+                <Path
+                    Width="16"
+                    Height="16"
+                    Margin="0,0,4,0"
+                    Data="{Binding Icon}"
+                    Fill="#007ACC"
+                    Stretch="Fill" />
+
+                <!-- 正常显示模式：TextBlock（只读） -->
+                <TextBlock
+                    Text="{Binding Name}"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+
+                <!-- 编辑模式：TextBox（可编辑） ⭐核心功能 -->
+                <TextBox
+                    x:Name="EditTextBox"
+                    Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                    Style="{StaticResource EditingTextBoxStyle}"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"
+                    KeyDown="EditTextBox_KeyDown"
+                    LostFocus="EditTextBox_LostFocus"
+                    Loaded="EditTextBox_Loaded" />
+            </StackPanel>
+        </HierarchicalDataTemplate>
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- 标题栏 -->
+        <Border
+            Grid.Row="0"
+            Background="#007ACC"
+            Padding="10"
+            CornerRadius="4"
+            Margin="0,0,0,10">
+            <TextBlock
+                Text="工程项目树"
+                FontSize="16"
+                FontWeight="Bold"
+                Foreground="White" />
+        </Border>
+
+        <!-- TreeView 主体 -->
+        <Border
+            Grid.Row="1"
+            Background="White"
+            BorderBrush="#CCCCCC"
+            BorderThickness="1"
+            CornerRadius="4">
+            <TreeView
+                x:Name="LeftTreeList"
+                Background="Transparent"
+                BorderBrush="Transparent"
+                ItemsSource="{Binding TreeNodes}"
+                Padding="5"
+                ContextMenuOpening="TreeView_ContextMenuOpening" />
+        </Border>
+
+        <!-- 底部说明栏 -->
+        <Border
+            Grid.Row="2"
+            Background="#F0F0F0"
+            Padding="10"
+            CornerRadius="4"
+            Margin="0,10,0,0">
+            <StackPanel>
+                <TextBlock
+                    Text="使用说明："
+                    FontWeight="Bold"
+                    Margin="0,0,0,5" />
+                <TextBlock Text="• 右键点击节点，选择【重命名】" />
+                <TextBlock Text="• 按 Enter 键确认，按 Esc 键取消" />
+                <TextBlock Text="• 失去焦点时自动保存" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
