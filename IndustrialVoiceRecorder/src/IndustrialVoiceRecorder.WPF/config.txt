@@ -1,0 +1,56 @@
+# ==========================================
+# 工业语音记录系统 - 配置文件
+# 修改后需要重启程序生效
+# ==========================================
+
+# ---------- FunASR语音识别服务 ----------
+# 服务器地址（FunASR Python服务运行的IP）
+FunASR.Host=127.0.0.1
+# 服务器端口
+FunASR.Port=10095
+# 识别接口路径
+FunASR.Endpoint=/asr
+# 请求超时时间（秒）
+FunASR.TimeoutSeconds=30
+
+# ---------- 数据库 ----------
+# 数据库文件名
+Database.FileName=voice_records.db
+# 数据库目录（相对于程序目录，或绝对路径）
+Database.Directory=Data
+
+# ---------- 目录配置 ----------
+# 导出文件目录
+Export.Directory=Export
+# 日志目录
+Log.Directory=Logs
+# 模型目录
+Model.Directory=Models
+# 音频文件保存目录（按日期子目录归档）
+Audio.SaveDirectory=AudioFiles
+
+# ---------- 音频参数 ----------
+# 采样率（Hz）
+Audio.SampleRate=16000
+# 声道数
+Audio.Channels=1
+# 位深度
+Audio.BitsPerSample=16
+
+# ---------- VAD语音检测参数 ----------
+# 静音超时时间（毫秒，说完话后等待多久触发识别）
+VAD.SilenceTimeoutMs=2000
+# 最小音频长度（字节，低于此值不发送识别）
+VAD.MinAudioBytes=48000
+# 最大缓冲长度（字节，超过强制识别）
+VAD.MaxBufferBytes=480000
+# 预缓冲长度（字节，保留语音开头）
+VAD.PreBufferBytes=16000
+# VAD能量倍数（噪音基线的倍数）
+VAD.EnergyMultiplier=2.5
+# VAD最小绝对阈值
+VAD.MinThreshold=0.0003
+
+# ---------- 应用信息 ----------
+App.Name=工业语音记录系统
+App.Version=3.0.0
