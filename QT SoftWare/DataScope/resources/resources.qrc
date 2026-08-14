@@ -1,0 +1,8 @@
+<RCC>
+    <!-- DataScope Studio 资源清单（P5）
+         AUTORCC 会在编译时把 qss/main.qss 编译进可执行文件，
+         Qt 内访问路径为 qrc:/qss/main.qss（对应 WPF 的 pack URI / ResourceDictionary） -->
+    <qresource prefix="/">
+        <file>qss/main.qss</file>
+    </qresource>
+</RCC>

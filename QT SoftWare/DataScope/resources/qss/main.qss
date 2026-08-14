@@ -1,0 +1,110 @@
+/* =============================================================
+   DataScope Studio —— 深色工业主题样式表（P5）
+   对应 WPF：App.xaml 里的全局 Style / 资源字典。
+   QSS 语法要点：
+     - QPushButton / QTabBar::tab   类型选择器（= WPF TargetType）
+     - #monitorPage                 ID 选择器（= x:Key / 元素名定位）
+     - :hover / :selected / :pressed 伪状态（= WPF Trigger Property=IsMouseOver）
+   中文不写在 QSS 里（编码兼容性），全部用英文。
+   ============================================================= */
+
+/* ---- 全局背景（深蓝灰工业底） ---- */
+QMainWindow {
+    background-color: #1e2a38;
+}
+
+/* ---- 页签栏：圆角顶部标签，选中项青色高亮 ---- */
+QTabWidget::pane {
+    border: 1px solid #3a4a5a;
+    background: #243341;
+    top: -1px;
+}
+QTabBar::tab {
+    background: #2c3e50;
+    color: #cfd8e3;
+    padding: 8px 20px;
+    border: 1px solid #3a4a5a;
+    border-bottom: none;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    margin-right: 2px;
+}
+QTabBar::tab:selected {
+    background: #16a085;
+    color: #ffffff;
+}
+QTabBar::tab:hover:!selected {
+    background: #3a5068;
+}
+
+/* ---- 主按钮：青绿色实心按钮 ---- */
+QPushButton {
+    background: #16a085;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 16px;
+    font-weight: bold;
+}
+QPushButton:hover  { background: #1abc9c; }
+QPushButton:pressed{ background: #0e8f73; }
+QPushButton:disabled {
+    background: #4a5a6a;
+    color: #8a9aaa;
+}
+
+/* ---- 输入控件：深色凹陷质感 ---- */
+QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {
+    background: #15202b;
+    color: #dce5ee;
+    border: 1px solid #3a4a5a;
+    border-radius: 4px;
+    padding: 4px 8px;
+    selection-background-color: #16a085;
+}
+QComboBox::drop-down { border: none; }
+QComboBox QAbstractItemView {
+    background: #15202b;
+    color: #dce5ee;
+    border: 1px solid #3a4a5a;
+    selection-background-color: #16a085;
+}
+
+/* ---- 只读日志区：等宽字体，深底绿字 ---- */
+QPlainTextEdit, QTextEdit {
+    background: #0f1923;
+    color: #bcd8c7;
+    border: 1px solid #3a4a5a;
+    border-radius: 4px;
+    font-family: "Consolas", "Courier New", monospace;
+}
+
+/* ---- 状态栏：与背景区分 ---- */
+QStatusBar {
+    background: #182430;
+    color: #9fb3c8;
+}
+QStatusBar QLabel { color: #9fb3c8; }
+
+/* ---- 菜单栏 / 菜单 ---- */
+QMenuBar {
+    background: #182430;
+    color: #dce5ee;
+    border-bottom: 1px solid #3a4a5a;
+}
+QMenuBar::item { background: transparent; padding: 4px 10px; }
+QMenuBar::item:selected { background: #2c3e50; }
+QMenu {
+    background: #182430;
+    color: #dce5ee;
+    border: 1px solid #3a4a5a;
+}
+QMenu::item:selected { background: #16a085; color: #ffffff; }
+
+/* ---- 工具栏 ---- */
+QToolBar {
+    background: #182430;
+    border: none;
+    spacing: 4px;
+    padding: 2px;
+}

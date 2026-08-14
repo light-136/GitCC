@@ -17,6 +17,8 @@
 #include <QApplication>
 #include <QFont>
 #include "ui/mainwindow.h"
+#include "infrastructure/logmanager.h"
+#include "infrastructure/configmanager.h"
 
 int main(int argc, char *argv[])
 {
@@ -28,6 +30,13 @@ int main(int argc, char *argv[])
     app.setOrganizationName(QStringLiteral("DataScope"));
     app.setApplicationName(QStringLiteral("DataScope Studio"));
     app.setApplicationVersion(QStringLiteral("0.1.0"));
+
+    // P6/P7 基础设施启动即落地：日志与配置在用户目录初始化（AppDataLocation）
+    // 先 init 日志再 init 配置，保证后续任何模块写日志都有落点
+    datascope::infrastructure::LogManager::instance().init();
+    datascope::infrastructure::ConfigManager::instance().init();
+    datascope::infrastructure::LogManager::instance().info(
+        "Main", QStringLiteral("DataScope Studio 启动 v0.1.0"));
 
     // 创建主窗口并显示（窗口对象在栈上，由 main 结束自动析构）
     MainWindow window;
