@@ -35,3 +35,16 @@ Thumbs.db
 
 # ===== Claude Code 官方仓库副本：排除演示动图（11MB）=====
 claude-code-main/demo.gif
+
+# ===== Qt 构建产物（GD32FirmwareUpdaterQt）=====
+GD32驱动器/GD32FirmwareUpdaterQt/build/
+GD32驱动器/GD32FirmwareUpdaterQt/tests/release/
+GD32驱动器/GD32FirmwareUpdaterQt/.qmake.stash
+GD32驱动器/GD32FirmwareUpdaterQt/tests/.qmake.stash
+GD32驱动器/GD32FirmwareUpdaterQt/tests/tst_*_results.txt
+GD32驱动器/GD32FirmwareUpdaterQt/Makefile
+GD32驱动器/GD32FirmwareUpdaterQt/Makefile.*
+GD32驱动器/GD32FirmwareUpdaterQt/object_script.*
+GD32驱动器/GD32FirmwareUpdaterQt/tests/Makefile
+GD32驱动器/GD32FirmwareUpdaterQt/tests/Makefile.*
+GD32驱动器/GD32FirmwareUpdaterQt/tests/object_script.*
