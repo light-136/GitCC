@@ -62,6 +62,33 @@ target_include_directories(datascope_infra PUBLIC ${DS_SRC_DIR})
 target_link_libraries(datascope_infra PUBLIC Qt5::Core)
 
 # ============================================================================
+# 2.5) 领域模型静态库：datascope_domain（P8：Device/Channel/DataPoint）
+#    独立成库：纯数据模型，只依赖 QtCore；后续 protocol / services / UI 都消费它
+# ============================================================================
+add_library(datascope_domain STATIC
+    src/domain/models.cpp
+    src/domain/models.h
+)
+target_include_directories(datascope_domain PUBLIC ${DS_SRC_DIR})
+target_link_libraries(datascope_domain PUBLIC Qt5::Core)
+
+# ============================================================================
+# 2.6) 协议引擎静态库：datascope_protocol（P10：Crc16/FrameBuilder/FrameParser）
+#    独立成库：串口(P9)、TCP客户端(P11)、模拟设备(Simulator)都消费它
+# ============================================================================
+add_library(datascope_protocol STATIC
+    src/protocol/protocoltypes.h
+    src/protocol/crc16.cpp
+    src/protocol/crc16.h
+    src/protocol/framebuilder.cpp
+    src/protocol/framebuilder.h
+    src/protocol/frameparser.cpp
+    src/protocol/frameparser.h
+)
+target_include_directories(datascope_protocol PUBLIC ${DS_SRC_DIR})
+target_link_libraries(datascope_protocol PUBLIC Qt5::Core)
+
+# ============================================================================
 # 2) 主程序：DataScope
 # ============================================================================
 add_executable(DataScope
@@ -83,6 +110,13 @@ add_executable(DataScope
     src/ui/pages/settingspage.h
     src/ui/pages/demopage.cpp
     src/ui/pages/demopage.h
+    # ---- UI 层：自绘控件（P14：实时曲线 / 仪表盘 / LED）----
+    src/ui/widgets/linechartwidget.cpp
+    src/ui/widgets/linechartwidget.h
+    src/ui/widgets/gaugewidget.cpp
+    src/ui/widgets/gaugewidget.h
+    src/ui/widgets/ledindicator.cpp
+    src/ui/widgets/ledindicator.h
     # ---- 资源（AUTORCC 会把 qss 编译进可执行文件）----
     resources/resources.qrc
 )
@@ -94,6 +128,8 @@ target_link_libraries(DataScope PRIVATE
     Qt5::Widgets
     datascope_utils
     datascope_infra
+    datascope_domain
+    datascope_protocol
 )
 
 # ----------------------------------------------------------------------------
@@ -169,3 +205,36 @@ target_include_directories(tst_configmanager PRIVATE ${DS_SRC_DIR})
 target_link_libraries(tst_configmanager PRIVATE Qt5::Test datascope_infra)
 ds_deploy_qt(tst_configmanager)
 add_test(NAME tst_configmanager COMMAND tst_configmanager)
+
+# P8: Domain 领域模型单测
+add_executable(tst_domain
+    tests/unittests/tst_domain.cpp
+)
+target_include_directories(tst_domain PRIVATE ${DS_SRC_DIR})
+target_link_libraries(tst_domain PRIVATE Qt5::Test datascope_domain)
+ds_deploy_qt(tst_domain)
+add_test(NAME tst_domain COMMAND tst_domain)
+
+# P10: 协议引擎单测
+add_executable(tst_protocol
+    tests/unittests/tst_protocol.cpp
+)
+target_include_directories(tst_protocol PRIVATE ${DS_SRC_DIR})
+target_link_libraries(tst_protocol PRIVATE Qt5::Test datascope_protocol)
+ds_deploy_qt(tst_protocol)
+add_test(NAME tst_protocol COMMAND tst_protocol)
+
+# P14: 自绘控件单测（控件继承 QWidget，需链接 Widgets 模块）
+add_executable(tst_widgets
+    tests/unittests/tst_widgets.cpp
+    src/ui/widgets/linechartwidget.cpp
+    src/ui/widgets/linechartwidget.h
+    src/ui/widgets/gaugewidget.cpp
+    src/ui/widgets/gaugewidget.h
+    src/ui/widgets/ledindicator.cpp
+    src/ui/widgets/ledindicator.h
+)
+target_include_directories(tst_widgets PRIVATE ${DS_SRC_DIR})
+target_link_libraries(tst_widgets PRIVATE Qt5::Test Qt5::Widgets)
+ds_deploy_qt(tst_widgets)
+add_test(NAME tst_widgets COMMAND tst_widgets)
