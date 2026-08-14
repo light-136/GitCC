@@ -101,6 +101,8 @@ add_library(datascope_services STATIC
     src/services/dataservice.h
     src/services/devicecontroller.cpp
     src/services/devicecontroller.h
+    src/services/recordmanager.cpp
+    src/services/recordmanager.h
 )
 target_include_directories(datascope_services PUBLIC ${DS_SRC_DIR})
 target_link_libraries(datascope_services PUBLIC
@@ -304,3 +306,12 @@ target_include_directories(tst_devicecontroller PRIVATE ${DS_SRC_DIR})
 target_link_libraries(tst_devicecontroller PRIVATE Qt5::Test Qt5::Network datascope_services)
 ds_deploy_qt(tst_devicecontroller)
 add_test(NAME tst_devicecontroller COMMAND tst_devicecontroller)
+
+# P15: RecordManager 记录/回放单测（CSV 落盘 + 定时重放）
+add_executable(tst_recordmanager
+    tests/unittests/tst_recordmanager.cpp
+)
+target_include_directories(tst_recordmanager PRIVATE ${DS_SRC_DIR})
+target_link_libraries(tst_recordmanager PRIVATE Qt5::Test Qt5::Core datascope_services)
+ds_deploy_qt(tst_recordmanager)
+add_test(NAME tst_recordmanager COMMAND tst_recordmanager)

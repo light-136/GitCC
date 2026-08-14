@@ -73,6 +73,7 @@ GD32驱动器/GD32FirmwareUpdaterQt/tests/object_script.*
 
 # ===== Qt 构建产物（DataScope Studio 学习工程）=====
 QT SoftWare/DataScope/build/
+QT SoftWare/DataScope/build_release/
 QT SoftWare/DataScope/.qmake.stash
 QT SoftWare/DataScope/Makefile
 QT SoftWare/DataScope/Makefile.*

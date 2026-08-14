@@ -12,6 +12,7 @@
 #include "ui/mainwindow.h"
 
 #include "services/dataservice.h"
+#include "services/recordmanager.h"
 #include "ui/pages/monitorpage.h"
 #include "ui/pages/devicepage.h"
 #include "ui/pages/recordpage.h"
@@ -68,6 +69,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_actStart, &QAction::triggered,
             m_service, &datascope::services::DataService::startAcquisition);
     connect(m_actStop, &QAction::triggered, this, &MainWindow::stopAcquisition);
+
+    // ---- P15 集成：数据记录与回放 ----
+    // 数据流：采集 → 数据总线(dataUpdated) → RecordManager(记录中才落盘 CSV)
+    //         回放：RecordManager(replayData) → MonitorPage(同一 onDataUpdated 入口)
+    m_recordManager = new datascope::services::RecordManager(this);
+    m_recordPage->setRecordManager(m_recordManager);
+    connect(m_service, &datascope::services::DataService::dataUpdated,
+            m_recordManager, &datascope::services::RecordManager::appendData);
+    connect(m_recordManager, &datascope::services::RecordManager::replayData,
+            m_monitorPage, &datascope::ui::MonitorPage::onDataUpdated);
 
     // 启动后自动连接本机模拟设备（127.0.0.1:40001）：
     // 验收时先启动 simulator，界面即自动出现真实采集曲线；

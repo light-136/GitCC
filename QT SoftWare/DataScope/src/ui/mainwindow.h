@@ -32,7 +32,8 @@ class DemoPage;      // 信号槽演示页（P4 成果 UI 化）
 } // namespace ui
 
 namespace services {
-class DataService;   // 数据总线（P12：连接/采集/数据分发）
+class DataService;     // 数据总线（P12：连接/采集/数据分发）
+class RecordManager;   // 记录/回放管理器（P15）
 } // namespace services
 
 } // namespace datascope
@@ -75,6 +76,7 @@ private:
 
     // ---- P12 数据链路（DataService 数据总线）----
     datascope::services::DataService *m_service = nullptr;  // 数据总线
+    datascope::services::RecordManager *m_recordManager = nullptr;  // 记录/回放（P15）
     QAction *m_actConnect = nullptr;  // 工具栏：连接设备
     QAction *m_actStart   = nullptr;  // 工具栏：启动采集
     QAction *m_actStop    = nullptr;  // 工具栏：停止采集
