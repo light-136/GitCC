@@ -27,7 +27,7 @@ set(CMAKE_AUTOUIC ON)
 # ----------------------------------------------------------------------------
 # 查找 Qt5 模块（Test 供单测 target 使用）
 # ----------------------------------------------------------------------------
-find_package(Qt5 COMPONENTS Core Gui Widgets Test REQUIRED)
+find_package(Qt5 COMPONENTS Core Gui Widgets Network Test REQUIRED)
 
 # 源文件根目录（供各 target 统一 include）
 set(DS_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -89,6 +89,26 @@ target_include_directories(datascope_protocol PUBLIC ${DS_SRC_DIR})
 target_link_libraries(datascope_protocol PUBLIC Qt5::Core)
 
 # ============================================================================
+# 2.7) 服务层静态库：datascope_services（P11 TcpClient / P12 DataService+Worker）
+#    主程序与测试共用；服务层组合协议引擎 + 领域模型 + 网络通信
+# ============================================================================
+add_library(datascope_services STATIC
+    src/services/tcpclient.cpp
+    src/services/tcpclient.h
+    src/services/acquisitionworker.cpp
+    src/services/acquisitionworker.h
+    src/services/dataservice.cpp
+    src/services/dataservice.h
+)
+target_include_directories(datascope_services PUBLIC ${DS_SRC_DIR})
+target_link_libraries(datascope_services PUBLIC
+    Qt5::Core
+    Qt5::Network
+    datascope_protocol
+    datascope_domain
+)
+
+# ============================================================================
 # 2) 主程序：DataScope
 # ============================================================================
 add_executable(DataScope
@@ -130,6 +150,7 @@ target_link_libraries(DataScope PRIVATE
     datascope_infra
     datascope_domain
     datascope_protocol
+    datascope_services
 )
 
 # ----------------------------------------------------------------------------
@@ -151,6 +172,20 @@ endfunction()
 # Windows：GUI 子系统（主程序）+ 自动部署
 set_target_properties(DataScope PROPERTIES WIN32_EXECUTABLE TRUE)
 ds_deploy_qt(DataScope)
+
+# ============================================================================
+# 2.8) 模拟设备：Simulator（独立可执行程序，P11）
+#    无硬件联调时模拟采集设备：TCP 服务端 + 正弦波数据帧
+# ============================================================================
+add_executable(simulator
+    src/simulator/main.cpp
+)
+target_include_directories(simulator PRIVATE ${DS_SRC_DIR})
+target_link_libraries(simulator PRIVATE
+    Qt5::Network
+    datascope_protocol
+)
+ds_deploy_qt(simulator)
 
 # ============================================================================
 # 3) 单元测试（Qt Test）
@@ -238,3 +273,23 @@ target_include_directories(tst_widgets PRIVATE ${DS_SRC_DIR})
 target_link_libraries(tst_widgets PRIVATE Qt5::Test Qt5::Widgets)
 ds_deploy_qt(tst_widgets)
 add_test(NAME tst_widgets COMMAND tst_widgets)
+
+# P11: TcpClient 单测（回环伪设备验证半包/粘包/连接失败）
+add_executable(tst_tcpclient
+    tests/unittests/tst_tcpclient.cpp
+    src/services/tcpclient.cpp
+    src/services/tcpclient.h
+)
+target_include_directories(tst_tcpclient PRIVATE ${DS_SRC_DIR})
+target_link_libraries(tst_tcpclient PRIVATE Qt5::Test Qt5::Network datascope_protocol)
+ds_deploy_qt(tst_tcpclient)
+add_test(NAME tst_tcpclient COMMAND tst_tcpclient)
+
+# P12: DataService 数据总线单测（多线程采集链路回环）
+add_executable(tst_dataservice
+    tests/unittests/tst_dataservice.cpp
+)
+target_include_directories(tst_dataservice PRIVATE ${DS_SRC_DIR})
+target_link_libraries(tst_dataservice PRIVATE Qt5::Test Qt5::Network datascope_services)
+ds_deploy_qt(tst_dataservice)
+add_test(NAME tst_dataservice COMMAND tst_dataservice)
