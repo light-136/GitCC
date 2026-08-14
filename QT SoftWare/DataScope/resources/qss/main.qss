@@ -108,3 +108,30 @@ QToolBar {
     spacing: 4px;
     padding: 2px;
 }
+
+/* ---- P14 监控页：通道卡片 + 通道名/数值（#monitorPage 容器内定位） ---- */
+#monitorPage {
+    background: #243341;
+}
+#monitorPage #channelCard {
+    background: #2c3e50;
+    border: 1px solid #3a4a5a;
+    border-radius: 8px;
+}
+#monitorPage #channelName {
+    color: #16a085;
+    font-size: 14px;
+    font-weight: bold;
+    qproperty-alignment: AlignCenter;
+}
+#monitorPage #channelValue {
+    color: #ffffff;
+    font-size: 16px;
+    font-family: "Consolas", "Courier New", monospace;
+}
+#monitorPage #pageTitle {
+    color: #16a085;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 4px;
+}

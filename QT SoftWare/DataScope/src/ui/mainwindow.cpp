@@ -119,6 +119,12 @@ void MainWindow::buildCentralTabs()
     m_tabs->addTab(m_demoPage,     tr("信号槽演示")); // P4 成果展示
 
     setCentralWidget(m_tabs);
+
+    // P14：启动监控页演示数据源（正弦波驱动曲线/仪表/LED）。
+    // 教学点：P12 接入真实采集链路（DataService）后，此处改为
+    // connect(DataService::dataUpdated → m_monitorPage->onDataUpdated)，
+    // 并停用演示源，UI 代码零改动——数据源可替换设计。
+    m_monitorPage->setDemoRunning(true);
 }
 
 // ---------------------------------------------------------------------------
