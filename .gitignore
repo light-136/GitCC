@@ -46,5 +46,43 @@ GD32驱动器/GD32FirmwareUpdaterQt/Makefile
 GD32驱动器/GD32FirmwareUpdaterQt/Makefile.*
 GD32驱动器/GD32FirmwareUpdaterQt/object_script.*
 GD32驱动器/GD32FirmwareUpdaterQt/tests/Makefile
+
+# ===== Qt 构建产物（QtProMonitor 全栈实训平台）=====
+QtProMonitor/build/
+QtProMonitor/.qmake.stash
+QtProMonitor/*.qmake.stash
+QtProMonitor/Makefile
+QtProMonitor/Makefile.*
+QtProMonitor/object_script.*
+QtProMonitor/src/Makefile
+QtProMonitor/src/Makefile.*
+QtProMonitor/src/object_script.*
+QtProMonitor/src/core/Makefile
+QtProMonitor/src/core/Makefile.*
+QtProMonitor/src/core/object_script.*
+QtProMonitor/src/core/release/
+QtProMonitor/src/core/debug/
+QtProMonitor/tests/Makefile
+QtProMonitor/tests/Makefile.*
+QtProMonitor/tests/object_script.*
+QtProMonitor/tests/release/
+QtProMonitor/tests/debug/
+QtProMonitor/tests/tst_*_results.txt
 GD32驱动器/GD32FirmwareUpdaterQt/tests/Makefile.*
 GD32驱动器/GD32FirmwareUpdaterQt/tests/object_script.*
+
+# ===== Qt 构建产物（DataScope Studio 学习工程）=====
+QT SoftWare/DataScope/build/
+QT SoftWare/DataScope/.qmake.stash
+QT SoftWare/DataScope/Makefile
+QT SoftWare/DataScope/Makefile.*
+QT SoftWare/DataScope/object_script.*
+QT SoftWare/DataScope/src/Makefile
+QT SoftWare/DataScope/src/Makefile.*
+QT SoftWare/DataScope/src/object_script.*
+QT SoftWare/DataScope/tests/Makefile
+QT SoftWare/DataScope/tests/Makefile.*
+QT SoftWare/DataScope/tests/object_script.*
+QT SoftWare/DataScope/tests/release/
+QT SoftWare/DataScope/tests/debug/
+QT SoftWare/DataScope/tests/tst_*_results.txt
