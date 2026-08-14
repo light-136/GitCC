@@ -11,6 +11,7 @@
 
 #include "ui/mainwindow.h"
 
+#include "services/dataservice.h"
 #include "ui/pages/monitorpage.h"
 #include "ui/pages/devicepage.h"
 #include "ui/pages/recordpage.h"
@@ -49,6 +50,29 @@ MainWindow::MainWindow(QWidget *parent)
     buildToolBar();
     buildCentralTabs();
     buildStatusBar();
+
+    // ---- P12 集成：数据总线接入监控页与工具栏 ----
+    // 数据源可替换设计：监控页只认 onDataUpdated(QVector<DataPoint>) 一个入口，
+    // P14 演示源 → P12 真实链路，MonitorPage 零改动。
+    m_service = new datascope::services::DataService(this);
+    connect(m_service, &datascope::services::DataService::dataUpdated,
+            m_monitorPage, &datascope::ui::MonitorPage::onDataUpdated);
+    connect(m_service, &datascope::services::DataService::connected,
+            this, &MainWindow::onServiceConnected);
+    connect(m_service, &datascope::services::DataService::disconnected,
+            this, &MainWindow::onServiceDisconnected);
+    connect(m_service, &datascope::services::DataService::connectionError,
+            this, &MainWindow::onServiceError);
+
+    connect(m_actConnect, &QAction::triggered, this, &MainWindow::connectDevice);
+    connect(m_actStart, &QAction::triggered,
+            m_service, &datascope::services::DataService::startAcquisition);
+    connect(m_actStop, &QAction::triggered, this, &MainWindow::stopAcquisition);
+
+    // 启动后自动连接本机模拟设备（127.0.0.1:40001）：
+    // 验收时先启动 simulator，界面即自动出现真实采集曲线；
+    // 未启动则状态栏报错，可随时点击[连接设备]重试。
+    connectDevice();
 }
 
 MainWindow::~MainWindow() = default;  // 对象树统一回收所有 child
@@ -82,19 +106,18 @@ void MainWindow::buildToolBar()
     auto *toolBar = addToolBar(tr("主工具栏"));
     toolBar->setMovable(false);   // 固定工具栏，避免布局漂移
 
-    // 占位动作：P9 接入串口连接，P10 接入协议引擎
-    auto *actConnect = toolBar->addAction(tr("连接设备"));
-    actConnect->setToolTip(tr("连接采集设备（P9 接入串口/TCP）"));
+    // P12：三个动作先创建为成员，信号接线统一放在构造函数"P12 集成段"——
+    // 因为连接目标是 m_service（数据总线），须等其创建后再 connect。
+    m_actConnect = toolBar->addAction(tr("连接设备"));
+    m_actConnect->setToolTip(tr("连接采集设备（默认 127.0.0.1:40001）"));
 
-    auto *actStart = toolBar->addAction(tr("启动采集"));
-    actStart->setToolTip(tr("开始实时采集（P10 接入协议引擎）"));
+    m_actStart = toolBar->addAction(tr("启动采集"));
+    m_actStart->setToolTip(tr("开始实时采集"));
+    m_actStart->setEnabled(false);   // 未连接时不可用
 
-    auto *actStop = toolBar->addAction(tr("停止采集"));
-    actStop->setToolTip(tr("停止实时采集（P10 接入协议引擎）"));
-    actStop->setEnabled(false);   // 初始不可用
-
-    // 教学点：占位动作目前不做事，但框架先行——后续阶段只需替换槽函数体
-    Q_UNUSED(actConnect); Q_UNUSED(actStart); Q_UNUSED(actStop);
+    m_actStop = toolBar->addAction(tr("停止采集"));
+    m_actStop->setToolTip(tr("停止实时采集"));
+    m_actStop->setEnabled(false);   // 未连接时不可用
 }
 
 // ---------------------------------------------------------------------------
@@ -120,11 +143,11 @@ void MainWindow::buildCentralTabs()
 
     setCentralWidget(m_tabs);
 
-    // P14：启动监控页演示数据源（正弦波驱动曲线/仪表/LED）。
-    // 教学点：P12 接入真实采集链路（DataService）后，此处改为
-    // connect(DataService::dataUpdated → m_monitorPage->onDataUpdated)，
-    // 并停用演示源，UI 代码零改动——数据源可替换设计。
-    m_monitorPage->setDemoRunning(true);
+    // P14→P12：演示数据源已替换为真实采集链路（DataService）。
+    // 数据源可替换设计：监控页只认 onDataUpdated(QVector<DataPoint>) 一个入口，
+    // P14 演示源(setDemoRunning) 与 P12 真实链路(dataUpdated 信号)在此切换，
+    // MonitorPage 内部零改动。P12 起启用真实链路，演示源显式停用。
+    m_monitorPage->setDemoRunning(false);
 }
 
 // ---------------------------------------------------------------------------
@@ -134,7 +157,10 @@ void MainWindow::buildStatusBar()
 {
     statusBar()->showMessage(tr("就绪 —— 请在左侧选择功能页签"));
 
-    // 右侧时钟：QTimer(1000ms) + lambda 更新 QLabel
+    // 右侧：连接状态指示 + 时钟（QTimer 每秒刷新，复用 P4 的定时器思路）
+    m_connLabel = new QLabel(tr("○ 未连接"), this);
+    statusBar()->addPermanentWidget(m_connLabel);
+
     m_timeLabel = new QLabel(tr("--:--:--"), this);
     statusBar()->addPermanentWidget(m_timeLabel);
 
@@ -144,6 +170,57 @@ void MainWindow::buildStatusBar()
         m_timeLabel->setText(QDateTime::currentDateTime().toString(QStringLiteral("HH:mm:ss")));
     });
     m_clock->start();
+}
+
+// ---------------------------------------------------------------------------
+// P12：数据链路控制（连接 / 停止 / 状态反馈）
+// ---------------------------------------------------------------------------
+void MainWindow::connectDevice()
+{
+    // 连接本机模拟设备（simulator 默认监听 0.0.0.0:40001），随即启动采集。
+    // connectTo 是异步的（队列投递到采集线程），结果由 onServiceConnected /
+    // onServiceError 通知。
+    statusBar()->showMessage(tr("正在连接 127.0.0.1:40001 ..."));
+    m_service->connectTo(QStringLiteral("127.0.0.1"), 40001);
+    m_service->startAcquisition();
+}
+
+void MainWindow::stopAcquisition()
+{
+    m_service->stopAcquisition();
+    statusBar()->showMessage(tr("已停止采集"), 3000);
+    m_actStart->setEnabled(true);   // 停止后可再次启动
+    m_actStop->setEnabled(false);
+}
+
+void MainWindow::onServiceConnected()
+{
+    m_actConnect->setEnabled(false);   // 已连接：禁用"连接"避免重复
+    m_actStart->setEnabled(true);
+    m_actStop->setEnabled(true);
+    m_connLabel->setText(tr("● 已连接"));
+    m_connLabel->setStyleSheet(QStringLiteral("color:#2ecc71; font-weight:bold;"));  // 绿
+    statusBar()->showMessage(tr("设备已连接"), 3000);
+}
+
+void MainWindow::onServiceDisconnected()
+{
+    m_actConnect->setEnabled(true);
+    m_actStart->setEnabled(false);
+    m_actStop->setEnabled(false);
+    m_connLabel->setText(tr("○ 未连接"));
+    m_connLabel->setStyleSheet(QStringLiteral("color:#95a5a6;"));
+    statusBar()->showMessage(tr("设备已断开"), 3000);
+}
+
+void MainWindow::onServiceError(const QString &message)
+{
+    // 链路错误（连接被拒/超时/解析异常）→ 状态栏红字提示 + 按钮复位
+    statusBar()->showMessage(tr("错误：%1").arg(message), 5000);
+    m_actStart->setEnabled(false);
+    m_actStop->setEnabled(false);
+    m_connLabel->setText(tr("○ 未连接"));
+    m_connLabel->setStyleSheet(QStringLiteral("color:#e74c3c;"));   // 红
 }
 
 // ---------------------------------------------------------------------------

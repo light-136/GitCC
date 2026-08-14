@@ -99,6 +99,8 @@ add_library(datascope_services STATIC
     src/services/acquisitionworker.h
     src/services/dataservice.cpp
     src/services/dataservice.h
+    src/services/devicecontroller.cpp
+    src/services/devicecontroller.h
 )
 target_include_directories(datascope_services PUBLIC ${DS_SRC_DIR})
 target_link_libraries(datascope_services PUBLIC
@@ -293,3 +295,12 @@ target_include_directories(tst_dataservice PRIVATE ${DS_SRC_DIR})
 target_link_libraries(tst_dataservice PRIVATE Qt5::Test Qt5::Network datascope_services)
 ds_deploy_qt(tst_dataservice)
 add_test(NAME tst_dataservice COMMAND tst_dataservice)
+
+# P13: DeviceController 设备状态机单测（状态转移 + 自动重连 + 数据转发）
+add_executable(tst_devicecontroller
+    tests/unittests/tst_devicecontroller.cpp
+)
+target_include_directories(tst_devicecontroller PRIVATE ${DS_SRC_DIR})
+target_link_libraries(tst_devicecontroller PRIVATE Qt5::Test Qt5::Network datascope_services)
+ds_deploy_qt(tst_devicecontroller)
+add_test(NAME tst_devicecontroller COMMAND tst_devicecontroller)

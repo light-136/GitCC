@@ -58,7 +58,16 @@ void AcquisitionWorker::start(const QString &host, quint16 port)
         emit connectedChanged(false);  // 断开 → 通知主线程
     });
     connect(m_client, &TcpClient::errorOccurred, this,
-            &AcquisitionWorker::errorOccurred);   // 错误直接转发
+            [this](const QString &message) {
+        emit errorOccurred(message);   // 错误转发给 DataService
+        // 连接失败或通信异常：立即销毁客户端，使后续 start() 能重建——
+        // 这是 P13 自动重连（DeviceController）能工作的关键：每次重连都是
+        // "新建一个全新连接"，而不是在残留的坏 socket 上重试。
+        if (m_client) {
+            m_client->deleteLater();
+            m_client = nullptr;
+        }
+    });
     connect(m_client, &TcpClient::frameReceived, this,
             &AcquisitionWorker::handleFrame);     // 帧 → DataPoint 转换
 

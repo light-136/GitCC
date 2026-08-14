@@ -20,6 +20,7 @@
 class QTabWidget;
 class QLabel;
 class QTimer;
+class QAction;   // 工具栏动作（P12 数据链路控制）
 
 namespace datascope {
 namespace ui {
@@ -29,6 +30,11 @@ class RecordPage;    // 数据记录与回放页（P15）
 class SettingsPage;  // 设置页（P7 配置 UI）
 class DemoPage;      // 信号槽演示页（P4 成果 UI 化）
 } // namespace ui
+
+namespace services {
+class DataService;   // 数据总线（P12：连接/采集/数据分发）
+} // namespace services
+
 } // namespace datascope
 
 /**
@@ -52,6 +58,13 @@ private:
     void buildStatusBar();    // 状态栏：消息区 + 右侧时钟
     void applyStyleSheet();   // 加载 QSS 深色主题
 
+    // ---- P12 数据链路槽 ----
+    void connectDevice();                 // 连接设备(127.0.0.1:40001)并启动采集
+    void stopAcquisition();               // 停止采集
+    void onServiceConnected();            // 连接成功：更新按钮与状态栏
+    void onServiceDisconnected();         // 断开：复位按钮与状态栏
+    void onServiceError(const QString &message);   // 链路错误：状态栏提示
+
     // ---- 中央页签 ----
     QTabWidget *m_tabs = nullptr;
     datascope::ui::MonitorPage   *m_monitorPage = nullptr;
@@ -60,7 +73,14 @@ private:
     datascope::ui::SettingsPage  *m_settingsPage = nullptr;
     datascope::ui::DemoPage      *m_demoPage = nullptr;
 
-    // ---- 状态栏时钟 ----
-    QLabel *m_timeLabel = nullptr;  // 右侧时钟标签
-    QTimer *m_clock = nullptr;      // 每秒触发一次刷新时间
+    // ---- P12 数据链路（DataService 数据总线）----
+    datascope::services::DataService *m_service = nullptr;  // 数据总线
+    QAction *m_actConnect = nullptr;  // 工具栏：连接设备
+    QAction *m_actStart   = nullptr;  // 工具栏：启动采集
+    QAction *m_actStop    = nullptr;  // 工具栏：停止采集
+
+    // ---- 状态栏 ----
+    QLabel *m_connLabel = nullptr;    // 连接状态指示（左）
+    QLabel *m_timeLabel = nullptr;    // 右侧时钟标签
+    QTimer *m_clock = nullptr;        // 每秒触发一次刷新时间
 };
