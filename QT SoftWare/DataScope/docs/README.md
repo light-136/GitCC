@@ -18,6 +18,9 @@ docs/
 ├── 08-项目总结.md                    ← 开发复盘、技术认知、质量评估
 ├── 09-DataScope Studio 自主开发最终报告.md  ← 最终交付报告
 ├── 10-Agent 协作报告.md              ← 多 Agent 协作模式总结
+├── 11-DataScope Studio V2 工程质量提升计划.md  ← V2 重构目标蓝图与执行路线
+├── reviews/                          ← V1 严格审查报告（4 专项 Agent 汇总）
+│   └── 01-DataScope V1 严格审查报告.md
 ├── contracts/                        ← 契约文档（源码注释引用）
 │   ├── 03-通信协议帧格式契约.md      ← 帧格式 / 字节序 / CRC 约定
 │   ├── 05-TCP链路与模拟设备契约.md   ← 连接约定 / 接口 / 模拟设备行为
