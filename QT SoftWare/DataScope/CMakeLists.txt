@@ -73,6 +73,8 @@ add_library(datascope_domain STATIC
     src/domain/domainmodel_v2.h
     src/ui/models/devicelistmodel.cpp
     src/ui/models/devicelistmodel.h
+    src/ui/models/alarmeventmodel.cpp
+    src/ui/models/alarmeventmodel.h
 )
 target_include_directories(datascope_domain PUBLIC ${DS_SRC_DIR})
 target_link_libraries(datascope_domain PUBLIC Qt5::Core)
@@ -277,6 +279,15 @@ target_include_directories(tst_devicelistmodel PRIVATE ${DS_SRC_DIR})
 target_link_libraries(tst_devicelistmodel PRIVATE Qt5::Test datascope_domain)
 ds_deploy_qt(tst_devicelistmodel)
 add_test(NAME tst_devicelistmodel COMMAND tst_devicelistmodel)
+
+# V2: 报警事件模型单测（QAbstractListModel + 头插/确认/通知）
+add_executable(tst_alarmeventmodel
+    tests/unittests/tst_alarmeventmodel.cpp
+)
+target_include_directories(tst_alarmeventmodel PRIVATE ${DS_SRC_DIR})
+target_link_libraries(tst_alarmeventmodel PRIVATE Qt5::Test datascope_domain)
+ds_deploy_qt(tst_alarmeventmodel)
+add_test(NAME tst_alarmeventmodel COMMAND tst_alarmeventmodel)
 
 # P10: 协议引擎单测
 add_executable(tst_protocol
