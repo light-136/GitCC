@@ -65,6 +65,7 @@ private:
     void onServiceConnected();            // 连接成功：更新按钮与状态栏
     void onServiceDisconnected();         // 断开：复位按钮与状态栏
     void onServiceError(const QString &message);   // 链路错误：状态栏提示
+    void onThemeChanged(const QString &theme);     // 设置页主题切换（深/亮）
 
     // ---- 中央页签 ----
     QTabWidget *m_tabs = nullptr;

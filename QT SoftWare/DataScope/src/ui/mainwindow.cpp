@@ -84,6 +84,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_recordManager, &datascope::services::RecordManager::replayData,
             m_monitorPage, &datascope::ui::MonitorPage::onDataUpdated);
 
+    // ---- V2 设置页接线：主题切换即时生效 ----
+    // 设置页保存主题后发 themeChanged，主窗口据此加载/清除 QSS
+    connect(m_settingsPage, &datascope::ui::SettingsPage::themeChanged,
+            this, &MainWindow::onThemeChanged);
+
     // 启动后自动连接本机模拟设备（127.0.0.1:40001）：
     // 验收时先启动 simulator，界面即自动出现真实采集曲线；
     // 未启动则状态栏报错，可随时点击[连接设备]重试。
@@ -251,5 +256,21 @@ void MainWindow::applyStyleSheet()
     } else {
         // 资源加载失败不中断程序（退化为系统默认样式）
         qWarning("MainWindow: 无法加载样式表 %s", qPrintable(kStyleSheetPath));
+    }
+}
+
+// ---------------------------------------------------------------------------
+// V2：设置页主题切换（深色 → 加载 QSS；亮色 → 系统默认样式）
+// ---------------------------------------------------------------------------
+void MainWindow::onThemeChanged(const QString &theme)
+{
+    if (theme == QStringLiteral("light")) {
+        // 亮色主题：清除样式表，恢复系统默认外观
+        setStyleSheet(QString());
+        statusBar()->showMessage(tr("已切换亮色主题"), 3000);
+    } else {
+        // 深色主题：重新加载 QSS 资源
+        applyStyleSheet();
+        statusBar()->showMessage(tr("已切换深色主题"), 3000);
     }
 }

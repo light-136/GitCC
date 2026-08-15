@@ -64,6 +64,11 @@ DevicePage::DevicePage(datascope::services::DataService *dataService, QWidget *p
     setObjectName(QStringLiteral("devicePage"));
     buildUi();
 
+    // 连接超时默认值从全局配置读取（设置页可修改，页面启动时生效）
+    m_timeoutSpin->setValue(
+        datascope::infrastructure::ConfigManager::instance()
+            .intValue(QStringLiteral("device/defaultTimeoutMs"), kDefaultTimeoutMs));
+
     // ---- DataService 信号回写：连接结果 → 状态列 ----
     // 连接是异步的，结果由信号通知；页面据此更新选中设备的状态
     connect(m_dataService, &datascope::services::DataService::connected,
