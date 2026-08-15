@@ -66,7 +66,7 @@ MonitorPage 只暴露一个数据入口 `onDataUpdated(QVector<DataPoint>)`：
 | 产出类别 | 数量 | 说明 |
 |----------|------|------|
 | UI 页面 | 5 页 | 并行开发，主窗口统一组装 |
-| 文档 | 12+ 份 | 00~09 + stages/P01~P15（15）+ contracts×4 |
+| 文档 | 31 份 | 00~10（11）+ stages/P01~P15（15）+ contracts×4 + README（1） |
 | 契约文档 | 4 份 | 源码注释引用体系补全 |
 | 领域模型实现 | 1 项 | M1 Agent（后台完成 BOM 一致性验证） |
 
