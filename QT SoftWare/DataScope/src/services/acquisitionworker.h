@@ -23,7 +23,8 @@
 #include <QString>
 #include <QVector>
 
-#include "domain/models.h"   // DataPoint
+#include "domain/models.h"              // DataPoint
+#include "protocol/channelconfigcodec.h" // ChannelConfigInfo（通道配置信号参数）
 
 namespace datascope {
 namespace protocol {
@@ -88,6 +89,13 @@ signals:
      * @brief 采集链路错误（统一字符串，含 socket 错误与解析异常）
      */
     void errorOccurred(const QString &message);
+
+    /**
+     * @brief 通道配置上报（设备应答 0x83 配置帧，解码后跨线程投递主线程）
+     * @param channels 设备上报的通道配置（名称/单位/量程 —— UI 数据驱动渲染的依据）
+     */
+    void channelConfigReceived(
+        const QVector<datascope::protocol::ChannelConfigInfo> &channels);
 
 private:
     /**

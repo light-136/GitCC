@@ -53,6 +53,15 @@ void AcquisitionWorker::start(const QString &host, quint16 port)
     // ---- 连接业务信号：把 socket 事件翻译成 Worker 自己的信号 ----
     connect(m_client, &TcpClient::connected, this, [this]() {
         emit connectedChanged(true);   // 连接成功 → 通知主线程
+
+        // ---- 主动拉取通道配置（V2-执行③）----
+        // 工程问题：监控页要按"设备真实通道"渲染（名称/单位/量程），
+        // 不能依赖主机硬编码。连接建立即发查询帧（FUNC=0x03,CMD=0x01），
+        // 设备应答 0x83 配置帧后由 handleFrame 分流解码 → channelConfigReceived 上报。
+        protocol::ProtocolFrame query;
+        query.func = protocol::kFuncQuery;
+        query.cmd  = protocol::kCmdQueryChannels;
+        m_client->sendFrame(query);
     });
     connect(m_client, &TcpClient::disconnected, this, [this]() {
         emit connectedChanged(false);  // 断开 → 通知主线程
@@ -87,7 +96,21 @@ void AcquisitionWorker::stop()
 
 void AcquisitionWorker::handleFrame(const protocol::ProtocolFrame &frame)
 {
-    // ---- 帧 → DataPoint 批量转换 ----
+    // ---- 通道配置响应帧（FUNC=0x83, CMD=0x01）分流 ----
+    // 设备应答"通道配置查询"→ 解码 → 上报主线程（UI 按真实配置渲染）。
+    // 配置帧与采集帧互斥：配置帧无采样数据，不能走下面的 float 解析路径。
+    if (frame.func == protocol::kFuncQueryResponse
+        && frame.cmd == protocol::kCmdQueryChannels) {
+        QVector<protocol::ChannelConfigInfo> channels;
+        if (protocol::ChannelConfigCodec::decode(frame.payload, channels)) {
+            emit channelConfigReceived(channels);   // 跨线程队列投递主线程
+        } else {
+            emit errorOccurred(QStringLiteral("通道配置帧解码失败（载荷结构非法）"));
+        }
+        return;
+    }
+
+    // ---- 采集数据帧 → DataPoint 批量转换 ----
     // 教学点：只处理"采集数据"帧（CMD=0x01 及其响应帧）；
     // 其它功能码（配置/查询）在此阶段不做业务处理，避免 UI 被无关帧打扰。
     constexpr int kFloatBytes = 4;                 // float 字节数

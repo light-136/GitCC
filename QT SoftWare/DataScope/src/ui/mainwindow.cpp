@@ -17,7 +17,9 @@
 #include "ui/pages/devicepage.h"
 #include "ui/pages/recordpage.h"
 #include "ui/pages/settingspage.h"
-#include "infrastructure/configmanager.h"  // V2：默认连接参数从配置读取（去硬编码）
+#include "ui/widgets/logpanel.h"                 // V2-执行③：实时日志面板
+#include "infrastructure/configmanager.h"        // V2：默认连接参数从配置读取（去硬编码）
+#include "infrastructure/logmanager.h"           // V2-执行③：关键路径写日志
 
 #include <QTabWidget>
 #include <QMenuBar>
@@ -69,6 +71,10 @@ MainWindow::MainWindow(QWidget *parent)
             this, &MainWindow::onServiceDisconnected);
     connect(m_service, &datascope::services::DataService::connectionError,
             this, &MainWindow::onServiceError);
+
+    // V2-执行③：设备上报通道配置 → 监控页数据驱动渲染（名称/单位/量程）
+    connect(m_service, &datascope::services::DataService::channelConfigReceived,
+            m_monitorPage, &datascope::ui::MonitorPage::onChannelConfigReceived);
 
     connect(m_actConnect, &QAction::triggered, this, &MainWindow::connectDevice);
     connect(m_actDisconnect, &QAction::triggered, this, &MainWindow::disconnectDevice);
@@ -161,6 +167,8 @@ void MainWindow::buildCentralTabs()
     m_devicePage   = new datascope::ui::DevicePage(m_service, m_tabs);
     m_recordPage   = new datascope::ui::RecordPage(m_tabs);
     m_settingsPage = new datascope::ui::SettingsPage(m_tabs);
+    // V2-执行③：日志面板（审查 P1"无日志区域"落地）——订阅全局 LogManager 信号
+    m_logPanel     = new datascope::ui::LogPanel(m_tabs);
 
     // V2：DemoPage（信号槽演示）移出主界面页签 —— 教学页不该是工业软件的主功能。
     // 后续随"学习模式"（V2-执行④）作为独立窗口/菜单项提供，不再挤占监控主界面。
@@ -168,6 +176,7 @@ void MainWindow::buildCentralTabs()
     m_tabs->addTab(m_devicePage,   tr("设备管理"));   // 设备配置/列表/连接控制
     m_tabs->addTab(m_recordPage,   tr("数据记录"));   // 记录与回放
     m_tabs->addTab(m_settingsPage, tr("设置"));       // 系统配置中心
+    m_tabs->addTab(m_logPanel,     tr("日志"));       // 实时日志流（V2-执行③）
 
     setCentralWidget(m_tabs);
 
@@ -215,6 +224,10 @@ void MainWindow::connectDevice()
     const quint16 port = static_cast<quint16>(
         cfg.intValue(QStringLiteral("device/defaultPort"), 40001));
 
+    // V2-执行③：关键动作写日志（实时流入日志面板，形成运行轨迹）
+    datascope::infrastructure::LogManager::instance().info(
+        "MainWindow", QStringLiteral("发起连接 %1:%2").arg(host).arg(port));
+
     // connectTo 是异步的（队列投递到采集线程），结果由 onServiceConnected /
     // onServiceError 通知。
     statusBar()->showMessage(tr("正在连接 %1:%2 ...").arg(host).arg(port));
@@ -225,6 +238,8 @@ void MainWindow::connectDevice()
 void MainWindow::disconnectDevice()
 {
     // V2：明确的断开入口 —— 停止采集并断开，复位连接状态（审查 P2 修复）
+    datascope::infrastructure::LogManager::instance().info(
+        "MainWindow", QStringLiteral("用户主动断开设备"));
     m_service->stopAcquisition();
     m_service->disconnectFromDevice();
     m_actDisconnect->setEnabled(false);
@@ -238,6 +253,8 @@ void MainWindow::disconnectDevice()
 
 void MainWindow::stopAcquisition()
 {
+    datascope::infrastructure::LogManager::instance().info(
+        "MainWindow", QStringLiteral("停止采集"));
     m_service->stopAcquisition();
     statusBar()->showMessage(tr("已停止采集"), 3000);
     m_actStart->setEnabled(true);   // 停止后可再次启动
@@ -253,6 +270,8 @@ void MainWindow::onServiceConnected()
     m_connLabel->setText(tr("● 已连接"));
     m_connLabel->setStyleSheet(QStringLiteral("color:#2ecc71; font-weight:bold;"));  // 绿
     statusBar()->showMessage(tr("设备已连接"), 3000);
+    datascope::infrastructure::LogManager::instance().info(
+        "MainWindow", QStringLiteral("设备连接成功"));
 }
 
 void MainWindow::onServiceDisconnected()
@@ -264,11 +283,15 @@ void MainWindow::onServiceDisconnected()
     m_connLabel->setText(tr("○ 未连接"));
     m_connLabel->setStyleSheet(QStringLiteral("color:#95a5a6;"));
     statusBar()->showMessage(tr("设备已断开"), 3000);
+    datascope::infrastructure::LogManager::instance().warn(
+        "MainWindow", QStringLiteral("设备连接已断开"));
 }
 
 void MainWindow::onServiceError(const QString &message)
 {
     // 链路错误（连接被拒/超时/解析异常）→ 状态栏红字提示 + 按钮复位
+    datascope::infrastructure::LogManager::instance().error(
+        "MainWindow", message);   // 错误级日志（日志面板红色显示）
     statusBar()->showMessage(tr("错误：%1").arg(message), 5000);
     m_actConnect->setEnabled(true);
     m_actDisconnect->setEnabled(false);

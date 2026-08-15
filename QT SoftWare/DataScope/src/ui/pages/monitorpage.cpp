@@ -1,21 +1,21 @@
 /**
  * @file monitorpage.cpp
- * @brief 监控总览页实现（P14 完整版）
+ * @brief 监控总览页实现（P14 完整版 + V2-执行③ 通道元数据数据驱动）
  *
  * P5 与 P14 的分工（教学脉络）：
  *   - P5：搭建页签骨架，保证主窗口可切换、QSS 可定位；
- *   - P14：把占位说明替换为 4 通道"LED + 数值 + 曲线 + 仪表"卡片布局，
- *     并用演示 QTimer（正弦波）驱动数据，让监控页立即"动起来"；
- *   - P12：真实采集链路（DataService 生产者-消费者）接入后，
- *     停用演示 QTimer，改由 DataService::dataUpdated → onDataUpdated 驱动。
+ *   - P14：把占位说明替换为"LED + 数值 + 曲线 + 仪表"通道卡片布局，
+ *     并用演示 QTimer（正弦波）驱动数据；
+ *   - P12：真实采集链路（DataService 生产者-消费者）接入后，停用演示源；
+ *   - V2-执行③：通道名/单位/量程不再硬编码 —— 由设备上报配置驱动，
+ *     卡片数量随配置增减（数据驱动，设备是唯一事实来源）。
  *
  * 教学点（对应 WPF）：
  *   - 布局组合：QVBoxLayout 总排 + 每通道 QHBoxLayout 卡片（左信息列 + 曲线 + 仪表），
  *     对应 WPF 的 StackPanel/DockPanel 组合；
  *   - 数据源可替换：演示源与真实源都汇聚到 onDataUpdated(QVector<DataPoint>)，
  *     监控页不关心数据从哪来（对应 WPF View 与 ViewModel 的松耦合）；
- *   - LED 报警逻辑：值超量程上限的 alarmRatio → 红色，否则绿色，
- *     体现"业务状态 → 控件状态"的驱动关系。
+ *   - LED 报警逻辑：值超量程上限的 kAlarmRatio → 红色，否则绿色。
  */
 
 #include "ui/pages/monitorpage.h"
@@ -33,6 +33,7 @@
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLayoutItem>
 #include <QListView>
 #include <QPushButton>
 #include <QTimer>
@@ -56,6 +57,9 @@ MonitorPage::MonitorPage(QWidget *parent)
     // 页签统一命名：供全局 QSS 以 #monitorPage 选择器定位背景/边框
     setObjectName(QStringLiteral("monitorPage"));
 
+    // ---- V2-执行③：默认通道配置（设备应答前的兜底，与模拟设备默认对齐）----
+    buildDefaultChannelConfig();
+
     // ---- V2 报警中心：引擎/模型先创建（onDataUpdated 依赖它们）----
     // 报警引擎只做规则评估（无 UI），报警模型只做事件存储（无 UI），
     // 二者与 View 分离 → 可独立单测（tst_alarmengine / tst_alarmeventmodel）。
@@ -63,7 +67,7 @@ MonitorPage::MonitorPage(QWidget *parent)
     m_alarmModel  = new datascope::ui::models::AlarmEventModel(this);
     setupAlarmRules();   // 依据通道量程派生报警规则（阈值来自通道配置）
 
-    buildUi();           // 标题 + 4 通道卡片 + 底部报警中心
+    buildUi();           // 标题 + 通道卡片区 + 底部报警中心
 
     // ---- 报警引擎 → 报警中心接线（数据流闭环）----
     // 触发：新报警事件 → 列表头插（最新在最上方）
@@ -93,7 +97,7 @@ MonitorPage::MonitorPage(QWidget *parent)
 
 void MonitorPage::buildUi()
 {
-    // 纵向布局：标题在上，4 张通道卡片依次排列
+    // 纵向布局：标题在上，通道卡片区居中，报警中心垫底
     auto *layout = new QVBoxLayout(this);
     layout->setSpacing(8);
     layout->setContentsMargins(8, 8, 8, 8);
@@ -105,10 +109,13 @@ void MonitorPage::buildUi()
 
     layout->addWidget(titleLabel);
 
-    // ---- 4 张通道卡片 ----
-    for (int i = 0; i < kChannelCount; ++i) {
-        layout->addWidget(buildChannelCard(i), /*stretch=*/1);
-    }
+    // ---- 通道卡片区（V2-执行③：可整体重建的容器）----
+    // 卡片数量由 m_channelConfigs 决定 —— 设备上报配置后可增/减卡片，
+    // 而非 P14 写死的 4 张。
+    m_channelArea = new QVBoxLayout;
+    m_channelArea->setSpacing(8);
+    layout->addLayout(m_channelArea);
+    rebuildChannelArea();
 
     // ---- V2 底部报警中心（固定高度，不挤压上方卡片）----
     layout->addWidget(buildAlarmCenter());
@@ -152,15 +159,15 @@ QWidget *MonitorPage::buildAlarmCenter()
 
 void MonitorPage::setupAlarmRules()
 {
-    // 依据当前通道量程派生报警规则：每通道"超过 量程上限 × 报警比例"触发
-    // 阈值来自通道配置（m_max × m_alarmRatio），描述可读（"通道N 值超限"）。
-    // 后续通道配置改为模型驱动后，本函数改为从真实 ChannelConfig 派生。
-    for (int i = 0; i < kChannelCount; ++i) {
+    // V2-执行③：先清空再重建（配置变化时重复调用不会叠加规则）。
+    // 每通道"值 > 量程上限 × kAlarmRatio"触发报警，阈值来自真实通道配置。
+    m_alarmEngine->clearRules();
+    for (int i = 0; i < m_channelConfigs.size(); ++i) {
         datascope::domain::v2::AlarmRule rule;
         rule.channelIndex = i;
         rule.condition    = datascope::domain::v2::AlarmCondition::AboveHigh;
-        rule.threshold    = m_max[i] * m_alarmRatio[i];
-        rule.description  = QStringLiteral("通道%1 值超限").arg(i + 1);
+        rule.threshold    = m_channelConfigs[i].rangeMax * kAlarmRatio;
+        rule.description  = QStringLiteral("%1 值超限").arg(m_channelConfigs[i].name);
         m_alarmEngine->addRule(rule);
     }
 }
@@ -169,6 +176,9 @@ QWidget *MonitorPage::buildChannelCard(int index)
 {
     // 每通道一张卡片（QFrame 视觉分组），横向排布：
     // [信息列：名称+LED+当前值] | [实时曲线（弹性拉伸）] | [仪表盘]
+    // V2-执行③：名称/单位/量程全部来自 m_channelConfigs（设备配置驱动）
+    const datascope::protocol::ChannelConfigInfo &cfg = m_channelConfigs[index];
+
     auto *card = new QFrame(this);
     card->setObjectName(QStringLiteral("channelCard")); // QSS 定位卡片边框
 
@@ -177,14 +187,11 @@ QWidget *MonitorPage::buildChannelCard(int index)
     row->setSpacing(10);
 
     // ---- 信息列：通道名 + LED + 当前值文本 ----
-    const char *names[] = { "温度", "压力", "流量", "振动" };
-    const char *units[] = { "℃", "MPa", "m³/h", "mm/s" };
-
     auto *infoCol = new QVBoxLayout;
     infoCol->setSpacing(4);
 
     // 通道名（QSS 可通过 #channelName 定位）
-    auto *nameLabel = new QLabel(QString::fromUtf8(names[index]), card);
+    auto *nameLabel = new QLabel(cfg.name, card);
     nameLabel->setObjectName(QStringLiteral("channelName"));
 
     // LED 状态灯：默认绿（正常），值超限变红
@@ -203,13 +210,13 @@ QWidget *MonitorPage::buildChannelCard(int index)
 
     // ---- 实时曲线（占据卡片剩余宽度，弹性拉伸）----
     auto *chart = new LineChartWidget(card);
-    chart->setTitle(QString::fromUtf8(names[index]));
-    chart->setRange(0.0, m_max[index]); // 量程 0..max
+    chart->setTitle(cfg.name);
+    chart->setRange(cfg.rangeMin, cfg.rangeMax); // 量程来自设备配置
 
     // ---- 仪表盘（固定宽度）----
     auto *gauge = new GaugeWidget(card);
-    gauge->setRange(0.0, m_max[index]);
-    gauge->setUnit(QString::fromUtf8(units[index]));
+    gauge->setRange(cfg.rangeMin, cfg.rangeMax);
+    gauge->setUnit(cfg.unit);
     gauge->setFixedWidth(160);
 
     row->addLayout(infoCol);
@@ -217,12 +224,107 @@ QWidget *MonitorPage::buildChannelCard(int index)
     row->addWidget(gauge);
 
     // ---- 记录控件指针，供 onDataUpdated 按通道驱动 ----
-    m_channels[index].chart = chart;
-    m_channels[index].gauge = gauge;
-    m_channels[index].led   = led;
-    m_channels[index].valueLabel = valueLabel;
+    ChannelUi ui;
+    ui.chart = chart;
+    ui.gauge = gauge;
+    ui.led   = led;
+    ui.nameLabel = nameLabel;
+    ui.valueLabel = valueLabel;
+    m_channels.append(ui);
 
     return card;
+}
+
+void MonitorPage::rebuildChannelArea()
+{
+    // ---- 清空容器内旧卡片 ----
+    // 教学点：QLayout::takeAt 取出布局项并手动释放（widget 用 deleteLater
+    // 延迟析构，避免在布局遍历中途删除引发悬垂）。
+    while (QLayoutItem *item = m_channelArea->takeAt(0)) {
+        if (QWidget *w = item->widget()) {
+            m_channelArea->removeWidget(w);
+            w->deleteLater();
+        }
+        delete item;
+    }
+    m_channels.clear();
+
+    // ---- 按当前配置重建全部卡片 ----
+    for (int i = 0; i < m_channelConfigs.size(); ++i) {
+        m_channelArea->addWidget(buildChannelCard(i), /*stretch=*/1);
+    }
+}
+
+void MonitorPage::applyConfigToCard(int index)
+{
+    // 通道数不变时：只更新单卡片的元数据（名称/单位/量程），不重建布局
+    const datascope::protocol::ChannelConfigInfo &cfg = m_channelConfigs[index];
+    ChannelUi &ui = m_channels[index];
+
+    if (ui.nameLabel)
+        ui.nameLabel->setText(cfg.name);
+    if (ui.chart) {
+        ui.chart->setTitle(cfg.name);
+        ui.chart->setRange(cfg.rangeMin, cfg.rangeMax);
+    }
+    if (ui.gauge) {
+        ui.gauge->setRange(cfg.rangeMin, cfg.rangeMax);
+        ui.gauge->setUnit(cfg.unit);
+    }
+}
+
+void MonitorPage::buildDefaultChannelConfig()
+{
+    // 默认 4 通道（与模拟设备默认配置一致）：设备应答前的兜底值。
+    // 收到真实配置后由 onChannelConfigReceived 整体替换。
+    static const struct {
+        const char *name;
+        const char *unit;
+        float min;
+        float max;
+    } kDefaults[4] = {
+        { "温度", "℃",    0.0f,  100.0f },
+        { "压力", "MPa",  0.0f,   10.0f },
+        { "流量", "m3/h", 0.0f,   50.0f },
+        { "振动", "mm/s", 0.0f,    5.0f },
+    };
+
+    m_channelConfigs.clear();
+    for (int i = 0; i < 4; ++i) {
+        datascope::protocol::ChannelConfigInfo cfg;
+        cfg.index    = static_cast<quint8>(i);
+        cfg.name     = QString::fromUtf8(kDefaults[i].name);
+        cfg.unit     = QString::fromUtf8(kDefaults[i].unit);
+        cfg.rangeMin = kDefaults[i].min;
+        cfg.rangeMax = kDefaults[i].max;
+        m_channelConfigs.append(cfg);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 通道配置上报（V2-执行③）
+// ---------------------------------------------------------------------------
+
+void MonitorPage::onChannelConfigReceived(
+    const QVector<datascope::protocol::ChannelConfigInfo> &channels)
+{
+    // 防御：空配置不生效（保持当前默认/上次配置）
+    if (channels.isEmpty())
+        return;
+
+    // 通道数是否变化决定处理方式：变化 → 重建卡片区；相同 → 逐卡片更新元数据
+    const bool countChanged = channels.size() != m_channels.size();
+    m_channelConfigs = channels;
+
+    if (countChanged) {
+        rebuildChannelArea();
+    } else {
+        for (int i = 0; i < m_channelConfigs.size(); ++i)
+            applyConfigToCard(i);
+    }
+
+    // 量程变化 → 报警规则随之更新（clearRules 防叠加）
+    setupAlarmRules();
 }
 
 bool MonitorPage::isDemoRunning() const
@@ -266,13 +368,16 @@ void MonitorPage::onDemoTick()
 void MonitorPage::onDataUpdated(const QVector<domain::DataPoint> &points)
 {
     // ---- 消费一组采样点：逐点找到对应通道控件组并驱动 ----
-    // 教学点：QVector<DataPoint> 是"批量投递"的载体——比逐点信号槽调用
-    // 更高效（跨线程队列投递一次到达），对应 WPF 里集合批量刷新。
+    // V2-执行③：通道边界与量程统一从配置读取（不再依赖硬编码数组）。
+    const int channelCount = m_channelConfigs.size();
+
     for (const domain::DataPoint &dp : points) {
-        if (dp.channelIndex < 0 || dp.channelIndex >= kChannelCount) {
+        if (dp.channelIndex < 0 || dp.channelIndex >= channelCount) {
             continue; // 防御：越界通道号直接跳过（脏数据进不来）
         }
         ChannelUi &ui = m_channels[dp.channelIndex];
+        const double rangeMax = m_channelConfigs[dp.channelIndex].rangeMax;
+        const QString unit    = m_channelConfigs[dp.channelIndex].unit;
 
         // 1) 曲线追加一个点（内部自动滚动淘汰）
         ui.chart->appendPoint(dp.value);
@@ -280,17 +385,18 @@ void MonitorPage::onDataUpdated(const QVector<domain::DataPoint> &points)
         // 2) 仪表指针指向当前值（越界自动钳制、NaN 保护在控件内）
         ui.gauge->setValue(dp.value);
 
-        // 3) 数值文本：一位小数（如 "50.0"），超量程时追加 "!" 提示
+        // 3) 数值文本：一位小数 + 单位（如 "50.0 ℃"），超量程时追加 "!" 提示
         if (ui.valueLabel) {
-            QString text = QStringLiteral("%1").arg(dp.value, 0, 'f', 1);
-            if (dp.value > m_max[dp.channelIndex]) {
+            QString text = QStringLiteral("%1 %2")
+                .arg(dp.value, 0, 'f', 1).arg(unit);
+            if (dp.value > rangeMax) {
                 text += QStringLiteral(" !"); // 超限标记（值越界但控件已钳制）
             }
             ui.valueLabel->setText(text);
         }
 
-        // 4) LED 报警逻辑：值超量程上限 * alarmRatio → 红（异常），否则绿（正常）
-        const double alarm = m_max[dp.channelIndex] * m_alarmRatio[dp.channelIndex];
+        // 4) LED 报警逻辑：值超量程上限 * kAlarmRatio → 红（异常），否则绿（正常）
+        const double alarm = rangeMax * kAlarmRatio;
         if (dp.value > alarm) {
             ui.led->setColor(QColor(0xe7, 0x4c, 0x3c)); // 报警红
         } else {

@@ -21,6 +21,7 @@
 #include "services/dataservice.h"
 #include "protocol/framebuilder.h"
 #include "protocol/protocoltypes.h"
+#include "protocol/channelconfigcodec.h"
 #include "domain/models.h"
 
 #include <QTcpServer>
@@ -33,6 +34,7 @@ using datascope::services::DataService;
 // ---- 元类型声明（QVariant 需要；与 dataservice.cpp 中的声明一致）----
 Q_DECLARE_METATYPE(datascope::domain::DataPoint)
 Q_DECLARE_METATYPE(QVector<datascope::domain::DataPoint>)
+Q_DECLARE_METATYPE(QVector<datascope::protocol::ChannelConfigInfo>)
 
 namespace {
 /** @brief 把 float 编码为大端 4 字节（与模拟设备帧载荷布局一致） */
@@ -85,6 +87,7 @@ private slots:
     void acquisition_deliversData(); // 采集帧 → dataUpdated + 4 个 DataPoint
     void stopAcquisition_stopsData();// 停止采集 → 不再收到数据
     void disconnect_setsFlagFalse(); // 断开 → isConnected()==false
+    void channelConfig_deliversConfig(); // V2-执行③：设备应答配置帧 → channelConfigReceived
 };
 
 // ================= 初始状态 =================
@@ -192,6 +195,59 @@ void TestDataService::stopAcquisition_stopsData()
     QTest::qWait(300);
 
     QCOMPARE(dataSpy.count(), countBefore);   // 计数不变 = 无新数据
+}
+
+// ================= ⑤ 通道配置链路（V2-执行③）=================
+
+void TestDataService::channelConfig_deliversConfig()
+{
+    // 链路验证：Worker 连接成功后自动发查询帧(0x03/0x01) → 伪设备应答
+    // 0x83 配置帧 → Worker 分流解码 → DataService::channelConfigReceived 转发。
+    QTcpServer server;
+    QPointer<QTcpSocket> peer;
+    const quint16 port = startFakeServer(server, peer);
+    QVERIFY(port != 0);
+
+    // 构造 2 通道配置并编码为应答帧（温度℃0-100 / 压力MPa0-10）
+    QVector<datascope::protocol::ChannelConfigInfo> cfg;
+    datascope::protocol::ChannelConfigInfo ch0;
+    ch0.index = 0; ch0.name = QStringLiteral("温度"); ch0.unit = QStringLiteral("℃");
+    ch0.rangeMin = 0.0f; ch0.rangeMax = 100.0f;
+    datascope::protocol::ChannelConfigInfo ch1;
+    ch1.index = 1; ch1.name = QStringLiteral("压力"); ch1.unit = QStringLiteral("MPa");
+    ch1.rangeMin = 0.0f; ch1.rangeMax = 10.0f;
+    cfg.append(ch0);
+    cfg.append(ch1);
+    const QByteArray resp = datascope::protocol::FrameBuilder::build(
+        datascope::protocol::kFuncQueryResponse,
+        datascope::protocol::kCmdQueryChannels,
+        datascope::protocol::ChannelConfigCodec::encode(cfg));
+
+    DataService svc;
+    QSignalSpy connSpy(&svc, &DataService::connected);
+    QSignalSpy cfgSpy(&svc, &DataService::channelConfigReceived);
+
+    svc.connectTo(QStringLiteral("127.0.0.1"), port);
+    QTRY_COMPARE_WITH_TIMEOUT(connSpy.count(), 1, 2000);
+
+    // 连接建立后 peer 非空：伪设备主动应答配置帧（协议允许设备上报，
+    // 无需等 Worker 的查询帧到达——即使查询帧仍在途，Worker 收到 0x83
+    // 配置帧即分流解码上报，这正是本链路的核心断言点）
+    QVERIFY2(peer, "连接建立后对端 socket 应非空");
+    peer->write(resp);
+    peer->flush();
+
+    // 主线程应收到通道配置（跨线程队列投递 + 元类型注册）
+    QTRY_VERIFY_WITH_TIMEOUT(cfgSpy.count() >= 1, 3000);
+
+    const QVector<datascope::protocol::ChannelConfigInfo> received =
+        cfgSpy.takeFirst().at(0).value<QVector<datascope::protocol::ChannelConfigInfo>>();
+    QCOMPARE(received.size(), 2);
+    QCOMPARE(received[0].name, QStringLiteral("温度"));
+    QCOMPARE(received[0].unit, QStringLiteral("℃"));
+    QVERIFY(qAbs(received[0].rangeMax - 100.0f) < 0.001f);
+    QCOMPARE(received[1].name, QStringLiteral("压力"));
+    QVERIFY(qAbs(received[1].rangeMax - 10.0f) < 0.001f);
 }
 
 // ================= ④ 断开 → isConnected false =================

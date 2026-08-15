@@ -87,12 +87,12 @@ void TestSignalSlotDemo::clock_emitsAfterEventLoop()
     demo.startClock();
 
     // 关键教学点：只 start() 还不够，必须让 Qt 事件循环跑起来。
-    // QTest::qWait(ms) 会临时运行事件循环；QTimer(1000ms) 每秒触发一次，
-    // 等待 1.2 秒应至少收到 1 次 timeTicked。若没收到，说明定时器没跑。
-    QTest::qWait(1200);
-
-    QVERIFY2(spy.count() >= 1,
-             "启动时钟并进入事件循环后，1.2 秒内应收到至少一次 timeTicked");
+    // QSignalSpy::wait(ms) 会在等待期间运行事件循环，并等"timeTicked 信号
+    // 出现"这一确定性事件返回 true——比盲等固定时长(qWait)更稳：
+    // 修复高负载下 QTimer 到期边界与等待窗口错位导致的偶发失败（flaky）。
+    // QTimer(1000ms) 每秒触发一次，2 秒等待窗口充裕。
+    QVERIFY2(spy.wait(2000),
+             "启动时钟并进入事件循环后，应收到至少一次 timeTicked");
 }
 
 QTEST_MAIN(TestSignalSlotDemo)

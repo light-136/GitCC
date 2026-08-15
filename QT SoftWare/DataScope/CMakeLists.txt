@@ -91,9 +91,11 @@ add_library(datascope_protocol STATIC
     src/protocol/framebuilder.h
     src/protocol/frameparser.cpp
     src/protocol/frameparser.h
+    src/protocol/channelconfigcodec.cpp
+    src/protocol/channelconfigcodec.h
 )
 target_include_directories(datascope_protocol PUBLIC ${DS_SRC_DIR})
-target_link_libraries(datascope_protocol PUBLIC Qt5::Core)
+target_link_libraries(datascope_protocol PUBLIC Qt5::Core datascope_utils)
 
 # ============================================================================
 # 2.7) 服务层静态库：datascope_services（P11 TcpClient / P12 DataService+Worker）
@@ -150,6 +152,9 @@ add_executable(DataScope
     src/ui/widgets/gaugewidget.h
     src/ui/widgets/ledindicator.cpp
     src/ui/widgets/ledindicator.h
+    # ---- UI 层：日志面板（V2-执行③：实时日志流展示）----
+    src/ui/widgets/logpanel.cpp
+    src/ui/widgets/logpanel.h
     # ---- 资源（AUTORCC 会把 qss 编译进可执行文件）----
     resources/resources.qrc
 )
@@ -187,16 +192,35 @@ set_target_properties(DataScope PROPERTIES WIN32_EXECUTABLE TRUE)
 ds_deploy_qt(DataScope)
 
 # ============================================================================
-# 2.8) 模拟设备：Simulator（独立可执行程序，P11）
-#    无硬件联调时模拟采集设备：TCP 服务端 + 正弦波数据帧
+# 2.8) 模拟设备库：datascope_simulator（V2：模式 + 异常注入）
+#    独立成库的原因：
+#      - 独立程序 simulator 与集成测试/单测共用同一份"设备行为"；
+#      - FaultInjector 是纯逻辑（无网络），可被单独单测；
+#      - SimulatorDevice 是 QObject 网络层，把"组帧→注入→广播"封装成可复用组件。
+# ============================================================================
+add_library(datascope_simulator STATIC
+    src/simulator/faultinjector.cpp
+    src/simulator/faultinjector.h
+    src/simulator/simulatordevice.cpp
+    src/simulator/simulatordevice.h
+)
+target_include_directories(datascope_simulator PUBLIC ${DS_SRC_DIR})
+target_link_libraries(datascope_simulator PUBLIC
+    Qt5::Core
+    Qt5::Network
+    datascope_protocol
+)
+
+# ============================================================================
+# 2.9) 模拟设备程序：Simulator（独立可执行程序）
+#    V2：命令行配置运行模式/异常注入，作为"测试基础设施"供主机联调
 # ============================================================================
 add_executable(simulator
     src/simulator/main.cpp
 )
 target_include_directories(simulator PRIVATE ${DS_SRC_DIR})
 target_link_libraries(simulator PRIVATE
-    Qt5::Network
-    datascope_protocol
+    datascope_simulator
 )
 ds_deploy_qt(simulator)
 
@@ -324,6 +348,17 @@ target_link_libraries(tst_widgets PRIVATE Qt5::Test Qt5::Widgets)
 ds_deploy_qt(tst_widgets)
 add_test(NAME tst_widgets COMMAND tst_widgets)
 
+# V2-执行③: 日志面板单测（实时上屏/级别过滤/清空/缓冲有界）
+add_executable(tst_logpanel
+    tests/unittests/tst_logpanel.cpp
+    src/ui/widgets/logpanel.cpp
+    src/ui/widgets/logpanel.h
+)
+target_include_directories(tst_logpanel PRIVATE ${DS_SRC_DIR})
+target_link_libraries(tst_logpanel PRIVATE Qt5::Test Qt5::Widgets datascope_infra)
+ds_deploy_qt(tst_logpanel)
+add_test(NAME tst_logpanel COMMAND tst_logpanel)
+
 # P11: TcpClient 单测（回环伪设备验证半包/粘包/连接失败）
 add_executable(tst_tcpclient
     tests/unittests/tst_tcpclient.cpp
@@ -361,3 +396,41 @@ target_include_directories(tst_recordmanager PRIVATE ${DS_SRC_DIR})
 target_link_libraries(tst_recordmanager PRIVATE Qt5::Test Qt5::Core datascope_services)
 ds_deploy_qt(tst_recordmanager)
 add_test(NAME tst_recordmanager COMMAND tst_recordmanager)
+
+# V2: 异常注入器单测（纯逻辑：粘包/分包/CRC/非法帧/延迟/突变 的字节变换）
+add_executable(tst_faultinjector
+    tests/unittests/tst_faultinjector.cpp
+)
+target_include_directories(tst_faultinjector PRIVATE ${DS_SRC_DIR})
+target_link_libraries(tst_faultinjector PRIVATE Qt5::Test datascope_simulator)
+ds_deploy_qt(tst_faultinjector)
+add_test(NAME tst_faultinjector COMMAND tst_faultinjector)
+
+# V2: 模拟设备网络层测试（随机端口 + 真实 TCP 回环 + 模式/异常注入端到端）
+add_executable(tst_simulatordevice
+    tests/unittests/tst_simulatordevice.cpp
+)
+target_include_directories(tst_simulatordevice PRIVATE ${DS_SRC_DIR})
+target_link_libraries(tst_simulatordevice PRIVATE Qt5::Test Qt5::Network datascope_simulator)
+ds_deploy_qt(tst_simulatordevice)
+add_test(NAME tst_simulatordevice COMMAND tst_simulatordevice)
+
+# V2: 通道配置编解码单测（Unit：纯字节编解码 + 边界/脏数据防御）
+add_executable(tst_channelcodec
+    tests/unittests/tst_channelcodec.cpp
+)
+target_include_directories(tst_channelcodec PRIVATE ${DS_SRC_DIR})
+target_link_libraries(tst_channelcodec PRIVATE Qt5::Test datascope_protocol)
+ds_deploy_qt(tst_channelcodec)
+add_test(NAME tst_channelcodec COMMAND tst_channelcodec)
+
+# ============================================================================
+# 4) 集成测试层（Integration：真实组件组装 —— 模拟设备 + TcpClient + 协议）
+# ============================================================================
+add_executable(tst_integration
+    tests/integration/tst_integration.cpp
+)
+target_include_directories(tst_integration PRIVATE ${DS_SRC_DIR})
+target_link_libraries(tst_integration PRIVATE Qt5::Test Qt5::Network datascope_simulator datascope_services)
+ds_deploy_qt(tst_integration)
+add_test(NAME tst_integration COMMAND tst_integration)

@@ -29,6 +29,7 @@ class MonitorPage;   // 监控总览页（P14 填充曲线/仪表）
 class DevicePage;    // 设备管理页（V2：真实设备管理）
 class RecordPage;    // 数据记录与回放页（P15）
 class SettingsPage;  // 设置页（V2：真实配置中心）
+class LogPanel;      // 日志面板（V2-执行③：实时日志流展示）
 } // namespace ui
 
 namespace services {
@@ -80,6 +81,7 @@ private:
     datascope::ui::DevicePage    *m_devicePage = nullptr;
     datascope::ui::RecordPage    *m_recordPage = nullptr;
     datascope::ui::SettingsPage  *m_settingsPage = nullptr;
+    datascope::ui::LogPanel      *m_logPanel = nullptr;  // 日志面板（V2-执行③）
 
     // ---- P12 数据链路（DataService 数据总线）----
     datascope::services::DataService *m_service = nullptr;  // 数据总线

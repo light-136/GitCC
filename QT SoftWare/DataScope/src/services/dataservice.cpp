@@ -30,6 +30,9 @@
 Q_DECLARE_METATYPE(datascope::domain::DataPoint)
 Q_DECLARE_METATYPE(QVector<datascope::domain::DataPoint>)
 
+// V2-执行③：通道配置列表同样跨线程（Worker → DataService）投递，需注册元类型
+Q_DECLARE_METATYPE(QVector<datascope::protocol::ChannelConfigInfo>)
+
 namespace datascope {
 namespace services {
 
@@ -42,6 +45,12 @@ DataService::DataService(QObject *parent)
     // 规范名与注册名一致，否则运行时警告"Don't know how to handle... "。
     qRegisterMetaType<QVector<datascope::domain::DataPoint>>(
         "QVector<datascope::domain::DataPoint>");
+    // 通道配置列表：Worker→DataService 跨线程队列投递。注册裸名/全限定名，
+    // 保证 moc 规范化名与注册名一致（原因同上）。
+    qRegisterMetaType<QVector<datascope::protocol::ChannelConfigInfo>>(
+        "QVector<datascope::protocol::ChannelConfigInfo>");
+    qRegisterMetaType<QVector<datascope::protocol::ChannelConfigInfo>>(
+        "QVector<ChannelConfigInfo>");
     // ---- 创建采集线程与 Worker，并把 Worker 迁到采集线程 ----
     // 教学点：moveToThread 后，Worker 的槽由采集线程事件循环调度；
     // 跨线程调用 connectTo/start 时，参数会被"拷贝"进队列投递。
@@ -58,6 +67,9 @@ DataService::DataService(QObject *parent)
             this,     &DataService::onConnectedChanged);
     connect(m_worker, &AcquisitionWorker::errorOccurred,
             this,     &DataService::connectionError);
+    // V2-执行③：Worker 解码出的通道配置 → 主线程转发（UI 订阅渲染）
+    connect(m_worker, &AcquisitionWorker::channelConfigReceived,
+            this,     &DataService::channelConfigReceived);
 
     m_thread->start();   // 启动采集线程事件循环（Worker 就绪待命）
 }

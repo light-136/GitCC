@@ -25,7 +25,8 @@
 #include <QString>
 #include <QVector>
 
-#include "domain/models.h"   // DataPoint / Channel
+#include "domain/models.h"               // DataPoint / Channel
+#include "protocol/channelconfigcodec.h"  // ChannelConfigInfo（通道配置信号参数）
 
 class QThread;
 class QMutex;
@@ -118,6 +119,13 @@ signals:
 
     /** @brief 采集停止 */
     void acquisitionStopped();
+
+    /**
+     * @brief 通道配置上报（V2-执行③：Worker 解码 0x83 配置帧后主线程转发）
+     * @param channels 设备真实通道配置（名称/单位/量程 —— 监控页数据驱动渲染）
+     */
+    void channelConfigReceived(
+        const QVector<datascope::protocol::ChannelConfigInfo> &channels);
 
 private slots:
     /**
