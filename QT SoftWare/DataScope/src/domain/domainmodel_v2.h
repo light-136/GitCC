@@ -43,6 +43,11 @@
 #include <QVector>
 #include <QtGlobal>
 
+// 将 AlarmEvent 注册为 Qt 元类型：AlarmEngine 的信号以它为参数跨线程/跨队列传递
+// 时必须可被元对象系统识别（对应审查发现"ProtocolFrame 未注册元类型"的预防）
+// 注意：Q_DECLARE_METATYPE 要求类型有 public 默认构造、拷贝构造、析构 —— 均满足
+#include <QMetaType>
+
 namespace datascope {
 namespace domain {
 namespace v2 {
@@ -322,3 +327,7 @@ private:
 } // namespace v2
 } // namespace domain
 } // namespace datascope
+
+// 元类型注册：AlarmEvent 必须能被 QMetaType 识别（信号参数/跨线程传递用）
+// Q_DECLARE_METATYPE 要求参数在全局/父命名空间下完全限定 —— 此处已可解析
+Q_DECLARE_METATYPE(datascope::domain::v2::AlarmEvent)

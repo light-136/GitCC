@@ -110,6 +110,8 @@ add_library(datascope_services STATIC
     src/services/devicecontroller.h
     src/services/recordmanager.cpp
     src/services/recordmanager.h
+    src/services/alarmengine.cpp
+    src/services/alarmengine.h
 )
 target_include_directories(datascope_services PUBLIC ${DS_SRC_DIR})
 target_link_libraries(datascope_services PUBLIC
@@ -288,6 +290,15 @@ target_include_directories(tst_alarmeventmodel PRIVATE ${DS_SRC_DIR})
 target_link_libraries(tst_alarmeventmodel PRIVATE Qt5::Test datascope_domain)
 ds_deploy_qt(tst_alarmeventmodel)
 add_test(NAME tst_alarmeventmodel COMMAND tst_alarmeventmodel)
+
+# V2: 报警引擎单测（边界触发去重/恢复/通道过滤/坏数据跳过）
+add_executable(tst_alarmengine
+    tests/unittests/tst_alarmengine.cpp
+)
+target_include_directories(tst_alarmengine PRIVATE ${DS_SRC_DIR})
+target_link_libraries(tst_alarmengine PRIVATE Qt5::Test datascope_services)
+ds_deploy_qt(tst_alarmengine)
+add_test(NAME tst_alarmengine COMMAND tst_alarmengine)
 
 # P10: 协议引擎单测
 add_executable(tst_protocol
