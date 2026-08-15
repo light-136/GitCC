@@ -21,14 +21,14 @@ class QTabWidget;
 class QLabel;
 class QTimer;
 class QAction;   // 工具栏动作（P12 数据链路控制）
+class QCloseEvent;  // 退出确认（closeEvent 重写）
 
 namespace datascope {
 namespace ui {
 class MonitorPage;   // 监控总览页（P14 填充曲线/仪表）
-class DevicePage;    // 设备管理页（P8/P9 填充设备列表）
+class DevicePage;    // 设备管理页（V2：真实设备管理）
 class RecordPage;    // 数据记录与回放页（P15）
-class SettingsPage;  // 设置页（P7 配置 UI）
-class DemoPage;      // 信号槽演示页（P4 成果 UI 化）
+class SettingsPage;  // 设置页（V2：真实配置中心）
 } // namespace ui
 
 namespace services {
@@ -52,6 +52,12 @@ public:
 
     Q_DISABLE_COPY(MainWindow)
 
+protected:
+    /**
+     * @brief 关闭事件：确认退出（采集运行中强制退出会中断数据，需用户确认）
+     */
+    void closeEvent(QCloseEvent *event) override;
+
 private:
     void buildMenuBar();      // 菜单栏：文件 / 视图 / 帮助
     void buildToolBar();      // 工具栏：连接 / 启动 / 停止（占位）
@@ -60,7 +66,8 @@ private:
     void applyStyleSheet();   // 加载 QSS 深色主题
 
     // ---- P12 数据链路槽 ----
-    void connectDevice();                 // 连接设备(127.0.0.1:40001)并启动采集
+    void connectDevice();                 // 连接设备（默认参数从配置读取）并启动采集
+    void disconnectDevice();              // 断开设备连接（V2：明确断开入口）
     void stopAcquisition();               // 停止采集
     void onServiceConnected();            // 连接成功：更新按钮与状态栏
     void onServiceDisconnected();         // 断开：复位按钮与状态栏
@@ -73,12 +80,12 @@ private:
     datascope::ui::DevicePage    *m_devicePage = nullptr;
     datascope::ui::RecordPage    *m_recordPage = nullptr;
     datascope::ui::SettingsPage  *m_settingsPage = nullptr;
-    datascope::ui::DemoPage      *m_demoPage = nullptr;
 
     // ---- P12 数据链路（DataService 数据总线）----
     datascope::services::DataService *m_service = nullptr;  // 数据总线
     datascope::services::RecordManager *m_recordManager = nullptr;  // 记录/回放（P15）
-    QAction *m_actConnect = nullptr;  // 工具栏：连接设备
+    QAction *m_actConnect = nullptr;    // 工具栏：连接设备
+    QAction *m_actDisconnect = nullptr; // 工具栏：断开设备（V2 新增明确断开入口）
     QAction *m_actStart   = nullptr;  // 工具栏：启动采集
     QAction *m_actStop    = nullptr;  // 工具栏：停止采集
 

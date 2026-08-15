@@ -17,7 +17,7 @@
 #include "ui/pages/devicepage.h"
 #include "ui/pages/recordpage.h"
 #include "ui/pages/settingspage.h"
-#include "ui/pages/demopage.h"
+#include "infrastructure/configmanager.h"  // V2：默认连接参数从配置读取（去硬编码）
 
 #include <QTabWidget>
 #include <QMenuBar>
@@ -27,6 +27,7 @@
 #include <QTimer>
 #include <QAction>
 #include <QKeySequence>
+#include <QCloseEvent>
 #include <QMessageBox>
 #include <QFile>
 #include <QDebug>
@@ -70,6 +71,7 @@ MainWindow::MainWindow(QWidget *parent)
             this, &MainWindow::onServiceError);
 
     connect(m_actConnect, &QAction::triggered, this, &MainWindow::connectDevice);
+    connect(m_actDisconnect, &QAction::triggered, this, &MainWindow::disconnectDevice);
     connect(m_actStart, &QAction::triggered,
             m_service, &datascope::services::DataService::startAcquisition);
     connect(m_actStop, &QAction::triggered, this, &MainWindow::stopAcquisition);
@@ -129,7 +131,12 @@ void MainWindow::buildToolBar()
     // P12：三个动作先创建为成员，信号接线统一放在构造函数"P12 集成段"——
     // 因为连接目标是 m_service（数据总线），须等其创建后再 connect。
     m_actConnect = toolBar->addAction(tr("连接设备"));
-    m_actConnect->setToolTip(tr("连接采集设备（默认 127.0.0.1:40001）"));
+    m_actConnect->setToolTip(tr("连接采集设备（参数从全局配置读取）"));
+
+    // V2：明确的"断开设备"入口（审查 P2"无断开入口"修复）
+    m_actDisconnect = toolBar->addAction(tr("断开设备"));
+    m_actDisconnect->setToolTip(tr("断开当前设备连接"));
+    m_actDisconnect->setEnabled(false);   // 未连接时不可用
 
     m_actStart = toolBar->addAction(tr("启动采集"));
     m_actStart->setToolTip(tr("开始实时采集"));
@@ -154,13 +161,13 @@ void MainWindow::buildCentralTabs()
     m_devicePage   = new datascope::ui::DevicePage(m_service, m_tabs);
     m_recordPage   = new datascope::ui::RecordPage(m_tabs);
     m_settingsPage = new datascope::ui::SettingsPage(m_tabs);
-    m_demoPage     = new datascope::ui::DemoPage(m_tabs);
 
-    m_tabs->addTab(m_monitorPage,  tr("监控总览"));   // P14 实时曲线/仪表
-    m_tabs->addTab(m_devicePage,   tr("设备管理"));   // P8/P9 设备列表与连接
-    m_tabs->addTab(m_recordPage,   tr("数据记录"));   // P15 记录与回放
-    m_tabs->addTab(m_settingsPage, tr("设置"));       // P7 配置 UI
-    m_tabs->addTab(m_demoPage,     tr("信号槽演示")); // P4 成果展示
+    // V2：DemoPage（信号槽演示）移出主界面页签 —— 教学页不该是工业软件的主功能。
+    // 后续随"学习模式"（V2-执行④）作为独立窗口/菜单项提供，不再挤占监控主界面。
+    m_tabs->addTab(m_monitorPage,  tr("监控总览"));   // 实时曲线/仪表/报警中心
+    m_tabs->addTab(m_devicePage,   tr("设备管理"));   // 设备配置/列表/连接控制
+    m_tabs->addTab(m_recordPage,   tr("数据记录"));   // 记录与回放
+    m_tabs->addTab(m_settingsPage, tr("设置"));       // 系统配置中心
 
     setCentralWidget(m_tabs);
 
@@ -176,7 +183,8 @@ void MainWindow::buildCentralTabs()
 // ---------------------------------------------------------------------------
 void MainWindow::buildStatusBar()
 {
-    statusBar()->showMessage(tr("就绪 —— 请在左侧选择功能页签"));
+    // 状态栏文案修正（审查 P2）：页签在顶部，不是左侧；首次启动提示"就绪"
+    statusBar()->showMessage(tr("就绪 —— 请先在设备管理页配置并连接设备"));
 
     // 右侧：连接状态指示 + 时钟（QTimer 每秒刷新，复用 P4 的定时器思路）
     m_connLabel = new QLabel(tr("○ 未连接"), this);
@@ -198,12 +206,34 @@ void MainWindow::buildStatusBar()
 // ---------------------------------------------------------------------------
 void MainWindow::connectDevice()
 {
-    // 连接本机模拟设备（simulator 默认监听 0.0.0.0:40001），随即启动采集。
+    // V2：默认连接参数从全局配置读取（审查 P1"连接参数硬编码"修复），
+    // 不再在代码里写死 127.0.0.1:40001。连接目标可在设备管理页维护，
+    // 此处是"快速连接"入口（工具栏），参数取全局默认值。
+    auto &cfg = datascope::infrastructure::ConfigManager::instance();
+    const QString host = cfg.stringValue(QStringLiteral("device/defaultHost"),
+                                         QStringLiteral("127.0.0.1"));
+    const quint16 port = static_cast<quint16>(
+        cfg.intValue(QStringLiteral("device/defaultPort"), 40001));
+
     // connectTo 是异步的（队列投递到采集线程），结果由 onServiceConnected /
     // onServiceError 通知。
-    statusBar()->showMessage(tr("正在连接 127.0.0.1:40001 ..."));
-    m_service->connectTo(QStringLiteral("127.0.0.1"), 40001);
+    statusBar()->showMessage(tr("正在连接 %1:%2 ...").arg(host).arg(port));
+    m_service->connectTo(host, port);
     m_service->startAcquisition();
+}
+
+void MainWindow::disconnectDevice()
+{
+    // V2：明确的断开入口 —— 停止采集并断开，复位连接状态（审查 P2 修复）
+    m_service->stopAcquisition();
+    m_service->disconnectFromDevice();
+    m_actDisconnect->setEnabled(false);
+    m_actConnect->setEnabled(true);
+    m_actStart->setEnabled(false);
+    m_actStop->setEnabled(false);
+    m_connLabel->setText(tr("○ 未连接"));
+    m_connLabel->setStyleSheet(QStringLiteral("color:#95a5a6;"));
+    statusBar()->showMessage(tr("已断开设备"), 3000);
 }
 
 void MainWindow::stopAcquisition()
@@ -217,6 +247,7 @@ void MainWindow::stopAcquisition()
 void MainWindow::onServiceConnected()
 {
     m_actConnect->setEnabled(false);   // 已连接：禁用"连接"避免重复
+    m_actDisconnect->setEnabled(true); // 已连接：可断开
     m_actStart->setEnabled(true);
     m_actStop->setEnabled(true);
     m_connLabel->setText(tr("● 已连接"));
@@ -227,6 +258,7 @@ void MainWindow::onServiceConnected()
 void MainWindow::onServiceDisconnected()
 {
     m_actConnect->setEnabled(true);
+    m_actDisconnect->setEnabled(false);
     m_actStart->setEnabled(false);
     m_actStop->setEnabled(false);
     m_connLabel->setText(tr("○ 未连接"));
@@ -238,6 +270,8 @@ void MainWindow::onServiceError(const QString &message)
 {
     // 链路错误（连接被拒/超时/解析异常）→ 状态栏红字提示 + 按钮复位
     statusBar()->showMessage(tr("错误：%1").arg(message), 5000);
+    m_actConnect->setEnabled(true);
+    m_actDisconnect->setEnabled(false);
     m_actStart->setEnabled(false);
     m_actStop->setEnabled(false);
     m_connLabel->setText(tr("○ 未连接"));
@@ -272,5 +306,25 @@ void MainWindow::onThemeChanged(const QString &theme)
         // 深色主题：重新加载 QSS 资源
         applyStyleSheet();
         statusBar()->showMessage(tr("已切换深色主题"), 3000);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 退出确认（审查 P2"退出无确认"修复）
+// ---------------------------------------------------------------------------
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    // 采集运行中直接退出会中断数据链路，必须让用户明确确认
+    const QMessageBox::StandardButton ret = QMessageBox::question(
+        this, tr("确认退出"),
+        tr("确定要退出 DataScope Studio 吗？\n运行中的采集将被中断。"),
+        QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::No);   // 默认焦点在"否"：防误触退出
+
+    if (ret == QMessageBox::Yes) {
+        m_service->stopAcquisition();  // 主动停止采集线程（析构还会再兜底）
+        event->accept();
+    } else {
+        event->ignore();
     }
 }
