@@ -47,6 +47,11 @@ MainWindow::MainWindow(QWidget *parent)
     resize(kWindowWidth, kWindowHeight);
 
     applyStyleSheet();     // 先应用主题（页面创建后背景统一）
+
+    // 数据总线必须先于页面创建：DevicePage（V2）构造时需要注入 DataService
+    // 作为连接/断开的驱动源（依赖注入，而非页面内部 new）。
+    m_service = new datascope::services::DataService(this);
+
     buildMenuBar();
     buildToolBar();
     buildCentralTabs();
@@ -55,7 +60,6 @@ MainWindow::MainWindow(QWidget *parent)
     // ---- P12 集成：数据总线接入监控页与工具栏 ----
     // 数据源可替换设计：监控页只认 onDataUpdated(QVector<DataPoint>) 一个入口，
     // P14 演示源 → P12 真实链路，MonitorPage 零改动。
-    m_service = new datascope::services::DataService(this);
     connect(m_service, &datascope::services::DataService::dataUpdated,
             m_monitorPage, &datascope::ui::MonitorPage::onDataUpdated);
     connect(m_service, &datascope::services::DataService::connected,
@@ -141,7 +145,8 @@ void MainWindow::buildCentralTabs()
 
     // 页面对象均挂到 m_tabs 下，由对象树托管生命周期
     m_monitorPage  = new datascope::ui::MonitorPage(m_tabs);
-    m_devicePage   = new datascope::ui::DevicePage(m_tabs);
+    // V2：DevicePage 注入数据总线（设备管理页的连接/断开由它驱动）
+    m_devicePage   = new datascope::ui::DevicePage(m_service, m_tabs);
     m_recordPage   = new datascope::ui::RecordPage(m_tabs);
     m_settingsPage = new datascope::ui::SettingsPage(m_tabs);
     m_demoPage     = new datascope::ui::DemoPage(m_tabs);

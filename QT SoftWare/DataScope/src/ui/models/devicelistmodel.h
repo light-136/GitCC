@@ -116,6 +116,13 @@ public:
     /** @brief 按 id 查找行号（找不到返回 -1） */
     int rowOfId(const datascope::domain::v2::DeviceId &id) const;
 
+    /**
+     * @brief 读取指定行设备信息（只读查询）
+     * @param row 行号
+     * @return 该行 DeviceItem 拷贝；越界返回默认构造（调用方应先判 isValid）
+     */
+    DeviceItem itemAt(int row) const;
+
     /** @brief 清空全部设备 */
     void clear();
 

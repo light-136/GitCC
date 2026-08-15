@@ -153,6 +153,14 @@ int DeviceListModel::rowOfId(const datascope::domain::v2::DeviceId &id) const
     return -1;
 }
 
+DeviceListModel::DeviceItem DeviceListModel::itemAt(int row) const
+{
+    // 越界保护：返回默认构造（id 无效），调用方用 id.isValid() 判读
+    if (row < 0 || row >= m_items.size())
+        return DeviceItem();
+    return m_items.at(row);
+}
+
 void DeviceListModel::clear()
 {
     if (m_items.isEmpty())

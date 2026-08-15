@@ -38,6 +38,7 @@ private slots:
     void setChannelCount_emitsDataChanged();
     void removeDevice_decreasesRowCount();
     void rowOfId_findsById();
+    void itemAt_readsByRow();
     void clear_resetsModel();
     void outOfRange_returnsNull();
 };
@@ -210,6 +211,26 @@ void TestDeviceListModel::rowOfId_findsById()
     QCOMPARE(model.rowOfId(DeviceId(QStringLiteral("DEV-2"))), 1);
     QCOMPARE(model.rowOfId(DeviceId(QStringLiteral("DEV-1"))), 0);
     QCOMPARE(model.rowOfId(DeviceId(QStringLiteral("DEV-999"))), -1);  // 不存在
+}
+
+// ==================== 按行读取 ====================
+
+void TestDeviceListModel::itemAt_readsByRow()
+{
+    DeviceListModel model;
+    model.appendDevice(makeItem(QStringLiteral("DEV-1"), QStringLiteral("设备A"),
+                                ConnectionType::Tcp, DeviceState::Online, 4,
+                                QStringLiteral("127.0.0.1:40001")));
+
+    // 正常行：读到同一台设备（id 是稳定身份）
+    const DeviceListModel::DeviceItem item = model.itemAt(0);
+    QCOMPARE(item.id, DeviceId(QStringLiteral("DEV-1")));
+    QCOMPARE(item.name, QStringLiteral("设备A"));
+    QCOMPARE(item.channelCount, 4);
+
+    // 越界行：返回默认构造（id 无效），调用方据此判读
+    const DeviceListModel::DeviceItem bad = model.itemAt(5);
+    QVERIFY(!bad.id.isValid());
 }
 
 // ==================== 清空 ====================
