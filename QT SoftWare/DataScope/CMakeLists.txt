@@ -64,12 +64,15 @@ target_link_libraries(datascope_infra PUBLIC Qt5::Core)
 # ============================================================================
 # 2.5) 领域模型静态库：datascope_domain（P8：Device/Channel/DataPoint）
 #    独立成库：纯数据模型，只依赖 QtCore；后续 protocol / services / UI 都消费它
+#    V2 增加：领域模型(domainmodel_v2) + Qt Model/View 模型(devicelistmodel)
 # ============================================================================
 add_library(datascope_domain STATIC
     src/domain/models.cpp
     src/domain/models.h
     src/domain/domainmodel_v2.cpp
     src/domain/domainmodel_v2.h
+    src/ui/models/devicelistmodel.cpp
+    src/ui/models/devicelistmodel.h
 )
 target_include_directories(datascope_domain PUBLIC ${DS_SRC_DIR})
 target_link_libraries(datascope_domain PUBLIC Qt5::Core)
@@ -265,6 +268,15 @@ target_include_directories(tst_domain_v2 PRIVATE ${DS_SRC_DIR})
 target_link_libraries(tst_domain_v2 PRIVATE Qt5::Test datascope_domain)
 ds_deploy_qt(tst_domain_v2)
 add_test(NAME tst_domain_v2 COMMAND tst_domain_v2)
+
+# V2: 设备列表模型单测（QAbstractTableModel 行为 + dataChanged 通知）
+add_executable(tst_devicelistmodel
+    tests/unittests/tst_devicelistmodel.cpp
+)
+target_include_directories(tst_devicelistmodel PRIVATE ${DS_SRC_DIR})
+target_link_libraries(tst_devicelistmodel PRIVATE Qt5::Test datascope_domain)
+ds_deploy_qt(tst_devicelistmodel)
+add_test(NAME tst_devicelistmodel COMMAND tst_devicelistmodel)
 
 # P10: 协议引擎单测
 add_executable(tst_protocol
