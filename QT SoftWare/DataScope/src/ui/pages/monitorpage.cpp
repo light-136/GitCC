@@ -21,14 +21,20 @@
 #include "ui/pages/monitorpage.h"
 
 #include "domain/models.h"
+#include "domain/domainmodel_v2.h"      // V2：AlarmEvent/AlarmRule（报警中心接线）
+#include "services/alarmengine.h"       // V2：报警引擎（规则评估）
+#include "ui/models/alarmeventmodel.h"  // V2：报警事件列表模型
 #include "ui/widgets/gaugewidget.h"
 #include "ui/widgets/ledindicator.h"
 #include "ui/widgets/linechartwidget.h"
 
+#include <QAbstractItemView>
 #include <QDateTime>
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QListView>
+#include <QPushButton>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QtMath>   // qSin() 正弦（QElapsedTimer 时间基准）
@@ -49,7 +55,33 @@ MonitorPage::MonitorPage(QWidget *parent)
 {
     // 页签统一命名：供全局 QSS 以 #monitorPage 选择器定位背景/边框
     setObjectName(QStringLiteral("monitorPage"));
-    buildUi();
+
+    // ---- V2 报警中心：引擎/模型先创建（onDataUpdated 依赖它们）----
+    // 报警引擎只做规则评估（无 UI），报警模型只做事件存储（无 UI），
+    // 二者与 View 分离 → 可独立单测（tst_alarmengine / tst_alarmeventmodel）。
+    m_alarmEngine = new datascope::services::AlarmEngine(this);
+    m_alarmModel  = new datascope::ui::models::AlarmEventModel(this);
+    setupAlarmRules();   // 依据通道量程派生报警规则（阈值来自通道配置）
+
+    buildUi();           // 标题 + 4 通道卡片 + 底部报警中心
+
+    // ---- 报警引擎 → 报警中心接线（数据流闭环）----
+    // 触发：新报警事件 → 列表头插（最新在最上方）
+    connect(m_alarmEngine, &datascope::services::AlarmEngine::ruleTriggered,
+            this, [this](const datascope::domain::v2::AlarmEvent &event) {
+                m_alarmModel->appendEvent(event);
+            });
+    // 恢复：值回到正常范围 → 记一条"报警恢复"（Info 级），与报警同列可追溯
+    connect(m_alarmEngine, &datascope::services::AlarmEngine::ruleRecovered,
+            this, [this](int ruleIndex, int channelIndex) {
+                Q_UNUSED(ruleIndex);
+                datascope::domain::v2::AlarmEvent ev(
+                    m_recoverId++, -1, channelIndex,
+                    datascope::domain::v2::AlarmSeverity::Info,
+                    QStringLiteral("通道%1 报警恢复").arg(channelIndex + 1),
+                    QDateTime::currentDateTime());
+                m_alarmModel->appendEvent(ev);
+            });
 
     // ---- 演示数据源：QTimer 定时回调，100ms 产生一组数据 ----
     // 教学点：QTimer + connect(&QTimer::timeout, lambda) 是 Qt 最常见的
@@ -76,6 +108,60 @@ void MonitorPage::buildUi()
     // ---- 4 张通道卡片 ----
     for (int i = 0; i < kChannelCount; ++i) {
         layout->addWidget(buildChannelCard(i), /*stretch=*/1);
+    }
+
+    // ---- V2 底部报警中心（固定高度，不挤压上方卡片）----
+    layout->addWidget(buildAlarmCenter());
+}
+
+QWidget *MonitorPage::buildAlarmCenter()
+{
+    // 报警中心面板：标题 + 报警列表 + "确认全部报警"按钮
+    auto *panel = new QFrame(this);
+    panel->setObjectName(QStringLiteral("alarmPanel"));  // QSS 定位报警区边框
+
+    auto *col = new QVBoxLayout(panel);
+    col->setContentsMargins(8, 4, 8, 4);
+    col->setSpacing(4);
+
+    // 标题行：标题 + 清除按钮（右对齐）
+    auto *titleRow = new QHBoxLayout;
+    auto *titleLabel = new QLabel(tr("报警中心"), panel);
+    titleLabel->setObjectName(QStringLiteral("alarmTitle"));
+    titleRow->addWidget(titleLabel);
+    titleRow->addStretch(1);
+
+    auto *clearBtn = new QPushButton(tr("确认全部"), panel);
+    clearBtn->setFixedWidth(96);
+    titleRow->addWidget(clearBtn);
+    col->addLayout(titleRow);
+
+    // 报警列表（QListView + AlarmEventModel：最新报警在上方，滚动展示）
+    m_alarmList = new QListView(panel);
+    m_alarmList->setModel(m_alarmModel);
+    m_alarmList->setSelectionMode(QAbstractItemView::NoSelection);  // 只读展示
+    m_alarmList->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_alarmList->setFixedHeight(130);  // 固定高度：报警中心是辅助区，不抢监控主区
+    col->addWidget(m_alarmList);
+
+    // "确认全部" → 清空列表（报警记录不删除，确认后视觉收敛）
+    connect(clearBtn, &QPushButton::clicked, m_alarmModel, &datascope::ui::models::AlarmEventModel::clear);
+
+    return panel;
+}
+
+void MonitorPage::setupAlarmRules()
+{
+    // 依据当前通道量程派生报警规则：每通道"超过 量程上限 × 报警比例"触发
+    // 阈值来自通道配置（m_max × m_alarmRatio），描述可读（"通道N 值超限"）。
+    // 后续通道配置改为模型驱动后，本函数改为从真实 ChannelConfig 派生。
+    for (int i = 0; i < kChannelCount; ++i) {
+        datascope::domain::v2::AlarmRule rule;
+        rule.channelIndex = i;
+        rule.condition    = datascope::domain::v2::AlarmCondition::AboveHigh;
+        rule.threshold    = m_max[i] * m_alarmRatio[i];
+        rule.description  = QStringLiteral("通道%1 值超限").arg(i + 1);
+        m_alarmEngine->addRule(rule);
     }
 }
 
@@ -210,6 +296,16 @@ void MonitorPage::onDataUpdated(const QVector<domain::DataPoint> &points)
         } else {
             ui.led->setColor(QColor(0x16, 0xa0, 0x85)); // 正常绿（工程主色）
         }
+
+        // 5) V2 报警引擎：V1 数据点 → V2 DataPoint → 规则评估。
+        //    触发/恢复由引擎内部去重判定，信号驱动报警中心更新。
+        datascope::domain::v2::DataPoint v2dp;
+        v2dp.channelIndex = dp.channelIndex;
+        v2dp.rawValue     = dp.value;
+        v2dp.engValue     = dp.value;   // 当前无工程换算：工程值 = 原始值
+        v2dp.quality      = datascope::domain::v2::DataQuality::Good;
+        v2dp.timestamp    = dp.timestamp;
+        m_alarmEngine->evaluate(v2dp);
     }
 }
 

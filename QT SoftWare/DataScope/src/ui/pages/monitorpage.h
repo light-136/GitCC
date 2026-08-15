@@ -31,8 +31,9 @@
 // 前向声明：减少头文件依赖，加快编译
 // 注意：QTimer / QLabel 是 Qt 全局类，必须在全局命名空间声明；
 // 而自绘控件是工程类（datascope::ui），在命名空间内声明。
-class QTimer;  // 演示数据源定时器（P12 后改为真实 DataService 驱动）
+class QTimer;      // 演示数据源定时器（P12 后改为真实 DataService 驱动）
 class QLabel;
+class QListView;   // 报警中心列表（V2 报警中心接线）
 
 namespace datascope {
 namespace domain {
@@ -41,7 +42,14 @@ struct DataPoint;
 } // namespace datascope
 
 namespace datascope {
+namespace services {
+class AlarmEngine;   // V2 报警引擎（服务层：评估规则产生报警事件）
+} // namespace services
+
 namespace ui {
+namespace models {
+class AlarmEventModel;  // V2 报警事件列表模型（报警中心数据源）
+} // namespace models
 
 class LineChartWidget;
 class GaugeWidget;
@@ -95,10 +103,24 @@ private:
     };
 
     /**
-     * @brief 构建本页 UI：标题 + 4 张通道卡片
+     * @brief 构建本页 UI：标题 + 4 张通道卡片 + 底部报警中心
      * @note 布局、父子层级、objectName 都在这里集中构建，方便阅读
      */
     void buildUi();
+
+    /**
+     * @brief 构建底部报警中心（标题 + QListView + 确认全部按钮）
+     * @note 报警中心数据流：onDataUpdated → AlarmEngine.evaluate →
+     *       ruleTriggered/ruleRecovered → AlarmEventModel.appendEvent → QListView 展示
+     */
+    QWidget *buildAlarmCenter();
+
+    /**
+     * @brief 依据当前通道量程派生报警规则并注入 AlarmEngine
+     * @note 规则源：每通道"超过量程上限×报警比例"触发（阈值来自通道配置，
+     *       后续通道配置改为模型驱动时，规则随之由真实配置派生）
+     */
+    void setupAlarmRules();
 
     /**
      * @brief 构建单张通道卡片（第 i 通道的曲线/仪表/LED/数值）
@@ -130,6 +152,12 @@ private:
     double m_alarmRatio[kChannelCount]= { 0.85, 0.85, 0.85, 0.85 }; ///< 报警阈值（相对量程上限）
 
     ChannelUi m_channels[kChannelCount];    ///< 每通道控件组
+
+    // ---- V2 报警中心（审查 P1"无报警区域"落地修复）----
+    datascope::services::AlarmEngine *m_alarmEngine = nullptr;   ///< 报警引擎（规则评估）
+    datascope::ui::models::AlarmEventModel *m_alarmModel = nullptr; ///< 报警事件列表模型
+    QListView  *m_alarmList = nullptr;   ///< 报警中心列表视图
+    quint64    m_recoverId = 1;          ///< 恢复事件的 id（与报警事件 id 区分）
 };
 
 } // namespace ui
