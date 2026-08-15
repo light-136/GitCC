@@ -1,0 +1,35 @@
+// 由 CMake configure_file 从 src/version.rc.in 生成，禁止手工修改。
+// Windows PE 版本资源：版本号唯一来源是 CMakeLists.txt 的 project(VERSION)。
+// 说明：FileVersion / ProductVersion 用 @PROJECT_VERSION@ 自动传播，与
+//       version.h 的 V3_VERSION_STRING、QCoreApplication::setApplicationVersion 三者一致。
+// 说明：描述字段刻意用纯 ASCII（windres 对 UTF-8 中文支持不稳定，避免编码坑）。
+
+#include <windows.h>
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION     @V3_VERSION_RC_COMMA@
+ PRODUCTVERSION  @V3_VERSION_RC_COMMA@
+ FILEFLAGSMASK   0x3fL
+ FILEFLAGS       0x0L
+ FILEOS          VOS_NT_WINDOWS32
+ FILETYPE        VFT_APP
+ FILESUBTYPE     0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "CompanyName",      "DataScope Studio"
+            VALUE "FileDescription",  "DataScope Studio V3 - Industrial Multi-channel Data Acquisition"
+            VALUE "FileVersion",      "@PROJECT_VERSION@"
+            VALUE "InternalName",     "@V3_RC_INTERNAL_NAME@"
+            VALUE "OriginalFilename", "@V3_RC_ORIGINAL_FILENAME@"
+            VALUE "ProductName",      "DataScope Studio"
+            VALUE "ProductVersion",   "@PROJECT_VERSION@"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END

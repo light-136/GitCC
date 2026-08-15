@@ -1,0 +1,5 @@
+// 由 CMake configure_file 从 src/version.h.in 生成，禁止手工修改。
+// 版本号唯一来源是 CMakeLists.txt 的 project(VERSION)。
+#pragma once
+
+#define V3_VERSION_STRING "@PROJECT_VERSION@"

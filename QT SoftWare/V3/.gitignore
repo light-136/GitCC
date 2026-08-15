@@ -1,0 +1,28 @@
+# =============================================================================
+# DataScope Studio V3 —— 忽略构建与发布产物（DoD R6：deploy/ 二进制不入库）
+# =============================================================================
+
+# 构建目录（Debug / Release）
+build/
+build_release/
+
+# 发布目录（windeployqt 部署的 exe + DLL + 插件，产物不入库）
+deploy/
+
+# 编译中间产物
+*.obj
+*.o
+*.pdb
+*.ilk
+
+# 运行时日志（Logger 落盘在 exe 同目录 logs/）
+logs/
+*.log
+
+# 发布包（可随时由 scripts/release.ps1 重新生成，产物不入库）
+DataScope-*.zip
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+Thumbs.db
