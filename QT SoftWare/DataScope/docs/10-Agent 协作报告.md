@@ -35,7 +35,7 @@
 | UI 页面 | UI Agent | MonitorPage、DevicePage、RecordPage、SettingsPage、DemoPage |
 | 自绘控件 | 主 Agent | LineChartWidget、GaugeWidget、LedIndicator |
 | 记录回放 | 主 Agent | RecordManager + RecordPage 接线（P15） |
-| 单元测试 | 主 Agent（独立于开发） | 12 个 tst_*.cpp 套件 |
+| 单元测试 | 主 Agent（独立于开发） | 21 个 tst_*.cpp 套件（V2 后） |
 | 文档撰写 | 文档 Agent ×5 | 00/01/02/03/05/06/07 + stages/P01~P15 |
 | 契约文档 | 契约 Agent | contracts/03/05/06/07（源码注释引用） |
 | 发布部署 | 主 Agent | windeployqt 发布包、免安装交付 |
@@ -88,6 +88,6 @@ MonitorPage 只暴露一个数据入口 `onDataUpdated(QVector<DataPoint>)`：
 
 ## 七、结语
 
-多 Agent 协作在本项目中的价值是**让"串行依赖"与"并行吞吐"并存**：依赖链（协议→网络→线程→UI）严格串行保正确性，无依赖面（UI 页面、文档、契约）充分并行保效率。配合接口契约与集成冻结，最终实现"12/12 测试全绿 + 全套文档 + 免安装发布包"的完整交付。
+多 Agent 协作在本项目中的价值是**让"串行依赖"与"并行吞吐"并存**：依赖链（协议→网络→线程→UI）严格串行保正确性，无依赖面（UI 页面、文档、契约）充分并行保效率。配合接口契约与集成冻结，V1 实现"12/12 测试全绿 + 全套文档 + 免安装发布包"，V2 后扩至"21/21 测试全绿 + 分层测试体系 + 学习体系 + 免安装发布包"的完整交付。
 
 *协作报告完。*
