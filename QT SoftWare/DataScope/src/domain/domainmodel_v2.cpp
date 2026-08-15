@@ -153,6 +153,47 @@ void AlarmEvent::clear()
     }
 }
 
+/* ==================== Device 聚合根 ==================== */
+
+bool Device::transitionTo(DeviceState newState)
+{
+    // 合法转移校验：非法转移拒绝并保持原状态（不变量内聚在领域层）
+    if (!canTransition(m_state, newState))
+        return false;
+    m_state = newState;
+    return true;
+}
+
+void Device::upsertChannel(const ChannelConfig &cfg)
+{
+    // 通道号唯一：存在同 index 则覆盖，否则追加
+    // 设计思路：硬件通道数固定（如 8 通道），"重复下发改通道配置"是常见操作，
+    // 用 upsert 语义保证配置不会因为重复下发而越积越多
+    for (int i = 0; i < m_channels.size(); ++i) {
+        if (m_channels.at(i).index == cfg.index) {
+            m_channels[i] = cfg;
+            return;
+        }
+    }
+    m_channels.append(cfg);
+}
+
+bool Device::removeChannel(int index)
+{
+    for (int i = 0; i < m_channels.size(); ++i) {
+        if (m_channels.at(i).index == index) {
+            m_channels.removeAt(i);
+            return true;
+        }
+    }
+    return false;  // 通道不存在：no-op
+}
+
+void Device::clearChannels()
+{
+    m_channels.clear();
+}
+
 /* ==================== AcquisitionRecord ==================== */
 
 AcquisitionRecord AcquisitionRecord::begin(const QString &sessionId)

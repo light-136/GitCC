@@ -34,6 +34,7 @@ using datascope::domain::v2::ConnectionType;
 using datascope::domain::v2::DeviceId;
 using datascope::domain::v2::DeviceState;
 using datascope::domain::v2::canTransition;
+using datascope::domain::v2::Device;
 
 class TestDomainV2 : public QObject
 {
@@ -64,6 +65,11 @@ private slots:
     // ---- AlarmEvent ----
     void alarmEvent_lifecycle();
     void alarmEvent_ackIdempotent();
+
+    // ---- Device 聚合根 ----
+    void device_initialState_andConfig();
+    void device_transition_enforcesStateMachine();
+    void device_channelUpsert_uniqueIndex();
 
     // ---- AcquisitionRecord ----
     void record_beginEndLifecycle();
@@ -269,6 +275,85 @@ void TestDomainV2::alarmEvent_ackIdempotent()
     ev.ack(t1);
     ev.ack(t2);  // 第二次不应覆盖第一次
     QCOMPARE(ev.ackTime(), t1);
+}
+
+// ==================== Device 聚合根 ====================
+
+void TestDomainV2::device_initialState_andConfig()
+{
+    // 新设备：未连接、空名称、无连接参数、无通道
+    const Device dev(DeviceId::create());
+    QCOMPARE(dev.state(), DeviceState::Disconnected);
+    QVERIFY(dev.name().isEmpty());
+    QCOMPARE(dev.channelCount(), 0);
+
+    // 写名称/连接参数：读回一致
+    Device dev2(DeviceId::create());
+    dev2.setName(QStringLiteral("主站-01"));
+    QCOMPARE(dev2.name(), QStringLiteral("主站-01"));
+
+    ConnectionParams params;
+    params.host = QStringLiteral("127.0.0.1");
+    params.port = 40001;
+    dev2.setConnection(params);
+    QVERIFY(dev2.connection().isValid());
+    QCOMPARE(dev2.connection().port, quint16(40001));
+}
+
+void TestDomainV2::device_transition_enforcesStateMachine()
+{
+    Device dev(DeviceId::create());
+
+    // 合法路径：未连接→连接中→已连接
+    QVERIFY(dev.transitionTo(DeviceState::Connecting));
+    QCOMPARE(dev.state(), DeviceState::Connecting);
+    QVERIFY(dev.transitionTo(DeviceState::Online));
+    QCOMPARE(dev.state(), DeviceState::Online);
+
+    // 非法转移被拒绝且状态不变：已连接不能直接回连接中
+    QVERIFY(!dev.transitionTo(DeviceState::Connecting));
+    QCOMPARE(dev.state(), DeviceState::Online);
+
+    // 已连接→出错（意外断线）→未连接（用户断开）
+    QVERIFY(dev.transitionTo(DeviceState::Error));
+    QCOMPARE(dev.state(), DeviceState::Error);
+    QVERIFY(dev.transitionTo(DeviceState::Disconnected));
+    QCOMPARE(dev.state(), DeviceState::Disconnected);
+}
+
+void TestDomainV2::device_channelUpsert_uniqueIndex()
+{
+    Device dev(DeviceId::create());
+
+    ChannelConfig ch0;
+    ch0.index = 0;
+    ch0.name  = QStringLiteral("温度");
+    ch0.unit  = QStringLiteral("℃");
+    dev.upsertChannel(ch0);
+    QCOMPARE(dev.channelCount(), 1);
+
+    ChannelConfig ch1;
+    ch1.index = 1;
+    ch1.name  = QStringLiteral("压力");
+    ch1.unit  = QStringLiteral("kPa");
+    dev.upsertChannel(ch1);
+    QCOMPARE(dev.channelCount(), 2);
+
+    // 同 index 重新下发：覆盖不追加（通道号唯一）
+    ChannelConfig ch0b = ch0;
+    ch0b.name = QStringLiteral("温度-修正");
+    dev.upsertChannel(ch0b);
+    QCOMPARE(dev.channelCount(), 2);
+
+    // 移除通道：存在则移除
+    QVERIFY(dev.removeChannel(0));
+    QCOMPARE(dev.channelCount(), 1);
+    // 移除不存在的通道：no-op
+    QVERIFY(!dev.removeChannel(99));
+
+    // 清空
+    dev.clearChannels();
+    QCOMPARE(dev.channelCount(), 0);
 }
 
 // ==================== AcquisitionRecord ====================

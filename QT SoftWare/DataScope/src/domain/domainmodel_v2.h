@@ -206,6 +206,64 @@ struct DataPoint
 };
 
 /* ============================================================================
+ * 六.五、Device —— 设备聚合根（实体，有身份/状态/配置）
+ * ============================================================================
+ * 设计思路：V1 的 Device 是纯 getter/setter 容器，V2 把设备建模为聚合根：
+ *   1. 有身份（DeviceId）、有状态（DeviceState）、有配置（ConnectionParams）、
+ *      有通道集合（QVector<ChannelConfig>）；
+ *   2. 状态转移必须过 canTransition() 校验 —— 调用方无法把设备推进非法状态
+ *      （如未连接直接变"已连接"）；
+ *   3. 连接参数生效前必须 isValid() —— 配置不完整不能进入 Online。
+ * 这是"设备管理页 + 设备导航 + 状态展示"等 UI 的共同数据源（阶段 E 接线）。
+ */
+class Device
+{
+public:
+    /** @brief 默认构造：一台未连接的空设备 */
+    Device() = default;
+
+    /** @brief 用 id 构造（名称默认空，随后 setName） */
+    explicit Device(const DeviceId &id) : m_id(id) {}
+
+    // ---- 只读 ----
+    const DeviceId &id() const               { return m_id; }
+    QString name() const                     { return m_name; }
+    DeviceState state() const                { return m_state; }
+    const ConnectionParams &connection() const { return m_conn; }
+    const QVector<ChannelConfig> &channels() const { return m_channels; }
+    int channelCount() const                 { return m_channels.size(); }
+
+    // ---- 写操作（均带不变量校验） ----
+
+    void setName(const QString &name)        { m_name = name; }
+
+    /** @brief 设置连接参数（不校验；校验发生在连接动作处） */
+    void setConnection(const ConnectionParams &params) { m_conn = params; }
+
+    /**
+     * @brief 推进状态（带合法转移校验）
+     * @return true 转移成功；false 非法转移（状态不变）
+     */
+    bool transitionTo(DeviceState newState);
+
+    /** @brief 添加通道配置（同 index 重复时覆盖，保证通道号唯一） */
+    void upsertChannel(const ChannelConfig &cfg);
+
+    /** @brief 移除指定 index 的通道 */
+    bool removeChannel(int index);
+
+    /** @brief 清空全部通道 */
+    void clearChannels();
+
+private:
+    DeviceId   m_id;                 ///< 设备唯一标识
+    QString    m_name;               ///< 设备名称
+    DeviceState m_state = DeviceState::Disconnected; ///< 连接状态（初始未连接）
+    ConnectionParams m_conn;         ///< 连接参数
+    QVector<ChannelConfig> m_channels; ///< 通道配置集合
+};
+
+/* ============================================================================
  * 七、AlarmCondition / AlarmRule —— 报警规则（值类型）
  * ============================================================================
  * 设计思路：V1 的"报警"只是 monitorpage 里 value > max*0.85 一行内联代码，
